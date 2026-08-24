@@ -5,7 +5,8 @@ namespace TCGCardShopSimModManager.Core;
 internal enum RecoveryKind
 {
     Deployment,
-    Pack
+    Pack,
+    PackSwitch
 }
 
 internal sealed record RecoveryFile(string Path, string? BackupFile);
@@ -74,6 +75,26 @@ internal sealed class DurableRecoveryTransaction : IDisposable
             journal,
             packJournal,
             packId,
+            paths);
+    }
+
+    public static DurableRecoveryTransaction CapturePackSwitch(string gameFolderPath)
+    {
+        var journal = new JournalStore(gameFolderPath).Load();
+        var packJournal = new ModpackJournalStore(gameFolderPath).Load();
+        var paths = journal
+            .Where(entry => !string.IsNullOrWhiteSpace(entry.PackId))
+            .SelectMany(entry => entry.Files)
+            .Select(file => ExistingPath(file.Path, gameFolderPath))
+            .Where(path => path is not null)
+            .Select(path => path!);
+
+        return Capture(
+            gameFolderPath,
+            RecoveryKind.PackSwitch,
+            journal,
+            packJournal,
+            packId: null,
             paths);
     }
 
@@ -151,6 +172,8 @@ internal sealed class DurableRecoveryTransaction : IDisposable
         var errors = new List<string>();
         if (_state.Kind == RecoveryKind.Pack)
             DeleteCurrentPackFiles(errors);
+        else if (_state.Kind == RecoveryKind.PackSwitch)
+            DeleteCurrentHostedPackFiles(errors);
 
         foreach (var file in _state.Files.AsEnumerable().Reverse())
         {
@@ -269,6 +292,27 @@ internal sealed class DurableRecoveryTransaction : IDisposable
         catch (Exception ex)
         {
             errors.Add($"Could not inspect the changed pack files: {ex.Message}");
+        }
+    }
+
+    private void DeleteCurrentHostedPackFiles(List<string> errors)
+    {
+        try
+        {
+            var entries = new JournalStore(_gameFolderPath).Load()
+                .Where(entry => !string.IsNullOrWhiteSpace(entry.PackId));
+            foreach (var file in entries.SelectMany(entry => entry.Files))
+            {
+                if (file.PreserveOnUninstall)
+                    continue;
+                TryDelete(file.Path, errors);
+                if (DisabledPath(file.Path, _gameFolderPath) is { } disabledPath)
+                    TryDelete(disabledPath, errors);
+            }
+        }
+        catch (Exception ex)
+        {
+            errors.Add($"Could not inspect the changed hosted-pack files: {ex.Message}");
         }
     }
 

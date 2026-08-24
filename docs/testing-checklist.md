@@ -153,8 +153,21 @@ unit test already covers it, **[manual]** where it needs a real environment.
 - [x] **[auto]** A newer published version is flagged, an equal/older one is not
       (`ModpackVersion_IsNewer_Cases`, `UpdateDetection_FlagsNewerPublishedVersion`).
 - [ ] **[manual]** Install a pack, then bump `version` in `index.json`; the card
-      shows "Update available" and the button reads "Update". Running it should
-      not corrupt the existing install.
+      shows the green update banner and the button reads **Install update**.
+      Running it should not corrupt the existing install.
+- [x] **[auto]** Installing a second hosted pack is refused unless the caller
+      explicitly requests a switch. A switch retains an unchanged shared mod,
+      removes old-only mods, installs new-only mods and transfers journal
+      ownership (`ModpackInstaller_RefusesDifferentPackWithoutExplicitSwitch`,
+      `ModpackInstaller_SwitchRetainsMatchingModsAndRemovesUnusedMods`).
+- [x] **[auto]** A failed pack switch restores the original files and both
+      journals (`ModpackInstaller_FailedSwitchRestoresOriginalPack`).
+- [ ] **[manual]** With one pack installed, confirm its card and the Browse
+      header show its name and version. Open another pack, cancel the switch
+      warning once, then complete the switch and confirm the gallery identifies
+      only the new pack.
+- [ ] **[manual]** Use the persistent **Launch game** button from each page and
+      confirm Steam starts TCG Card Shop Simulator.
 - [ ] **[manual]** During a large hosted install, move and resize the desktop
       window and confirm it remains responsive. Confirm the current mod, file
       number, transferred bytes, progress bar and download speed update until

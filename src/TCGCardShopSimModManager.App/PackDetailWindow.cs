@@ -27,6 +27,7 @@ public sealed class PackDetailWindow : Window
     private readonly ModpackIndexReader _reader;
     private readonly HttpClient _http;
     private readonly InstalledModpack? _installedPack;
+    private readonly InstalledModpack? _activePack;
     private readonly string? _installedGameBuildId;
     private readonly ProgressBar _progress = new() { Minimum = 0, Maximum = 100, IsVisible = false };
     private readonly TextBlock _progressStatus = new() { TextWrapping = TextWrapping.Wrap, IsVisible = false };
@@ -69,13 +70,15 @@ public sealed class PackDetailWindow : Window
         HttpClient http,
         ModpackIndexReader reader,
         InstalledModpack? installedPack = null,
-        string? installedGameBuildId = null)
+        string? installedGameBuildId = null,
+        InstalledModpack? activePack = null)
     {
         _pack = pack;
         _gameFolder = gameFolder;
         _http = http;
         _reader = reader;
         _installedPack = installedPack;
+        _activePack = activePack;
         _installedGameBuildId = installedGameBuildId;
         Title = pack.Name;
         Width = 560;
@@ -177,6 +180,14 @@ public sealed class PackDetailWindow : Window
             RefreshOptionalSummary();
             RefreshNexusAccess();
             RefreshInstallAvailability();
+            var switching = _activePack is not null && !_pack.IsId(_activePack.PackId);
+            _install.Content = switching
+                ? $"Switch from {_activePack!.Name}"
+                : _installedPack is not null
+                    ? ModpackVersion.IsNewer(_installedPack.PackVersion, _pack.Version)
+                    ? "Install update"
+                    : "Reinstall modpack"
+                    : "Install modpack";
             if (string.IsNullOrWhiteSpace(_gameFolder))
                 _status.Text = "Set the game folder on the Manage tab first.";
         }
@@ -292,6 +303,15 @@ public sealed class PackDetailWindow : Window
         if (!await confirmation.ShowDialog<bool>(this))
             return;
 
+        var switching = _activePack is not null && !_pack.IsId(_activePack.PackId);
+        if (switching)
+        {
+            var switchConfirmation = new ModpackSwitchConfirmationWindow(
+                _activePack!.Name, _pack.Name);
+            if (!await switchConfirmation.ShowDialog<bool>(this))
+                return;
+        }
+
         _progress.IsVisible = true;
         _progressStatus.IsVisible = true;
         _downloadStats.IsVisible = true;
@@ -313,7 +333,8 @@ public sealed class PackDetailWindow : Window
             var report = await Task.Run(() => new ModpackInstaller(_gameFolder, _http)
                 .InstallAsync(_manifest, fallback, pack: _pack,
                     selectedOptionalIds: selectedOptionalIds,
-                    progress: progress));
+                    progress: progress,
+                    switchInstalledPack: switching));
             _status.Text = report.Success
                 ? $"Installed {_pack.Name}."
                 : "Install did not complete: " +

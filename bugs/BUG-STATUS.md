@@ -294,15 +294,23 @@ boundaries were fixed before work continued on application-state defects.
   order under the game lock and uses the durable pack snapshot to restore an
   earlier removal if a later mod is modified or another failure occurs. Covered
   by successful full-pack and rollback regressions.
+- **BUG-087 — installed pack state and updates are easy to miss (Medium,
+  fixed):** the Browse page now names the installed pack and version, with a
+  green card banner for a newer published pack version. Core refuses an
+  accidental second hosted-pack install. The explicit desktop switch retains
+  shared mod ids, removes old-only entries, installs the destination selection
+  and restores the original files and journals if any stage fails. A persistent
+  navigation button launches the game through Steam. Covered by second-pack,
+  successful-switch and failed-switch regressions.
 
 ## Summary
 | Severity | Open | Fixed |
 |----------|------|-------|
 | Critical | 0 | 3 |
 | High     | 0 | 32 |
-| Medium   | 0 | 40 |
+| Medium   | 0 | 41 |
 | Low      | 0 | 11 |
-| **Total**| **0** | **86** |
+| **Total**| **0** | **87** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

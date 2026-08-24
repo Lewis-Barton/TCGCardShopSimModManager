@@ -26,8 +26,13 @@ Browse the hosted modpack gallery, use its filters to find a pack, and open a
 card to review required and optional mods before installing it. The app confirms
 your optional choices and shows per-download progress and speed during the
 install. Packs that download from Nexus prompt for sign-in or a personal API key
-before installation can begin. An installed pack can also be uninstalled as one
-journal-backed operation from its details window. The **Manage mods** page lets
+before installation can begin. The gallery identifies the installed pack and
+shows a green banner when its published pack version changes. Only one hosted
+pack can be installed at a time; choosing another offers a transactional switch
+that keeps matching shared mods, removes old-only mods and restores the original
+pack if the change cannot finish. An installed pack can also be uninstalled as
+one journal-backed operation from its details window. The persistent **Launch
+game** button starts the game through Steam. The **Manage mods** page lets
 you choose the game folder, inspect installed and manually placed mods, and
 enable, disable or uninstall managed mods. Nexus sign-in and update checks live
 under **Settings**. The CLI retains the local manifest validation, planning and
@@ -169,6 +174,12 @@ replaces or removes only files that still match its previous journal and refuses
 the update if a managed file has been changed by hand. Older journal files do
 not contain stable ids or archive hashes; they remain readable and are upgraded
 when the matching mod is next installed.
+
+Hosted-pack update notices compare the installed pack version with the catalog
+whenever the app starts or the gallery is refreshed. Individual Nexus files are
+not followed automatically: the hosted manifest pins a reviewed Nexus file id
+and SHA-256 hash, so an upstream mod update becomes available only after the pack
+author publishes a new pack version.
 
 ## Installation layout rules
 

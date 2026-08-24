@@ -34,7 +34,8 @@ public sealed class ModpackInstaller
         CancellationToken cancellationToken = default,
         IEnumerable<string>? selectedOptionalIds = null,
         IProgress<ModpackInstallProgress>? progress = null,
-        string? verifiedCacheDirectory = null)
+        string? verifiedCacheDirectory = null,
+        bool switchInstalledPack = false)
     {
         manifest = EnforceBepInExFirst(manifest);
         var validation = new ManifestValidator().Validate(manifest);
@@ -65,6 +66,10 @@ public sealed class ModpackInstaller
 
         if (pack is not null)
         {
+            var otherPacks = InstalledPacksExcept(pack.Id);
+            if (otherPacks.Count > 0 && !switchInstalledPack)
+                return DifferentPackInstalled(otherPacks);
+
             manifest = manifest with
             {
                 Mods = manifest.Mods
@@ -157,16 +162,48 @@ public sealed class ModpackInstaller
             using (operation)
             {
                 PackInstallSnapshot? snapshot = null;
+                DurableRecoveryTransaction? switchTransaction = null;
                 try
                 {
-                    if (pack is not null)
+                    var otherPacks = pack is null ? new List<InstalledModpack>() : InstalledPacksExcept(pack.Id);
+                    if (otherPacks.Count > 0 && !switchInstalledPack)
+                        return DifferentPackInstalled(otherPacks);
+
+                    if (otherPacks.Count > 0)
+                    {
+                        switchTransaction = DurableRecoveryTransaction.CapturePackSwitch(_gameFolderPath);
+                        var targetIds = manifest.Mods.Select(mod => mod.Id)
+                            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                        var oldEntries = new JournalStore(_gameFolderPath).Load()
+                            .Where(entry => otherPacks.Any(old => old.PackId.Equals(
+                                entry.PackId, StringComparison.OrdinalIgnoreCase)))
+                            .Where(entry => string.IsNullOrWhiteSpace(entry.ModId) || !targetIds.Contains(entry.ModId))
+                            .Reverse()
+                            .ToList();
+                        var oldInstaller = new ModInstaller(
+                            _gameFolderPath, disabledRoot: null, operationLockHeld: true);
+                        foreach (var entry in oldEntries)
+                        {
+                            var uninstall = oldInstaller.Uninstall(entry.ModName);
+                            if (!uninstall.Success)
+                            {
+                                var lines = new List<string>
+                                    { $"Could not remove {entry.ModName} while switching modpacks: {uninstall.Error}" };
+                                AddRollbackResult(lines, switchTransaction.Rollback());
+                                return DeploymentReport.Failure(lines, null);
+                            }
+                        }
+                    }
+                    else if (pack is not null)
                         snapshot = PackInstallSnapshot.Capture(_gameFolderPath, pack.Id);
 
                     var report = new DeploymentService().InstallWithLockHeld(
                         manifest, cacheDirectory, _gameFolderPath);
                     if (!report.Success)
                     {
-                        if (snapshot is not null)
+                        if (switchTransaction is not null)
+                            AddRollbackResult(report.Lines, switchTransaction.Rollback());
+                        else if (snapshot is not null)
                             AddRollbackResult(report.Lines, snapshot.Rollback());
                         return report;
                     }
@@ -204,17 +241,42 @@ public sealed class ModpackInstaller
                             return DeploymentReport.Failure(report.Lines, null);
                         }
 
-                        new ModpackJournalStore(_gameFolderPath).Record(
-                            pack.Id, pack.Version, pack.Name, installedOptionalIds);
+                        if (otherPacks.Count > 0)
+                        {
+                            var journal = new JournalStore(_gameFolderPath);
+                            var entries = journal.Load();
+                            var targetIds = manifest.Mods.Select(mod => mod.Id)
+                                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                            entries = entries.Select(entry =>
+                                entry.ModId is { Length: > 0 } id && targetIds.Contains(id)
+                                    ? entry with { PackId = pack.Id }
+                                    : entry).ToList();
+                            journal.Save(entries);
+
+                            var packJournal = new ModpackJournalStore(_gameFolderPath);
+                            foreach (var oldPack in otherPacks)
+                                packJournal.Remove(oldPack.PackId);
+                            packJournal.Record(pack.Id, pack.Version, pack.Name, installedOptionalIds);
+                            report.Lines.Add($"Switched from {string.Join(", ", otherPacks.Select(old => old.Name))} to {pack.Name}.");
+                        }
+                        else
+                            new ModpackJournalStore(_gameFolderPath).Record(
+                                pack.Id, pack.Version, pack.Name, installedOptionalIds);
                     }
 
                     snapshot?.Commit();
+                    switchTransaction?.Commit();
                     return report;
                 }
                 catch (Exception ex)
                 {
                     var lines = new List<string>();
-                    if (snapshot is not null)
+                    if (switchTransaction is not null)
+                    {
+                        lines.Add($"The modpack switch could not be completed: {ex.Message}");
+                        AddRollbackResult(lines, switchTransaction.Rollback());
+                    }
+                    else if (snapshot is not null)
                     {
                         lines.Add($"The pack installation could not be completed: {ex.Message}");
                         AddRollbackResult(lines, snapshot.Rollback());
@@ -226,6 +288,7 @@ public sealed class ModpackInstaller
                 finally
                 {
                     snapshot?.Dispose();
+                    switchTransaction?.Dispose();
                 }
             }
         }
@@ -235,6 +298,18 @@ public sealed class ModpackInstaller
                 TemporaryDirectory.DeleteBestEffort(cacheDirectory);
         }
     }
+
+    private List<InstalledModpack> InstalledPacksExcept(string packId) =>
+        Directory.Exists(_gameFolderPath)
+            ? new ModpackJournalStore(_gameFolderPath).Load()
+                .Where(installed => !installed.PackId.Equals(packId, StringComparison.OrdinalIgnoreCase))
+                .ToList()
+            : new List<InstalledModpack>();
+
+    private static DeploymentReport DifferentPackInstalled(IReadOnlyCollection<InstalledModpack> packs) =>
+        DeploymentReport.Failure(new List<string>(),
+            $"{string.Join(", ", packs.Select(pack => pack.Name))} is already installed. " +
+            "Uninstall it first or use the modpack switch action.");
 
     public DeploymentReport Uninstall(string packId)
     {

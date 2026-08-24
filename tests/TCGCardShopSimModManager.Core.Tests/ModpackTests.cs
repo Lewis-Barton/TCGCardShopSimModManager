@@ -573,6 +573,122 @@ public sealed class ModpackTests : IDisposable
     }
 
     [Fact]
+    public async Task ModpackInstaller_RefusesDifferentPackWithoutExplicitSwitch()
+    {
+        var archive = MakeZip(("First.dll", "first"));
+        _server.Provider = _ => new HttpResponse(200, archive, null);
+        var gameFolder = Path.Combine(_root, "game");
+        Directory.CreateDirectory(gameFolder);
+        var installer = new ModpackInstaller(gameFolder);
+        var firstManifest = Manifest("first", "First", "First.zip", archive);
+        var secondManifest = Manifest("second", "Second", "Second.zip", archive);
+
+        Assert.True((await installer.InstallAsync(firstManifest,
+            pack: Summary("first-pack", "First pack"))).Success);
+
+        var report = await installer.InstallAsync(secondManifest,
+            pack: Summary("second-pack", "Second pack"));
+
+        Assert.False(report.Success);
+        Assert.Contains(report.Lines, line => line.Contains("already installed", StringComparison.OrdinalIgnoreCase));
+        Assert.Equal("first-pack", Assert.Single(new ModpackJournalStore(gameFolder).Load()).PackId);
+    }
+
+    [Fact]
+    public async Task ModpackInstaller_SwitchRetainsMatchingModsAndRemovesUnusedMods()
+    {
+        var sharedArchive = MakeZip(("Shared.dll", "shared"));
+        var oldArchive = MakeZip(("Old.dll", "old"));
+        var newArchive = MakeZip(("New.dll", "new"));
+        var archives = new Dictionary<string, byte[]>
+        {
+            ["/Shared.zip"] = sharedArchive,
+            ["/Old.zip"] = oldArchive,
+            ["/New.zip"] = newArchive
+        };
+        _server.Provider = request => archives.TryGetValue(request.Path, out var bytes)
+            ? new HttpResponse(200, bytes, null)
+            : new HttpResponse(404, Array.Empty<byte>(), null);
+
+        var gameFolder = Path.Combine(_root, "game");
+        Directory.CreateDirectory(gameFolder);
+        var installer = new ModpackInstaller(gameFolder);
+        var first = new ModListManifest(1, "First pack", "tcgcardshopsimulator",
+            new List<ModEntry>
+            {
+                Entry("shared", "Shared", "Shared.zip", sharedArchive),
+                Entry("old", "Old", "Old.zip", oldArchive)
+            });
+        var second = new ModListManifest(1, "Second pack", "tcgcardshopsimulator",
+            new List<ModEntry>
+            {
+                Entry("shared", "Shared", "Shared.zip", sharedArchive),
+                Entry("new", "New", "New.zip", newArchive)
+            });
+        Assert.True((await installer.InstallAsync(first,
+            pack: Summary("first-pack", "First pack"))).Success);
+        var sharedPath = Path.Combine(gameFolder, "BepInEx", "plugins", "Shared", "Shared.dll");
+        var installedAt = new JournalStore(gameFolder).Load().Single(entry => entry.ModId == "shared").InstalledAt;
+
+        var report = await installer.InstallAsync(second,
+            pack: Summary("second-pack", "Second pack"), switchInstalledPack: true);
+
+        Assert.True(report.Success, string.Join("\n", report.Lines));
+        Assert.True(File.Exists(sharedPath));
+        Assert.False(File.Exists(Path.Combine(gameFolder, "BepInEx", "plugins", "Old", "Old.dll")));
+        Assert.True(File.Exists(Path.Combine(gameFolder, "BepInEx", "plugins", "New", "New.dll")));
+        var entries = new JournalStore(gameFolder).Load();
+        Assert.Equal(installedAt, entries.Single(entry => entry.ModId == "shared").InstalledAt);
+        Assert.All(entries, entry => Assert.Equal("second-pack", entry.PackId));
+        Assert.Equal("second-pack", Assert.Single(new ModpackJournalStore(gameFolder).Load()).PackId);
+    }
+
+    [Fact]
+    public async Task ModpackInstaller_FailedSwitchRestoresOriginalPack()
+    {
+        var oldArchive = MakeZip(("Old.dll", "old"));
+        var rejectedArchive = MakeZip(("blocked.exe", "blocked"));
+        var archives = new Dictionary<string, byte[]>
+        {
+            ["/Old.zip"] = oldArchive,
+            ["/Rejected.zip"] = rejectedArchive
+        };
+        _server.Provider = request => archives.TryGetValue(request.Path, out var bytes)
+            ? new HttpResponse(200, bytes, null)
+            : new HttpResponse(404, Array.Empty<byte>(), null);
+
+        var gameFolder = Path.Combine(_root, "game");
+        Directory.CreateDirectory(gameFolder);
+        var installer = new ModpackInstaller(gameFolder);
+        var first = Manifest("old", "Old", "Old.zip", oldArchive);
+        var rejected = Manifest("rejected", "Rejected", "Rejected.zip", rejectedArchive);
+        Assert.True((await installer.InstallAsync(first,
+            pack: Summary("first-pack", "First pack"))).Success);
+        var oldPath = Path.Combine(gameFolder, "BepInEx", "plugins", "Old", "Old.dll");
+
+        var report = await installer.InstallAsync(rejected,
+            pack: Summary("second-pack", "Second pack"), switchInstalledPack: true);
+
+        Assert.False(report.Success);
+        Assert.True(File.Exists(oldPath));
+        Assert.Equal("old", File.ReadAllText(oldPath));
+        var journal = Assert.Single(new JournalStore(gameFolder).Load());
+        Assert.Equal("old", journal.ModId);
+        Assert.Equal("first-pack", journal.PackId);
+        Assert.Equal("first-pack", Assert.Single(new ModpackJournalStore(gameFolder).Load()).PackId);
+    }
+
+    private ModListManifest Manifest(string id, string name, string archiveName, byte[] archive) =>
+        new(1, name, "tcgcardshopsimulator", new List<ModEntry> { Entry(id, name, archiveName, archive) });
+
+    private ModEntry Entry(string id, string name, string archiveName, byte[] archive) =>
+        new(id, name, "1.0.0", archiveName, Sha(archive), "BepInExPlugin",
+            new List<string>(), new List<string>(), DownloadUrl: _server.Url(archiveName));
+
+    private static ModpackSummary Summary(string id, string name) =>
+        new(id, name, "desc", "logo.png", "manifest.json", "1.0.0");
+
+    [Fact]
     public void ModpackVersion_IsNewer_Cases()
     {
         Assert.True(ModpackVersion.IsNewer("1.0.0", "1.1.0"));

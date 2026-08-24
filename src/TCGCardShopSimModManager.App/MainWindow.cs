@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net.Http;
 using System.Reflection;
 using Avalonia;
@@ -64,6 +65,7 @@ public sealed partial class MainWindow : Window
     private async void OnExportBundleClick(object? sender, RoutedEventArgs e) => await RunHandler(OnExportBundleAsync);
     private async void OnPickGameFolder(object? sender, RoutedEventArgs e) => await RunHandler(() => PickFolderAsync(_gameBox));
     private async void OnRefreshPacksClick(object? sender, RoutedEventArgs e) => await RunHandler(LoadPacksAsync);
+    private async void OnLaunchGameClick(object? sender, RoutedEventArgs e) => await RunHandler(OnLaunchGameAsync);
     private void OnBrowseNavClick(object? sender, RoutedEventArgs e) => ShowPage(_browsePage, _browseNav);
     private void OnManageNavClick(object? sender, RoutedEventArgs e) => ShowPage(_managePage, _manageNav);
     private void OnSettingsNavClick(object? sender, RoutedEventArgs e)
@@ -282,6 +284,12 @@ public sealed partial class MainWindow : Window
         _packStatus.Text = _usingCachedPackIndex
             ? $"{countText} Showing the last saved catalog because GitHub could not be reached."
             : countText;
+        _installedPackSummary.Text = _installedPacks.Count switch
+        {
+            0 => "No modpack is installed in the selected game folder.",
+            1 => $"Installed: {_installedPacks[0].Name} · version {_installedPacks[0].PackVersion}",
+            _ => $"Installed: {string.Join(", ", _installedPacks.Select(pack => $"{pack.Name} {pack.PackVersion}"))}"
+        };
     }
 
     private Border BuildPackCard(ModpackSummary pack, bool updateAvailable)
@@ -307,6 +315,27 @@ public sealed partial class MainWindow : Window
         });
 
         grid.Children.Add(img);
+        var installed = _installedPacks.FirstOrDefault(entry => pack.IsId(entry.PackId));
+        if (installed is not null)
+        {
+            var banner = new Border
+            {
+                Background = new SolidColorBrush(updateAvailable ? Color.Parse("#15803D") : Color.Parse("#0F766E")),
+                Padding = new Thickness(8, 4),
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
+                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Top,
+                Child = new TextBlock
+                {
+                    Text = updateAvailable
+                        ? $"UPDATE AVAILABLE · {PackVersionTransition(installed.PackVersion, pack.Version)}"
+                        : $"INSTALLED · {installed.PackVersion}",
+                    Foreground = Brushes.White,
+                    FontSize = 11,
+                    FontWeight = FontWeight.Bold
+                }
+            };
+            grid.Children.Add(banner);
+        }
         var details = new StackPanel { Spacing = 2, Margin = new Thickness(10, 6) };
         Grid.SetRow(details, 1);
         details.Children.Add(new TextBlock { Text = pack.Name, FontWeight = FontWeight.SemiBold, FontSize = 14 });
@@ -320,12 +349,10 @@ public sealed partial class MainWindow : Window
 
         var compatibility = GameCompatibility.Evaluate(
             pack.CompatibleGameBuildIds, _installedGameBuildId);
-        if (updateAvailable || compatibility.MayBeUnsupported)
+        if (compatibility.MayBeUnsupported)
             details.Children.Add(new TextBlock
             {
-                Text = updateAvailable && compatibility.MayBeUnsupported
-                    ? "Update available · May not be supported"
-                    : updateAvailable ? "Update available" : "May not be supported",
+                Text = "May not be supported",
                 Foreground = new SolidColorBrush(Colors.Orange),
                 FontSize = 11,
                 FontWeight = FontWeight.Bold
@@ -345,8 +372,9 @@ public sealed partial class MainWindow : Window
             : await Task.Run(() => new SteamLocator().FindGameBuildId(
                 gameFolder, SteamLocator.GameAppId));
         var installed = _installedPacks.FirstOrDefault(entry => pack.IsId(entry.PackId));
+        var active = _installedPacks.FirstOrDefault();
         var detail = new PackDetailWindow(
-            pack, gameFolder, _http, _packReader, installed, _installedGameBuildId);
+            pack, gameFolder, _http, _packReader, installed, _installedGameBuildId, active);
         await detail.ShowDialog(this);
         await LoadPacksAsync();
     }
@@ -371,6 +399,20 @@ public sealed partial class MainWindow : Window
         _settingsPage.IsVisible = ReferenceEquals(page, _settingsPage);
         foreach (var button in new[] { _browseNav, _manageNav, _settingsNav })
             button.Classes.Set("active", ReferenceEquals(button, nav));
+    }
+
+    private static string PackVersionTransition(string installedVersion, string availableVersion) =>
+        $"{installedVersion} → {availableVersion}";
+
+    private Task OnLaunchGameAsync()
+    {
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = $"steam://run/{SteamLocator.GameAppId}",
+            UseShellExecute = true
+        });
+        Log("Launching TCG Card Shop Simulator through Steam...");
+        return Task.CompletedTask;
     }
 
     private void RefreshNexusStatus()

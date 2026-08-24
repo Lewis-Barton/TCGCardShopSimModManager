@@ -22,7 +22,9 @@
                   HorizontalContentAlignment="Left" Click="OnSettingsNavClick" />
         </StackPanel>
 
-        <StackPanel Grid.Row="2" Spacing="2" Margin="4,0">
+        <StackPanel Grid.Row="2" Spacing="8" Margin="4,0">
+          <Button Content="Launch game" HorizontalContentAlignment="Center"
+                  Click="OnLaunchGameClick" />
           <TextBlock Classes="subtitle" Text="TCG Card Shop Simulator" />
           <TextBlock x:Name="_versionText" Classes="subtitle" Text="Version" />
         </StackPanel>
@@ -35,6 +37,8 @@
           <StackPanel Spacing="2">
             <TextBlock Classes="pageTitle" Text="Browse modpacks" />
             <TextBlock Classes="subtitle" Text="Find a curated setup and install it in one step." />
+            <TextBlock x:Name="_installedPackSummary" FontWeight="SemiBold"
+                       Foreground="#15803D" TextWrapping="Wrap" />
           </StackPanel>
           <Button Grid.Column="1" Content="Refresh" Click="OnRefreshPacksClick"
                   HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
