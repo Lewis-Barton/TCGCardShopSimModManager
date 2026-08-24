@@ -328,11 +328,12 @@ boundaries were fixed before work continued on application-state defects.
   multi-volume archives remain unsupported. Extension coverage and protected
   compressed-TAR extraction have regression tests.
 - **BUG-092 — Collect Em All cannot safely replace Real TCG Overhaul (High,
-  fixed):** the published manifests now use the same stable ids for their eight
-  shared Pokemon archives, so a switch keeps those entries instead of trying to
-  uninstall them. Collect Em All also declares one owner for every bundled
-  configuration and asset path found during a complete destination audit. The
-  corrected pack plans 82 archives and 6,753 files without a conflict.
+  fixed; pack temporarily removed):** the published manifests now use the same
+  stable ids for their eight shared Pokemon archives, so a switch keeps those
+  entries instead of trying to uninstall them. Collect Em All also declares one
+  owner for every bundled configuration and asset path found during a complete
+  destination audit. The corrected pack plans 82 archives and 6,753 files
+  without a conflict.
 - **BUG-093 — solid 7Z archives are reopened for every entry (Medium, fixed):**
   7Z extraction now uses one sequential reader for the complete archive. This
   avoids restarting decompression for each file in a solid archive. The archive
@@ -353,7 +354,8 @@ boundaries were fixed before work continued on application-state defects.
   failures are no longer misreported as thousands of duplicate entries. Empty
   archive errors also cap rejection details at ten paths plus a remaining count.
   Covered by ZIP duplicate and write-failure regressions.
-- **BUG-096 — Collect Em All includes an entirely excluded mod (High, fixed):**
+- **BUG-096 — Collect Em All includes an entirely excluded mod (High, fixed;
+  pack temporarily removed):**
   the MTG Shop archive contains only the same six phone-app images already
   supplied by the base Magic pack. Excluding that overlap left the entry with
   nothing to install and caused a late rollback. The redundant Nexus entry has

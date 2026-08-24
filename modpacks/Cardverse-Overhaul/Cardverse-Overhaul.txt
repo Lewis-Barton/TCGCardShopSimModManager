@@ -1,0 +1,61 @@
+#bepinex
+bepinex nexus:2:2 # BepInEx with Configuration Manager
+
+# Core Files
+required nexus:698:4002 # BepInEx Mod Manager
+required nexus:496:5885 # EnhancedPrefabLoader
+required nexus:1144:5886 # EnhancedPrefabLoader API
+required nexus:1084:5575 # EPL Demand
+required nexus:1100:6050 # EPL Card Animator
+required nexus:612:5131 # Grading Overhaul
+required nexus:617:5256 # Holographic Overhaul
+required nexus:685:5260 # Phone - Overhaul
+required nexus:867:3966 # Collection Tracker
+required nexus:1116:6054 # Enhanced Binder
+required nexus:880:4107 # Price Slinger
+required nexus:836:4144 # Singles Slinger
+required nexus:871:4922 # The Shop Manager
+required nexus:844:4864 # Warehouse Manager
+required nexus:802:3751 # F(ate)
+required nexus:11:5858 # BetterPOS
+required nexus:1327:6074 # EPL Price Changer
+required nexus:958:5749 # PTCGO Economics
+required nexus:1190:5938 # Volume Discount
+required nexus:1091:6102 # Worker Task Board
+required nexus:69:5519 # TextureReplacer
+
+#TCG Expansions
+required nexus:858:4685 # Marvel TCG - Marvel Vs. System (129)
+
+# Pokémon
+required nexus:1175:6033 # Pokémon Pocket Expansions - A1 and A1a
+required nexus:1175:6034 # Pokémon Pocket Expansions - A2 A2a and A2b
+required nexus:1175:6032 # Pokémon Pocket Shop App
+required nexus:577:6028 # Pokémon Expansions - Generation 1
+required nexus:577:6029 # Pokémon Expansions - Generation 2
+required nexus:577:6030 # Pokémon Expansions - Generation 3
+required nexus:577:6026 # Pokémon Accessories
+required nexus:577:6024 # Pokémon Figurines
+required nexus:577:6031 # Pokémon Shop App
+required nexus:577:6025 # Pokémon Statues
+
+# Star Wars (21368)
+required nexus:1010:5224 # Star Wars Expansion (17000)
+required nexus:791:3726 # Extended TCGs - Star Wars TCG (4368)
+
+# Marvel Collect (4024)
+required nexus:985:5921 # 001 - 2019 Base (883)
+required nexus:985:5760 # 002 - 2019 X-Men Base Series (569)
+required nexus:985:5215 # 003 - 2019 Collector's Reserved (308)
+required nexus:985:5292 # 004 - 2019 Classic (252)
+required nexus:985:5322 # 005 - 2019 Faces of Evil (242)
+required nexus:985:5761 # 006 - 2019 Heroines of Marvel (128)
+required nexus:985:5762 # 007 - 2019 Factions (534)
+required nexus:985:5475 # 008 - 2019 Fan Appreciation (300)
+required nexus:985:5611 # 009 - 2019 Topps Showcase (346)
+required nexus:985:5764 # 010 - 2019 X-Universe (462)
+
+# Optionals
+optional nexus:135:3427 # TCGCSS Trainer (Cheats - Mod Menu)
+optional nexus:577:6027 # Pokémon Shop Textures
+optional nexus:895:5777 # RTCGO Custom TV
