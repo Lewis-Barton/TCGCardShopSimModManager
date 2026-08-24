@@ -30,9 +30,11 @@ before installation can begin. The gallery identifies the installed pack and
 shows a green banner when its published pack version changes. Only one hosted
 pack can be installed at a time; choosing another offers a transactional switch
 that keeps matching shared mods, removes old-only mods and restores the original
-pack if the change cannot finish. An installed pack can also be uninstalled as
-one journal-backed operation from its details window. The persistent **Launch
-game** button starts the game through Steam. The **Manage mods** page lets
+pack if the change cannot finish. Before confirmation, the app shows how many
+mods will be kept, updated, removed and added. An installed pack can also be
+uninstalled as one journal-backed operation from its details window. The
+persistent **Launch game** button starts the game through Steam. The **Manage
+mods** page lets
 you choose the game folder, inspect installed and manually placed mods, and
 enable, disable or uninstall managed mods. Nexus sign-in and update checks live
 under **Settings**. The CLI retains the local manifest validation, planning and

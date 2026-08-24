@@ -2,18 +2,22 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
+using TCGCardShopSimModManager.Core;
 
 namespace TCGCardShopSimModManager.App;
 
 public sealed class ModpackSwitchConfirmationWindow : Window
 {
-    public ModpackSwitchConfirmationWindow(string currentPackName, string nextPackName)
+    public ModpackSwitchConfirmationWindow(
+        string currentPackName,
+        string nextPackName,
+        ModpackSwitchPlan plan)
     {
         Title = "Confirm modpack switch";
         Width = 500;
-        Height = 290;
+        Height = 330;
         MinWidth = 440;
-        MinHeight = 260;
+        MinHeight = 300;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
         var switchButton = new Button { Content = "Switch modpacks" };
@@ -38,6 +42,16 @@ public sealed class ModpackSwitchConfirmationWindow : Window
                 {
                     Text = "Mods shared by both packs will be kept or updated. Mods used only by the current pack will be removed before the remaining files are installed. If the switch cannot finish, the manager will restore the current pack.",
                     TextWrapping = TextWrapping.Wrap
+                },
+                new Border
+                {
+                    Classes = { "card" },
+                    Child = new TextBlock
+                    {
+                        Text = $"Keep {plan.Retained.Count} · Update {plan.Updated.Count} · Remove {plan.Removed.Count} · Add {plan.Added.Count}",
+                        FontWeight = FontWeight.SemiBold,
+                        TextWrapping = TextWrapping.Wrap
+                    }
                 },
                 new StackPanel
                 {

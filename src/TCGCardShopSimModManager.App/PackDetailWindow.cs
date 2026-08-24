@@ -306,8 +306,14 @@ public sealed class PackDetailWindow : Window
         var switching = _activePack is not null && !_pack.IsId(_activePack.PackId);
         if (switching)
         {
+            var selectedIds = selectedOptionalMods.Select(mod => mod.Id).ToArray();
+            var selectedManifest = ModpackSelection.Resolve(_manifest, selectedIds).Manifest!;
+            var currentEntries = new JournalStore(_gameFolder).Load()
+                .Where(entry => entry.PackId?.Equals(
+                    _activePack!.PackId, StringComparison.OrdinalIgnoreCase) == true);
+            var switchPlan = ModpackSwitchPlanner.Create(currentEntries, selectedManifest.Mods);
             var switchConfirmation = new ModpackSwitchConfirmationWindow(
-                _activePack!.Name, _pack.Name);
+                _activePack!.Name, _pack.Name, switchPlan);
             if (!await switchConfirmation.ShowDialog<bool>(this))
                 return;
         }

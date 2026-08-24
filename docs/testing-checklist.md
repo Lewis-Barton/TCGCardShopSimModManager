@@ -169,10 +169,13 @@ unit test already covers it, **[manual]** where it needs a real environment.
       `ModpackInstaller_SwitchRetainsMatchingModsAndRemovesUnusedMods`).
 - [x] **[auto]** A failed pack switch restores the original files and both
       journals (`ModpackInstaller_FailedSwitchRestoresOriginalPack`).
+- [x] **[auto]** The switch preview classifies unchanged shared mods, changed
+      shared mods, old-only mods and new-only mods as keep, update, remove and
+      add (`ModpackSwitchPlannerTests`).
 - [ ] **[manual]** With one pack installed, confirm its card and the Browse
       header show its name and version. Open another pack, cancel the switch
-      warning once, then complete the switch and confirm the gallery identifies
-      only the new pack.
+      summary once, confirm its keep/update/remove/add counts, then complete the
+      switch and confirm the gallery identifies only the new pack.
 - [x] **[manual]** Use the persistent **Launch game** button from each page and
       confirm Steam starts TCG Card Shop Simulator.
 - [ ] **[manual]** During a large hosted install, move and resize the desktop

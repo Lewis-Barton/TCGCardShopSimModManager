@@ -307,6 +307,11 @@ boundaries were fixed before work continued on application-state defects.
   cropped or stretched, and taller cards keep the compatibility warning inside
   their border. The installed-pack heading and persistent launch action were
   confirmed at the normal desktop size during the same visual review.
+- **BUG-089 — modpack switching does not show the planned changes (Low,
+  fixed):** the switch confirmation now reports how many mods will be kept,
+  updated, removed and added. A shared Core planner derives those categories
+  from stable mod ids and archive hashes, with regression coverage for all four
+  outcomes and legacy journal entries.
 
 ## Summary
 | Severity | Open | Fixed |
@@ -314,8 +319,8 @@ boundaries were fixed before work continued on application-state defects.
 | Critical | 0 | 3 |
 | High     | 0 | 32 |
 | Medium   | 0 | 41 |
-| Low      | 0 | 12 |
-| **Total**| **0** | **88** |
+| Low      | 0 | 13 |
+| **Total**| **0** | **89** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |
