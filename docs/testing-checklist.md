@@ -192,9 +192,12 @@ unit test already covers it, **[manual]** where it needs a real environment.
 - [ ] **[manual]** During a large hosted install, move and resize the desktop
       window and confirm it remains responsive. Confirm the current mod, file
       number, transferred bytes, progress bar and download speed update until
-      the install phase begins.
+      downloading finishes. During preflight and installation, confirm the
+      current archive or mod and its position continue to change while the
+      progress bar remains animated.
 - [x] **[auto]** Hosted installs report the current mod and byte counts while
-      downloading, followed by the install phase
+      downloading, followed by preparation, archive planning and per-mod
+      installation stages
       (`ModpackInstaller_ReportsDownloadAndInstallProgress`).
 - [x] **[auto]** Production archive limits accept large game-mod payloads while
       custom low limits still reject truncated extraction

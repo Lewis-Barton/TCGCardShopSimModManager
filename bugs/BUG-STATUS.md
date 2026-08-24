@@ -339,15 +339,21 @@ boundaries were fixed before work continued on application-state defects.
   classifier also strips one outer folder when it contains a complete BepInEx
   tree, preserving the intended layout without weakening root-DLL protection.
   Covered by multi-entry 7Z and wrapped-layout regressions.
+- **BUG-094 — large installs appear frozen after downloading (Medium, fixed):**
+  hosted install progress now distinguishes preparation, archive planning and
+  file installation. Pack details name the current archive or mod and show its
+  position in the remaining work while the animated progress bar continues.
+  Core reports each stage through the existing progress contract, covered by
+  the hosted-install progress regression.
 
 ## Summary
 | Severity | Open | Fixed |
 |----------|------|-------|
 | Critical | 0 | 3 |
 | High     | 0 | 33 |
-| Medium   | 0 | 44 |
+| Medium   | 0 | 45 |
 | Low      | 0 | 13 |
-| **Total**| **0** | **93** |
+| **Total**| **0** | **94** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

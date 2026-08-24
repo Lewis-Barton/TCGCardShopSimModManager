@@ -119,14 +119,18 @@ public sealed class DeploymentService
     }
 
     internal DeploymentReport InstallWithLockHeld(
-        ModListManifest manifest, string sourceDirectory, string gameFolderPath) =>
-        InstallLocked(manifest, sourceDirectory, gameFolderPath, new List<string>());
+        ModListManifest manifest,
+        string sourceDirectory,
+        string gameFolderPath,
+        IProgress<ModpackInstallProgress>? progress = null) =>
+        InstallLocked(manifest, sourceDirectory, gameFolderPath, new List<string>(), progress);
 
     private static DeploymentReport InstallLocked(
         ModListManifest manifest,
         string sourceDirectory,
         string gameFolderPath,
-        List<string> lines)
+        List<string> lines,
+        IProgress<ModpackInstallProgress>? progress = null)
     {
         // BUG-020: the local path must guarantee BepInEx sorts first just like the
         // hosted-modpack path does. Enforce it here so both `install` (this
@@ -166,6 +170,11 @@ public sealed class DeploymentService
             {
                 try
                 {
+                    progress?.Report(new ModpackInstallProgress(
+                        ModpackInstallStage.Planning,
+                        toInstall[i].Name,
+                        i + 1,
+                        toInstall.Count));
                     plans.Add(installer.CreatePlan(toInstall[i], sourceDirectory, Path.Combine(planRoot, $"mod-{i + 1}")));
                 }
                 catch (Exception ex)
@@ -219,6 +228,11 @@ public sealed class DeploymentService
             for (var i = 0; i < toInstall.Count; i++)
             {
                 var mod = toInstall[i];
+                progress?.Report(new ModpackInstallProgress(
+                    ModpackInstallStage.Installing,
+                    mod.Name,
+                    i + 1,
+                    toInstall.Count));
                 var updating = installer.HasJournalEntry(mod);
                 var result = installer.Install(mod, sourceDirectory);
                 lines.Add(result.Success

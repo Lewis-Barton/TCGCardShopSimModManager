@@ -18,6 +18,8 @@ public sealed record DownloadProgress(long DownloadedBytes, long? TotalBytes);
 public enum ModpackInstallStage
 {
     Downloading,
+    Preparing,
+    Planning,
     Installing
 }
 

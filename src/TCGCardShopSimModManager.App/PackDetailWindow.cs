@@ -512,10 +512,18 @@ public sealed class PackDetailWindow : Window
 
     private void UpdateInstallProgress(ModpackInstallProgress update)
     {
-        if (update.Stage == ModpackInstallStage.Installing)
+        if (update.Stage != ModpackInstallStage.Downloading)
         {
             _progress.IsIndeterminate = true;
-            _progressStatus.Text = "Downloads complete. Installing files...";
+            _progressStatus.Text = update.Stage switch
+            {
+                ModpackInstallStage.Preparing => "Downloads complete. Preparing the modpack...",
+                ModpackInstallStage.Planning =>
+                    $"Checking archive {update.ModIndex} of {update.ModCount}: {update.ModName}",
+                ModpackInstallStage.Installing =>
+                    $"Installing mod {update.ModIndex} of {update.ModCount}: {update.ModName}",
+                _ => "Working..."
+            };
             _downloadStats.Text = string.Empty;
             return;
         }

@@ -202,7 +202,17 @@ public sealed class ModpackTests : IDisposable
             update.Stage == ModpackInstallStage.Downloading &&
             update.DownloadedBytes == archiveBytes.Length &&
             update.TotalBytes == archiveBytes.Length);
+        Assert.Contains(updates, update =>
+            update.Stage == ModpackInstallStage.Preparing);
+        Assert.Contains(updates, update =>
+            update.Stage == ModpackInstallStage.Planning &&
+            update.ModName == "Example Mod" &&
+            update.ModIndex == 1 &&
+            update.ModCount == 1);
         Assert.Equal(ModpackInstallStage.Installing, updates[^1].Stage);
+        Assert.Equal("Example Mod", updates[^1].ModName);
+        Assert.Equal(1, updates[^1].ModIndex);
+        Assert.Equal(1, updates[^1].ModCount);
     }
 
     [Fact]
