@@ -133,6 +133,9 @@ unit test already covers it, **[manual]** where it needs a real environment.
 - [x] **[auto]** Steam build IDs are read from the selected installation's app
       manifest and compatibility distinguishes match, mismatch, unknown and
       undeclared states (`SteamLocatorTests`, `GameCompatibilityTests`).
+- [x] **[manual]** Real TCG Overhaul is declared compatible with Steam build
+      `22936874` after a successful local launch with its plugins loaded and a
+      beta tester completing installation and gameplay without an issue.
 - [x] **[auto]** A hosted install downloads and installs required mods plus only
       the optional selection, while legacy manifests still default every entry
       to required (`ModpackSelectionTests`,
