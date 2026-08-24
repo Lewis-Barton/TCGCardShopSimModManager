@@ -102,6 +102,10 @@ unit test already covers it, **[manual]** where it needs a real environment.
 - [ ] **[manual]** Resize the desktop window at its minimum and normal sizes;
       the navigation remains visible, filters remain usable and cards wrap
       without overlapping or clipping.
+- [x] **[manual]** At the normal desktop size, the installed-pack heading and
+      persistent **Launch game** action are visible and correctly aligned.
+- [x] **[manual]** Pack artwork fits inside its preview without cropping or
+      distortion, and the compatibility warning remains inside the card.
 - [ ] **[manual]** Search and each Browse filter update the card grid, Reset
       restores the full catalog, and clicking a card opens its details.
 - [ ] **[manual]** NSFW packs are hidden on startup and after Reset, appear only

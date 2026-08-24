@@ -298,14 +298,21 @@ public sealed partial class MainWindow : Window
         {
             Classes = { "card", "packCard" },
             Width = 250,
-            Height = 180,
+            Height = 234,
             Margin = new Thickness(0, 0, 12, 12),
             Padding = new Thickness(0),
             Cursor = new Cursor(StandardCursorType.Hand)
         };
 
-        var grid = new Grid { RowDefinitions = new RowDefinitions("110,*") };
-        var img = new Image { Height = 110, Stretch = Stretch.UniformToFill };
+        var grid = new Grid { RowDefinitions = new RowDefinitions("24,125,*") };
+        var img = new Image
+        {
+            Height = 125,
+            Stretch = Stretch.Uniform,
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
+            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+        };
+        Grid.SetRow(img, 1);
 
         // Fetch the logo off the UI thread, then drop it in once it arrives.
         _ = LoadLogoAsync(_packReader.LogoUrl(pack)).ContinueWith(t =>
@@ -334,10 +341,11 @@ public sealed partial class MainWindow : Window
                     FontWeight = FontWeight.Bold
                 }
             };
+            Grid.SetRow(banner, 0);
             grid.Children.Add(banner);
         }
         var details = new StackPanel { Spacing = 2, Margin = new Thickness(10, 6) };
-        Grid.SetRow(details, 1);
+        Grid.SetRow(details, 2);
         details.Children.Add(new TextBlock { Text = pack.Name, FontWeight = FontWeight.SemiBold, FontSize = 14 });
         details.Children.Add(new TextBlock
         {

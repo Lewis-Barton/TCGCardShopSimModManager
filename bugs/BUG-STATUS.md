@@ -302,6 +302,11 @@ boundaries were fixed before work continued on application-state defects.
   and restores the original files and journals if any stage fails. A persistent
   navigation button launches the game through Steam. Covered by second-pack,
   successful-switch and failed-switch regressions.
+- **BUG-088 — gallery artwork and compatibility text overflow their cards
+  (Low, fixed):** pack artwork now fits within the preview area without being
+  cropped or stretched, and taller cards keep the compatibility warning inside
+  their border. The installed-pack heading and persistent launch action were
+  confirmed at the normal desktop size during the same visual review.
 
 ## Summary
 | Severity | Open | Fixed |
@@ -309,8 +314,8 @@ boundaries were fixed before work continued on application-state defects.
 | Critical | 0 | 3 |
 | High     | 0 | 32 |
 | Medium   | 0 | 41 |
-| Low      | 0 | 11 |
-| **Total**| **0** | **87** |
+| Low      | 0 | 12 |
+| **Total**| **0** | **88** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |
