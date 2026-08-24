@@ -320,15 +320,22 @@ boundaries were fixed before work continued on application-state defects.
   navigation and Browse filters instead of clipping their contents. Preference
   persistence is covered by Core tests; every option and the corrected layouts
   were reviewed in the running desktop app.
+- **BUG-091 — Nexus pack imports reject common non-ZIP archives (Medium,
+  fixed):** the importer and shared Core extraction registry now accept RAR,
+  7Z, TAR, GZ, TGZ, BZ2 and XZ alongside ZIP. Non-ZIP content is read through
+  SharpCompress but still passes the manager's path, link, file-type, duplicate
+  and size checks before it can enter an installation plan. Encrypted and
+  multi-volume archives remain unsupported. Extension coverage and protected
+  compressed-TAR extraction have regression tests.
 
 ## Summary
 | Severity | Open | Fixed |
 |----------|------|-------|
 | Critical | 0 | 3 |
 | High     | 0 | 32 |
-| Medium   | 0 | 42 |
+| Medium   | 0 | 43 |
 | Low      | 0 | 13 |
-| **Total**| **0** | **90** |
+| **Total**| **0** | **91** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

@@ -78,7 +78,8 @@ skipped, and `plan` reports that they were skipped.
 
 ## Rules for archives
 
-- Zip files only for now (7z/RAR on the roadmap).
+- Supported formats are ZIP, RAR, 7Z, TAR, GZ, TGZ, BZ2 and XZ. Encrypted and
+  multi-volume archives are not supported.
 - Paths must stay inside the archive: `/../`, absolute paths, and symbolic
   links are rejected and would make the archive refuse to extract.
 - `.exe`, `.bat`, `.cmd`, `.ps1`, `.vbs` and similar are rejected outright —

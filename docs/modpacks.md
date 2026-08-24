@@ -282,7 +282,7 @@ index and manifest build lists differ or contain malformed build IDs.
 
 The temporary authoring commands below turn a Nexus Files-tab page into stable
 file selectors, then create a manifest draft. The importer downloads each
-selected ZIP once to calculate the SHA-256 used by
+selected archive once to calculate the SHA-256 used by
 the normal installer; those archives stay in a local authoring cache and are not
 added to the modpack folder or published.
 
@@ -321,6 +321,10 @@ The command reads names, versions, filenames and sizes from Nexus, downloads and
 hashes every archive, and writes `manifest.json`. If that file already exists it
 writes `manifest.imported.json` instead and leaves the existing manifest alone.
 Reruns reuse the cache under `%LOCALAPPDATA%\TCGCardShopSimModManager`.
+
+The importer accepts ZIP, RAR, 7Z, TAR, GZ, TGZ, BZ2 and XZ files. Encrypted
+and multi-volume archives are not supported. Every format goes through the same
+path, link, file-type and extracted-size checks before installation.
 
 Before publishing, review required/optional choices and add dependencies,
 conflicts and `compatibleGameBuildIds`. Add the pack metadata and logo to

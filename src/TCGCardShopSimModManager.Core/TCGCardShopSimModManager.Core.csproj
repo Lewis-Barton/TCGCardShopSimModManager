@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <!-- DPAPI to encrypt the Nexus API key at rest (Windows). -->
+    <PackageReference Include="SharpCompress" Version="0.50.4" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="9.0.0" />
   </ItemGroup>
 

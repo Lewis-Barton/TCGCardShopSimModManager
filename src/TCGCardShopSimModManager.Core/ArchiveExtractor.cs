@@ -2,15 +2,20 @@ namespace TCGCardShopSimModManager.Core;
 
 /// <summary>
 /// The front door for reading archives: pick the extractor that knows the
-/// format, or say this file isn't an archive at all. 7z/RAR will become new
-/// implementations of <see cref="IArchiveExtractor"/> without touching the
-/// rest of the pipeline.
+/// format, or say this file isn't an archive at all.
 /// </summary>
 public static class ArchiveExtractor
 {
     private static readonly IArchiveExtractor[] Extractors =
     {
-        new ZipArchiveExtractor()
+        new ZipArchiveExtractor(),
+        new MultiFormatArchiveExtractor(".rar"),
+        new MultiFormatArchiveExtractor(".7z"),
+        new MultiFormatArchiveExtractor(".tar"),
+        new MultiFormatArchiveExtractor(".gz"),
+        new MultiFormatArchiveExtractor(".tgz"),
+        new MultiFormatArchiveExtractor(".bz2"),
+        new MultiFormatArchiveExtractor(".xz")
     };
 
     public static bool IsSupportedArchive(string filePath)

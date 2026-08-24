@@ -7,6 +7,7 @@ This project uses the following third-party libraries.
 | [Avalonia](https://avalonUI.net) + Avalonia.Desktop + Avalonia.Themes.Fluent | Cross-platform desktop UI framework | MIT |
 | [Tmds.DBus.Protocol](https://www.nuget.org/packages/Tmds.DBus.Protocol) | Linux DBus support pulled in by Avalonia (not used on Windows) | MIT |
 | [System.Security.Cryptography.ProtectedData](https://www.nuget.org/packages/System.Security.Cryptography.ProtectedData) | DPAPI encryption of the stored Nexus API key | MIT |
+| [SharpCompress](https://www.nuget.org/packages/SharpCompress) | RAR, 7Z, TAR and compressed-stream archive reading | MIT |
 | [xunit](https://xunit.net) + xunit.runner.visualstudio | Test framework (development only) | Apache-2.0 |
 | Microsoft.NET.Test.Sdk / coverlet.collector | Test runner + coverage (development only) | MIT |
 

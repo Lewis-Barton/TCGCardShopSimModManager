@@ -113,9 +113,10 @@ public static class NexusModpackImportCommand
                 var mod = await api.GetModInfoAsync(request.Link.ModId, auth, CancellationToken.None);
                 var file = await api.GetFileInfoAsync(
                     request.Link.ModId, request.Link.FileId, auth, CancellationToken.None);
-                if (!Path.GetExtension(file.FileName).Equals(".zip", StringComparison.OrdinalIgnoreCase))
+                if (!ArchiveExtractor.IsSupportedArchive(file.FileName))
                     throw new InvalidOperationException(
-                        $"'{file.FileName}' is not a ZIP archive. The manager currently supports ZIP only.");
+                        $"'{file.FileName}' is not a supported archive. " +
+                        "Supported formats are ZIP, RAR, 7Z, TAR, GZ, TGZ, BZ2 and XZ.");
 
                 var archive = $"{request.Link.ModId}-{request.Link.FileId}-{SafeFileName(file.FileName)}";
                 var cachePath = Path.Combine(cacheFolder, archive);

@@ -317,8 +317,9 @@ automatically when no OAuth session is active.
 
 ## Supported archive formats
 
-ZIP, using the built-in .NET support. 7z/RAR are planned; the `IArchiveExtractor`
-interface makes them drop-in additions.
+ZIP, RAR, 7Z, TAR, GZ, TGZ, BZ2 and XZ. ZIP uses the built-in .NET reader;
+the other formats use SharpCompress behind the same protected extraction
+boundary. Encrypted and multi-volume archives are not supported.
 
 ## Diagnostics and privacy
 

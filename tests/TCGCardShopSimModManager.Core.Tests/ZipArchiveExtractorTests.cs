@@ -22,12 +22,14 @@ public sealed class ZipArchiveExtractorTests : IDisposable
     }
 
     [Fact]
-    public void Supports_OnlyAcceptsZipExtensions()
+    public void Supports_AcceptsCommonArchiveExtensions()
     {
         var extractor = new ZipArchiveExtractor();
         Assert.Equal(".zip", extractor.FileExtension);
         Assert.True(ArchiveExtractor.IsSupportedArchive("mods/pack.ZIP"));
-        Assert.False(ArchiveExtractor.IsSupportedArchive("mods/pack.7z"));
+        foreach (var extension in new[] { ".rar", ".7z", ".tar", ".gz", ".tgz", ".bz2", ".xz" })
+            Assert.True(ArchiveExtractor.IsSupportedArchive("mods/pack" + extension));
+        Assert.False(ArchiveExtractor.IsSupportedArchive("mods/pack.exe"));
     }
 
     [Fact]

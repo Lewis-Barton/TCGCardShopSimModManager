@@ -18,6 +18,10 @@ unit test already covers it, **[manual]** where it needs a real environment.
 
 - [x] **[auto]** Corrupted archive is refused before anything is written
       (`Install_RejectsArchiveHashMismatch`).
+- [x] **[auto]** Common ZIP, RAR, 7Z, TAR, GZ, TGZ, BZ2 and XZ extensions are
+      accepted, and compressed TAR extraction still rejects executables and
+      duplicate destinations (`MultiFormatArchiveExtractorTests`,
+      `Supports_AcceptsCommonArchiveExtensions`).
 - [x] **[auto]** Interrupted download/cancel leaves no partial or fake-valid
       file (`Cancellation_RemovesPartial_AndLeavesNoFinalFile`).
 - [ ] **[manual]** Interrupt an install half-way (kill the process) and confirm
