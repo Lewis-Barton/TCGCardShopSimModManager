@@ -173,7 +173,7 @@ unit test already covers it, **[manual]** where it needs a real environment.
       header show its name and version. Open another pack, cancel the switch
       warning once, then complete the switch and confirm the gallery identifies
       only the new pack.
-- [ ] **[manual]** Use the persistent **Launch game** button from each page and
+- [x] **[manual]** Use the persistent **Launch game** button from each page and
       confirm Steam starts TCG Card Shop Simulator.
 - [ ] **[manual]** During a large hosted install, move and resize the desktop
       window and confirm it remains responsive. Confirm the current mod, file
