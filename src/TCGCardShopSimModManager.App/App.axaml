@@ -8,19 +8,30 @@
     <SolidColorBrush x:Key="BorderBrushKey">#D2D8E0</SolidColorBrush>
     <SolidColorBrush x:Key="AccentBrush">#0F766E</SolidColorBrush>
     <SolidColorBrush x:Key="AccentHoverBrush">#115E59</SolidColorBrush>
+    <SolidColorBrush x:Key="AccentTextBrush">#FFFFFF</SolidColorBrush>
     <SolidColorBrush x:Key="TextBrush">#1F2933</SolidColorBrush>
     <SolidColorBrush x:Key="MutedBrush">#6B7280</SolidColorBrush>
     <SolidColorBrush x:Key="SoftAccentBrush">#DDF3F0</SolidColorBrush>
     <SolidColorBrush x:Key="DangerBrush">#B42318</SolidColorBrush>
+    <SolidColorBrush x:Key="NavHoverBrush">#E8ECEF</SolidColorBrush>
+    <SolidColorBrush x:Key="SecondaryBrush">#E5E9EF</SolidColorBrush>
+    <SolidColorBrush x:Key="SecondaryTextBrush">#1F2933</SolidColorBrush>
+    <SolidColorBrush x:Key="CheckBoxBrush">#F1F3F5</SolidColorBrush>
+    <SolidColorBrush x:Key="CheckBoxBorderBrush">#4B5563</SolidColorBrush>
+    <x:Double x:Key="BodyFontSize">14</x:Double>
+    <x:Double x:Key="SubtitleFontSize">12</x:Double>
+    <x:Double x:Key="HeaderFontSize">20</x:Double>
+    <x:Double x:Key="PageTitleFontSize">24</x:Double>
     <CornerRadius x:Key="ControlRadius">6</CornerRadius>
 
     <ControlTheme x:Key="ButtonTheme" TargetType="Button">
       <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
-      <Setter Property="Foreground" Value="White" />
+      <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
       <Setter Property="Padding" Value="12,6" />
       <Setter Property="CornerRadius" Value="{DynamicResource ControlRadius}" />
       <Setter Property="MinWidth" Value="86" />
       <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="FontSize" Value="{DynamicResource BodyFontSize}" />
       <Style Selector="^:pointerover">
         <Setter Property="Background" Value="{DynamicResource AccentHoverBrush}" />
       </Style>
@@ -36,9 +47,10 @@
         <ControlTemplate>
           <Grid ColumnDefinitions="20,*">
             <Border x:Name="Box" Width="18" Height="18" VerticalAlignment="Center"
-                    Background="#F1F3F5" BorderBrush="#4B5563" BorderThickness="1"
+                    Background="{DynamicResource CheckBoxBrush}"
+                    BorderBrush="{DynamicResource CheckBoxBorderBrush}" BorderThickness="1"
                     CornerRadius="3">
-              <Path x:Name="Glyph" Data="M 2,8 L 6,12 L 14,3" Stroke="White"
+              <Path x:Name="Glyph" Data="M 2,8 L 6,12 L 14,3" Stroke="{DynamicResource AccentTextBrush}"
                     StrokeThickness="2" IsVisible="False" />
             </Border>
             <ContentPresenter x:Name="Label" Grid.Column="1" Margin="8,0,0,0"
@@ -77,14 +89,19 @@
 
     <Style Selector="TextBlock">
       <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+      <Setter Property="FontSize" Value="{DynamicResource BodyFontSize}" />
     </Style>
 
     <Style Selector="Button">
       <Setter Property="Theme" Value="{DynamicResource ButtonTheme}" />
     </Style>
     <Style Selector="Button.secondary">
-      <Setter Property="Background" Value="#E5E9EF" />
-      <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+      <Setter Property="Background" Value="{DynamicResource SecondaryBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+    </Style>
+    <Style Selector="Button.secondary:pointerover">
+      <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
     </Style>
     <Style Selector="Button.danger">
       <Setter Property="Background" Value="{DynamicResource DangerBrush}" />
@@ -96,11 +113,15 @@
       <Setter Property="MinWidth" Value="0" />
     </Style>
     <Style Selector="Button.nav:pointerover">
-      <Setter Property="Background" Value="#E8ECEF" />
+      <Setter Property="Background" Value="{DynamicResource NavHoverBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
     </Style>
     <Style Selector="Button.nav.active">
       <Setter Property="Background" Value="{DynamicResource SoftAccentBrush}" />
       <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+    </Style>
+    <Style Selector="Button TextBlock">
+      <Setter Property="Foreground" Value="{Binding $parent[Button].Foreground}" />
     </Style>
 
     <Style Selector="TextBox">
@@ -109,6 +130,7 @@
       <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushKey}" />
       <Setter Property="CornerRadius" Value="{DynamicResource ControlRadius}" />
       <Setter Property="Padding" Value="8,5" />
+      <Setter Property="FontSize" Value="{DynamicResource BodyFontSize}" />
     </Style>
 
     <Style Selector="ListBox">
@@ -125,18 +147,21 @@
     <Style Selector="ProgressBar">
       <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
     </Style>
+    <Style Selector="Slider">
+      <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+    </Style>
 
     <Style Selector="TextBlock.header">
-      <Setter Property="FontSize" Value="20" />
+      <Setter Property="FontSize" Value="{DynamicResource HeaderFontSize}" />
       <Setter Property="FontWeight" Value="Bold" />
       <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
     </Style>
     <Style Selector="TextBlock.pageTitle">
-      <Setter Property="FontSize" Value="24" />
+      <Setter Property="FontSize" Value="{DynamicResource PageTitleFontSize}" />
       <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
     <Style Selector="TextBlock.subtitle">
-      <Setter Property="FontSize" Value="12" />
+      <Setter Property="FontSize" Value="{DynamicResource SubtitleFontSize}" />
       <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
     </Style>
     <Style Selector="Border.card">

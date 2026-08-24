@@ -312,15 +312,23 @@ boundaries were fixed before work continued on application-state defects.
   updated, removed and added. A shared Core planner derives those categories
   from stable mod ids and archive hashes, with regression coverage for all four
   outcomes and legacy journal entries.
+- **BUG-090 — desktop appearance cannot be adapted for accessibility (Medium,
+  fixed):** Settings now offers system, light, dark and high-contrast themes,
+  plus independent text and modpack-card sizes. Choices are stored per user and
+  restored at launch. Shared button styles keep their labels readable in every
+  palette, system-theme changes refresh the palette, and large text widens the
+  navigation and Browse filters instead of clipping their contents. Preference
+  persistence is covered by Core tests; every option and the corrected layouts
+  were reviewed in the running desktop app.
 
 ## Summary
 | Severity | Open | Fixed |
 |----------|------|-------|
 | Critical | 0 | 3 |
 | High     | 0 | 32 |
-| Medium   | 0 | 41 |
+| Medium   | 0 | 42 |
 | Low      | 0 | 13 |
-| **Total**| **0** | **89** |
+| **Total**| **0** | **90** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

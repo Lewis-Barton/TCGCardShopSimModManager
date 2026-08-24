@@ -37,8 +37,10 @@ persistent **Launch game** button starts the game through Steam. The **Manage
 mods** page lets
 you choose the game folder, inspect installed and manually placed mods, and
 enable, disable or uninstall managed mods. Nexus sign-in and update checks live
-under **Settings**. The CLI retains the local manifest validation, planning and
-installation commands.
+under **Settings**. Appearance settings can follow Windows or use a light, dark
+or high-contrast theme. Text and modpack card sizes can be increased
+independently, and the choices are kept for the next launch. The CLI retains
+the local manifest validation, planning and installation commands.
 
 On open, the window tries to find TCG Card Shop Simulator through your Steam
 library folders automatically and fills the game folder; if not found, use

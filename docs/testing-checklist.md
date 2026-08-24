@@ -106,6 +106,13 @@ unit test already covers it, **[manual]** where it needs a real environment.
       persistent **Launch game** action are visible and correctly aligned.
 - [x] **[manual]** Pack artwork fits inside its preview without cropping or
       distortion, and the compatibility warning remains inside the card.
+- [x] **[manual]** Light, dark, system and high-contrast themes remain readable,
+      including accent buttons and navigation hover states. Large text expands
+      the navigation and filter columns without clipping, and appearance choices
+      survive while moving between pages.
+- [ ] **[manual]** With several packs in the catalog, test standard and large
+      cards with normal and large text at the minimum and normal window sizes;
+      cards should wrap without overlapping or clipping.
 - [ ] **[manual]** Search and each Browse filter update the card grid, Reset
       restores the full catalog, and clicking a card opens its details.
 - [ ] **[manual]** NSFW packs are hidden on startup and after Reset, appear only

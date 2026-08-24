@@ -33,11 +33,13 @@ public sealed partial class MainWindow : Window
     private readonly ModpackIndexReader _packReader;
     private bool _usingCachedPackIndex;
     private string? _installedGameBuildId;
+    private bool _loadingAppearance;
 
     public MainWindow()
     {
         _packReader = new ModpackIndexReader(_http);
         InitializeComponent();
+        InitializeAppearanceSettings();
         Closed += (_, _) => _http.Dispose();
 
         var version = Assembly.GetExecutingAssembly().GetName().Version;
@@ -83,6 +85,19 @@ public sealed partial class MainWindow : Window
     private void OnPackTextFilterChanged(object? sender, TextChangedEventArgs e) => ApplyPackFilters();
     private void OnPackCheckFilterChanged(object? sender, RoutedEventArgs e) => ApplyPackFilters();
     private void OnPackSizeFilterChanged(object? sender, RangeBaseValueChangedEventArgs e) => ApplyPackFilters();
+    private void OnAppearanceChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (_loadingAppearance || _themeSelector.SelectedIndex < 0 ||
+            _textSizeSelector.SelectedIndex < 0 || _cardSizeSelector.SelectedIndex < 0)
+            return;
+
+        App.ApplyAppearance(new AppearancePreferences(
+            (AppColorTheme)_themeSelector.SelectedIndex,
+            (AppTextSize)_textSizeSelector.SelectedIndex,
+            (AppCardSize)_cardSizeSelector.SelectedIndex));
+        ApplyResponsiveLayout();
+        ApplyPackFilters();
+    }
     private void OnResetFiltersClick(object? sender, RoutedEventArgs e)
     {
         _packSearch.Text = string.Empty;
@@ -294,20 +309,30 @@ public sealed partial class MainWindow : Window
 
     private Border BuildPackCard(ModpackSummary pack, bool updateAvailable)
     {
+        var largeText = App.Preferences.TextSize == AppTextSize.Large;
+        var largeCard = App.Preferences.CardSize == AppCardSize.Large;
+        var expanded = largeText || largeCard;
+        var cardWidth = largeCard ? 340 : largeText ? 300 : 250;
+        var cardHeight = largeCard ? 330 : largeText ? 285 : 234;
+        var previewHeight = largeCard ? 180 : largeText ? 145 : 125;
+        var bannerHeight = largeText ? 32 : 24;
         var card = new Border
         {
             Classes = { "card", "packCard" },
-            Width = 250,
-            Height = 234,
+            Width = cardWidth,
+            Height = cardHeight,
             Margin = new Thickness(0, 0, 12, 12),
             Padding = new Thickness(0),
             Cursor = new Cursor(StandardCursorType.Hand)
         };
 
-        var grid = new Grid { RowDefinitions = new RowDefinitions("24,125,*") };
+        var grid = new Grid
+        {
+            RowDefinitions = new RowDefinitions($"{bannerHeight},{previewHeight},*")
+        };
         var img = new Image
         {
-            Height = 125,
+            Height = previewHeight,
             Stretch = Stretch.Uniform,
             HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
             VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
@@ -327,17 +352,19 @@ public sealed partial class MainWindow : Window
         {
             var banner = new Border
             {
-                Background = new SolidColorBrush(updateAvailable ? Color.Parse("#15803D") : Color.Parse("#0F766E")),
+                Background = BannerBackground(updateAvailable),
                 Padding = new Thickness(8, 4),
                 HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
                 VerticalAlignment = Avalonia.Layout.VerticalAlignment.Top,
                 Child = new TextBlock
                 {
                     Text = updateAvailable
-                        ? $"UPDATE AVAILABLE · {PackVersionTransition(installed.PackVersion, pack.Version)}"
-                        : $"INSTALLED · {installed.PackVersion}",
-                    Foreground = Brushes.White,
-                    FontSize = 11,
+                        ? $"↑ UPDATE AVAILABLE · {PackVersionTransition(installed.PackVersion, pack.Version)}"
+                        : $"✓ INSTALLED · {installed.PackVersion}",
+                    Foreground = App.Preferences.Theme == AppColorTheme.HighContrast
+                        ? Brushes.Black
+                        : Brushes.White,
+                    FontSize = largeText ? 15 : 11,
                     FontWeight = FontWeight.Bold
                 }
             };
@@ -346,13 +373,18 @@ public sealed partial class MainWindow : Window
         }
         var details = new StackPanel { Spacing = 2, Margin = new Thickness(10, 6) };
         Grid.SetRow(details, 2);
-        details.Children.Add(new TextBlock { Text = pack.Name, FontWeight = FontWeight.SemiBold, FontSize = 14 });
+        details.Children.Add(new TextBlock
+        {
+            Text = pack.Name,
+            FontWeight = FontWeight.SemiBold,
+            FontSize = largeText ? 19 : 14
+        });
         details.Children.Add(new TextBlock
         {
             Text = pack.ShortDescription,
             TextWrapping = TextWrapping.Wrap,
-            FontSize = 11,
-            MaxLines = 2
+            FontSize = largeText ? 16 : 11,
+            MaxLines = expanded ? 3 : 2
         });
 
         var compatibility = GameCompatibility.Evaluate(
@@ -362,7 +394,7 @@ public sealed partial class MainWindow : Window
             {
                 Text = "May not be supported",
                 Foreground = new SolidColorBrush(Colors.Orange),
-                FontSize = 11,
+                FontSize = largeText ? 16 : 11,
                 FontWeight = FontWeight.Bold
             });
 
@@ -411,6 +443,39 @@ public sealed partial class MainWindow : Window
 
     private static string PackVersionTransition(string installedVersion, string availableVersion) =>
         $"{installedVersion} → {availableVersion}";
+
+    private static IBrush BannerBackground(bool updateAvailable)
+    {
+        if (App.Preferences.Theme == AppColorTheme.HighContrast)
+            return new SolidColorBrush(Color.Parse("#FFD800"));
+        return new SolidColorBrush(Color.Parse(updateAvailable ? "#15803D" : "#0F766E"));
+    }
+
+    private void InitializeAppearanceSettings()
+    {
+        _loadingAppearance = true;
+        try
+        {
+            _themeSelector.ItemsSource = new[] { "Use system setting", "Light", "Dark", "High contrast" };
+            _textSizeSelector.ItemsSource = new[] { "Normal", "Large" };
+            _cardSizeSelector.ItemsSource = new[] { "Standard", "Large" };
+            _themeSelector.SelectedIndex = (int)App.Preferences.Theme;
+            _textSizeSelector.SelectedIndex = (int)App.Preferences.TextSize;
+            _cardSizeSelector.SelectedIndex = (int)App.Preferences.CardSize;
+        }
+        finally
+        {
+            _loadingAppearance = false;
+        }
+        ApplyResponsiveLayout();
+    }
+
+    private void ApplyResponsiveLayout()
+    {
+        var largeText = App.Preferences.TextSize == AppTextSize.Large;
+        _shellGrid.ColumnDefinitions[0].Width = new GridLength(largeText ? 250 : 190);
+        _browseLayout.ColumnDefinitions[0].Width = new GridLength(largeText ? 300 : 240);
+    }
 
     private Task OnLaunchGameAsync()
     {
