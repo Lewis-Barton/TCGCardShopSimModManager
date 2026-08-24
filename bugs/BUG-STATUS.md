@@ -345,15 +345,23 @@ boundaries were fixed before work continued on application-state defects.
   position in the remaining work while the animated progress bar continues.
   Core reports each stage through the existing progress contract, covered by
   the hosted-install progress regression.
+- **BUG-095 — large-pack preflight fills the temporary drive (High, fixed):**
+  preflight now discards each archive's extracted scratch files as soon as its
+  destination plan has been recorded, rather than retaining the expanded
+  contents of every archive until all conflict checks finish. ZIP and other
+  extractors now identify duplicates before writing, so disk and directory I/O
+  failures are no longer misreported as thousands of duplicate entries. Empty
+  archive errors also cap rejection details at ten paths plus a remaining count.
+  Covered by ZIP duplicate and write-failure regressions.
 
 ## Summary
 | Severity | Open | Fixed |
 |----------|------|-------|
 | Critical | 0 | 3 |
-| High     | 0 | 33 |
+| High     | 0 | 34 |
 | Medium   | 0 | 45 |
 | Low      | 0 | 13 |
-| **Total**| **0** | **94** |
+| **Total**| **0** | **95** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

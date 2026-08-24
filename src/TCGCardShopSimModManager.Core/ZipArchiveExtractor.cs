@@ -73,18 +73,14 @@ public sealed class ZipArchiveExtractor : IArchiveExtractor
             }
 
             var destinationPath = Path.Combine(destinationDirectory, relativePath);
-            try
+            if (File.Exists(destinationPath))
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
-                entry.ExtractToFile(destinationPath, overwrite: false);
-            }
-            catch (IOException)
-            {
-                // A duplicate entry targeting the same destination.
                 rejected.Add($"{relativePath}: duplicate or conflicting entry rejected");
                 continue;
             }
 
+            Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
+            entry.ExtractToFile(destinationPath, overwrite: false);
             sources.Add(new ExtractedSource(relativePath, destinationPath));
         }
 

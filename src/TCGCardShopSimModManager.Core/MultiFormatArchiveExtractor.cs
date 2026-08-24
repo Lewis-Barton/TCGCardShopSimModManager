@@ -112,6 +112,12 @@ public sealed class MultiFormatArchiveExtractor : IArchiveExtractor
             }
 
             var destinationPath = Path.Combine(_destinationDirectory, relativePath);
+            if (File.Exists(destinationPath))
+            {
+                _rejected.Add($"{relativePath}: duplicate or conflicting entry rejected");
+                return true;
+            }
+
             var destinationCreated = false;
             try
             {
@@ -145,11 +151,6 @@ public sealed class MultiFormatArchiveExtractor : IArchiveExtractor
 
                 _totalBytes += written;
                 _sources.Add(new ExtractedSource(relativePath, destinationPath));
-                return true;
-            }
-            catch (IOException) when (!destinationCreated)
-            {
-                _rejected.Add($"{relativePath}: duplicate or conflicting entry rejected");
                 return true;
             }
             catch

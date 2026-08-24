@@ -77,7 +77,7 @@ public sealed class ModInstaller
             if (result.Truncated)
             {
                 var detail = result.RejectedEntries.Count > 0
-                    ? string.Join("; ", result.RejectedEntries)
+                    ? RejectionSummary(result.RejectedEntries)
                     : "extraction stopped early";
                 throw new InvalidDataException(
                     $"{mod.Archive}: extraction was truncated ({detail}) — refusing to install a partial copy.");
@@ -86,7 +86,7 @@ public sealed class ModInstaller
             if (result.Sources.Count == 0)
             {
                 var detail = result.RejectedEntries.Count > 0
-                    ? string.Join("; ", result.RejectedEntries)
+                    ? RejectionSummary(result.RejectedEntries)
                     : "the archive is empty";
                 throw new InvalidDataException($"{mod.Archive}: nothing could be extracted ({detail}).");
             }
@@ -110,6 +110,15 @@ public sealed class ModInstaller
         // A plain loose file (e.g. a bare DLL) is treated as a one-file mod.
         var looseSource = new List<ExtractedSource> { new(mod.Archive, sourcePath) };
         return new ArchiveClassifier().BuildPlan(mod, looseSource);
+    }
+
+    private static string RejectionSummary(IReadOnlyList<string> rejected)
+    {
+        const int shownLimit = 10;
+        var summary = string.Join("; ", rejected.Take(shownLimit));
+        return rejected.Count <= shownLimit
+            ? summary
+            : $"{summary}; ... and {rejected.Count - shownLimit} more rejected entries";
     }
 
     public InstallResult Install(ModEntry mod, string sourceDirectory)

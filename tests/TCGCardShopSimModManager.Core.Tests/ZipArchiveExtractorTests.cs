@@ -210,6 +210,18 @@ public sealed class ZipArchiveExtractorTests : IDisposable
         Assert.Contains(result.RejectedEntries, r => r.Contains("duplicate or conflicting"));
     }
 
+    [Fact]
+    public void Extract_DoesNotReportDirectoryWriteFailureAsDuplicate()
+    {
+        var zip = CreateZip(("blocked/file.txt", "content"));
+        File.WriteAllText(Path.Combine(_destination, "blocked"), "not a directory");
+
+        var exception = Assert.Throws<IOException>(() =>
+            new ZipArchiveExtractor().Extract(zip, _destination, ArchiveProtectionSettings.Default));
+
+        Assert.DoesNotContain("duplicate", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
     private static string CreateZip(params (string Name, string Content)[] entries)
     {
         var path = Path.Combine(Path.GetTempPath(), "zip-tests-" + Guid.NewGuid().ToString("N") + ".zip");

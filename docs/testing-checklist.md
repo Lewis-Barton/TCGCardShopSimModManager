@@ -206,6 +206,10 @@ unit test already covers it, **[manual]** where it needs a real environment.
 - [x] **[auto]** If planning fails after a verified hosted download, retrying
       uses the persistent content cache without requesting the archive again
       (`ModpackInstaller_RetryUsesVerifiedCacheAfterPlanningFailure`).
+- [x] **[auto]** Preflight releases each archive's extracted scratch files
+      before planning the next archive. ZIP write failures remain I/O errors
+      instead of being reported as duplicate entries
+      (`Extract_DoesNotReportDirectoryWriteFailureAsDuplicate`).
 - [x] **[auto]** An identical unmanaged file is adopted without being copied,
       remains marked as pre-existing, and is preserved by disable, update and
       uninstall (`Install_AdoptsIdenticalExistingFileWithoutTakingDeletionOwnership`,

@@ -168,6 +168,7 @@ public sealed class DeploymentService
             Directory.CreateDirectory(planRoot);
             for (var i = 0; i < toInstall.Count; i++)
             {
+                var extractionDirectory = Path.Combine(planRoot, $"mod-{i + 1}");
                 try
                 {
                     progress?.Report(new ModpackInstallProgress(
@@ -175,11 +176,18 @@ public sealed class DeploymentService
                         toInstall[i].Name,
                         i + 1,
                         toInstall.Count));
-                    plans.Add(installer.CreatePlan(toInstall[i], sourceDirectory, Path.Combine(planRoot, $"mod-{i + 1}")));
+                    plans.Add(installer.CreatePlan(toInstall[i], sourceDirectory, extractionDirectory));
                 }
                 catch (Exception ex)
                 {
                     return DeploymentReport.Failure(lines, $"Could not plan {toInstall[i].Name}: {ex.Message}");
+                }
+                finally
+                {
+                    // Conflict and rollback checks use destination paths only.
+                    // Releasing each extracted archive here keeps large packs
+                    // from accumulating their full expanded size in temporary storage.
+                    TemporaryDirectory.DeleteBestEffort(extractionDirectory);
                 }
             }
         }
