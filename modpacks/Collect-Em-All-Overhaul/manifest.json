@@ -118,7 +118,10 @@
       "conflicts": [],
       "nexusModId": 685,
       "nexusFileId": 5260,
-      "required": true
+      "required": true,
+      "excludedArchivePaths": [
+        "BepInEx/config/munch.PhoneOverhaul.cfg"
+      ]
     },
     {
       "id": "collection-tracker-867-3966",
@@ -417,7 +420,10 @@
       "conflicts": [],
       "nexusModId": 1175,
       "nexusFileId": 6033,
-      "required": true
+      "required": true,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Grading Overhaul/Admin/Defaults/"
+      ]
     },
     {
       "id": "pokemon-pocket-expansions-6034-1175-6034",
@@ -430,7 +436,10 @@
       "conflicts": [],
       "nexusModId": 1175,
       "nexusFileId": 6034,
-      "required": true
+      "required": true,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Grading Overhaul/Admin/Defaults/"
+      ]
     },
     {
       "id": "pokemon-pocket-expansions-6032-1175-6032",
@@ -443,10 +452,16 @@
       "conflicts": [],
       "nexusModId": 1175,
       "nexusFileId": 6032,
-      "required": true
+      "required": true,
+      "excludedArchivePaths": [
+        "BepInEx/config/EnhancedPrefabLoader.cfg",
+        "BepInEx/config/munch.gradingoverhaul.cfg",
+        "BepInEx/config/munch.PhoneOverhaul.cfg",
+        "BepInEx/config/munch.PhoneOverhaul.Layouts.cfg"
+      ]
     },
     {
-      "id": "pokemon-tcg-card-shop-simulator-v3-5-577-6028",
+      "id": "pokemon-tcg-card-shop-simulator-v3-4-577-6028",
       "name": "Pokemon TCG Card Shop Simulator - Generation 1",
       "version": "3.4",
       "archive": "577-6028-Pokemon Expansions - Generation 1 577 3.4 2026-08-14T21-47Z 8nJgf8Ut0.zip",
@@ -459,7 +474,7 @@
       "required": true
     },
     {
-      "id": "pokemon-tcg-card-shop-simulator-v3-5-6029-577-6029",
+      "id": "pokemon-tcg-card-shop-simulator-v3-4-6029-577-6029",
       "name": "Pokemon TCG Card Shop Simulator - Generation 2",
       "version": "3.4",
       "archive": "577-6029-Pokemon Expansions - Generation 2 577 3.4 2026-08-14T21-53Z oEpP4otKf.zip",
@@ -469,10 +484,13 @@
       "conflicts": [],
       "nexusModId": 577,
       "nexusFileId": 6029,
-      "required": true
+      "required": true,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Grading Overhaul/Admin/Defaults/"
+      ]
     },
     {
-      "id": "pokemon-tcg-card-shop-simulator-v3-5-6030-577-6030",
+      "id": "pokemon-tcg-card-shop-simulator-v3-4-6030-577-6030",
       "name": "Pokemon TCG Card Shop Simulator - Generation 3",
       "version": "3.4",
       "archive": "577-6030-Pokemon Expansions - Generation 3 577 3.4 2026-08-14T21-54Z 4m2tX4nEP.zip",
@@ -482,10 +500,13 @@
       "conflicts": [],
       "nexusModId": 577,
       "nexusFileId": 6030,
-      "required": true
+      "required": true,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Grading Overhaul/Admin/Defaults/"
+      ]
     },
     {
-      "id": "pokemon-tcg-card-shop-simulator-v3-5-6026-577-6026",
+      "id": "pokemon-tcg-card-shop-simulator-v3-4-6026-577-6026",
       "name": "Pokemon TCG Card Shop Simulator - Accessories",
       "version": "3.4",
       "archive": "577-6026-Pokemon Accessories 577 3.4 2026-08-14T21-40Z QbdRBQ9OM.zip",
@@ -498,7 +519,7 @@
       "required": true
     },
     {
-      "id": "pokemon-tcg-card-shop-simulator-v3-5-6024-577-6024",
+      "id": "pokemon-tcg-card-shop-simulator-v3-4-6024-577-6024",
       "name": "Pokemon TCG Card Shop Simulator - Figurines",
       "version": "3.4",
       "archive": "577-6024-Pokemon Figurines 577 3.4 2026-08-14T21-38Z 8nJgf8Utn.zip",
@@ -511,7 +532,7 @@
       "required": true
     },
     {
-      "id": "pokemon-tcg-card-shop-simulator-v3-5-6031-577-6031",
+      "id": "pokemon-tcg-card-shop-simulator-v3-4-6031-577-6031",
       "name": "Pokemon TCG Card Shop Simulator - Pokemon Shop App",
       "version": "3.4",
       "archive": "577-6031-Pokemon Shop App 577 3.4 2026-08-14T21-58Z qalTsq6Dv.zip",
@@ -524,7 +545,7 @@
       "required": true
     },
     {
-      "id": "pokemon-tcg-card-shop-simulator-v3-5-6025-577-6025",
+      "id": "pokemon-tcg-card-shop-simulator-v3-4-6025-577-6025",
       "name": "Pokemon TCG Card Shop Simulator - Statues",
       "version": "3.4",
       "archive": "577-6025-Pokemon Statues 577 3.4 2026-08-14T21-38Z alhCMaWji.zip",
@@ -547,7 +568,10 @@
       "conflicts": [],
       "nexusModId": 987,
       "nexusFileId": 5867,
-      "required": true
+      "required": true,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Grading Overhaul/Admin/Defaults/"
+      ]
     },
     {
       "id": "yugioh-expansions-5868-987-5868",
@@ -560,7 +584,11 @@
       "conflicts": [],
       "nexusModId": 987,
       "nexusFileId": 5868,
-      "required": true
+      "required": true,
+      "excludedArchivePaths": [
+        "BepInEx/config/EnhancedPrefabLoader.cfg",
+        "BepInEx/config/munch.gradingoverhaul.cfg"
+      ]
     },
     {
       "id": "yugioh-accessories-988-5870",
@@ -599,7 +627,10 @@
       "conflicts": [],
       "nexusModId": 803,
       "nexusFileId": 3796,
-      "required": true
+      "required": true,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/HHMTGShop/"
+      ]
     },
     {
       "id": "magic-the-gathering-tcg-3797-803-3797",
@@ -742,7 +773,10 @@
       "conflicts": [],
       "nexusModId": 985,
       "nexusFileId": 5215,
-      "required": true
+      "required": true,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/WPMarvelCollect/"
+      ]
     },
     {
       "id": "marvel-collect-5292-985-5292",
@@ -755,7 +789,10 @@
       "conflicts": [],
       "nexusModId": 985,
       "nexusFileId": 5292,
-      "required": true
+      "required": true,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/WPMarvelCollect/"
+      ]
     },
     {
       "id": "marvel-collect-5322-985-5322",
@@ -768,7 +805,10 @@
       "conflicts": [],
       "nexusModId": 985,
       "nexusFileId": 5322,
-      "required": true
+      "required": true,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/WPMarvelCollect/"
+      ]
     },
     {
       "id": "marvel-collect-5761-985-5761",
@@ -859,7 +899,10 @@
       "conflicts": [],
       "nexusModId": 750,
       "nexusFileId": 5981,
-      "required": true
+      "required": true,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/DXLorcana/"
+      ]
     },
     {
       "id": "lorcana-collection-addon-by-drax-5814-750-5814",
@@ -872,7 +915,10 @@
       "conflicts": [],
       "nexusModId": 750,
       "nexusFileId": 5814,
-      "required": true
+      "required": true,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/DXLorcana/"
+      ]
     },
     {
       "id": "lorcana-collection-addon-by-drax-5834-750-5834",
@@ -885,7 +931,10 @@
       "conflicts": [],
       "nexusModId": 750,
       "nexusFileId": 5834,
-      "required": true
+      "required": true,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/DXLorcana/"
+      ]
     },
     {
       "id": "lorcana-collection-addon-by-drax-5816-750-5816",
@@ -898,7 +947,10 @@
       "conflicts": [],
       "nexusModId": 750,
       "nexusFileId": 5816,
-      "required": true
+      "required": true,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/DXLorcana/"
+      ]
     },
     {
       "id": "lorcana-collection-addon-by-drax-5817-750-5817",
@@ -911,7 +963,10 @@
       "conflicts": [],
       "nexusModId": 750,
       "nexusFileId": 5817,
-      "required": true
+      "required": true,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/DXLorcana/"
+      ]
     },
     {
       "id": "lorcana-collection-addon-by-drax-5819-750-5819",
@@ -924,7 +979,10 @@
       "conflicts": [],
       "nexusModId": 750,
       "nexusFileId": 5819,
-      "required": true
+      "required": true,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/DXLorcana/"
+      ]
     },
     {
       "id": "lorcana-collection-addon-by-drax-5820-750-5820",
@@ -937,7 +995,10 @@
       "conflicts": [],
       "nexusModId": 750,
       "nexusFileId": 5820,
-      "required": true
+      "required": true,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/DXLorcana/"
+      ]
     },
     {
       "id": "lorcana-collection-addon-by-drax-5835-750-5835",
@@ -950,7 +1011,10 @@
       "conflicts": [],
       "nexusModId": 750,
       "nexusFileId": 5835,
-      "required": true
+      "required": true,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/DXLorcana/"
+      ]
     },
     {
       "id": "lorcana-collection-addon-by-drax-5822-750-5822",
@@ -963,7 +1027,10 @@
       "conflicts": [],
       "nexusModId": 750,
       "nexusFileId": 5822,
-      "required": true
+      "required": true,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/DXLorcana/"
+      ]
     },
     {
       "id": "lorcana-collection-addon-by-drax-5823-750-5823",
@@ -976,7 +1043,10 @@
       "conflicts": [],
       "nexusModId": 750,
       "nexusFileId": 5823,
-      "required": true
+      "required": true,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/DXLorcana/"
+      ]
     },
     {
       "id": "lorcana-collection-addon-by-drax-5824-750-5824",
@@ -989,7 +1059,10 @@
       "conflicts": [],
       "nexusModId": 750,
       "nexusFileId": 5824,
-      "required": true
+      "required": true,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/DXLorcana/"
+      ]
     },
     {
       "id": "lorcana-collection-addon-by-drax-6055-750-6055",
@@ -1002,7 +1075,10 @@
       "conflicts": [],
       "nexusModId": 750,
       "nexusFileId": 6055,
-      "required": true
+      "required": true,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/DXLorcana/"
+      ]
     },
     {
       "id": "rtcgo-custom-tv-895-5777",
@@ -1057,7 +1133,7 @@
       "required": false
     },
     {
-      "id": "pokemon-tcg-card-shop-simulator-v3-5-6027-577-6027",
+      "id": "pokemon-tcg-card-shop-simulator-v3-4-6027-577-6027",
       "name": "Pokemon TCG Card Shop Simulator - Pokemon Shop Textures",
       "version": "3.4",
       "archive": "577-6027-Pokemon Shop Textures 577 3.4 2026-08-14T21-41Z QbdRBQ9On.zip",

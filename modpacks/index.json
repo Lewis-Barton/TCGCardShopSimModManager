@@ -47,7 +47,7 @@
       "shortDescription": "A huge multi-franchise collection with expanded cards, themed shop content, collection tools and optional extras.",
       "logo": "Collect-Em-All-Overhaul/logo.png",
       "manifest": "Collect-Em-All-Overhaul/manifest.json",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "updated": "2026-08-24",
       "featured": true,
       "nsfw": false,
@@ -88,13 +88,13 @@
         "pokemon-pocket-expansions-1175-6033",
         "pokemon-pocket-expansions-6034-1175-6034",
         "pokemon-pocket-expansions-6032-1175-6032",
-        "pokemon-tcg-card-shop-simulator-v3-5-577-6028",
-        "pokemon-tcg-card-shop-simulator-v3-5-6029-577-6029",
-        "pokemon-tcg-card-shop-simulator-v3-5-6030-577-6030",
-        "pokemon-tcg-card-shop-simulator-v3-5-6026-577-6026",
-        "pokemon-tcg-card-shop-simulator-v3-5-6024-577-6024",
-        "pokemon-tcg-card-shop-simulator-v3-5-6031-577-6031",
-        "pokemon-tcg-card-shop-simulator-v3-5-6025-577-6025",
+        "pokemon-tcg-card-shop-simulator-v3-4-577-6028",
+        "pokemon-tcg-card-shop-simulator-v3-4-6029-577-6029",
+        "pokemon-tcg-card-shop-simulator-v3-4-6030-577-6030",
+        "pokemon-tcg-card-shop-simulator-v3-4-6026-577-6026",
+        "pokemon-tcg-card-shop-simulator-v3-4-6024-577-6024",
+        "pokemon-tcg-card-shop-simulator-v3-4-6031-577-6031",
+        "pokemon-tcg-card-shop-simulator-v3-4-6025-577-6025",
         "yugioh-expansions-987-5867",
         "yugioh-expansions-5868-987-5868",
         "yugioh-accessories-988-5870",
@@ -135,7 +135,7 @@
         "skynet-5979-1232-5979",
         "cardshopcoop-true-co-op-multiplayer-1117-6117",
         "tcgcss-trainer-cheats-mod-menu-135-3427",
-        "pokemon-tcg-card-shop-simulator-v3-5-6027-577-6027"
+        "pokemon-tcg-card-shop-simulator-v3-4-6027-577-6027"
       ]
     }
   ]

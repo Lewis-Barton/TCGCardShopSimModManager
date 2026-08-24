@@ -73,17 +73,19 @@ public sealed class MultiFormatArchiveExtractorTests : IDisposable
                    file,
                    ArchiveType.SevenZip,
                    new SevenZipWriterOptions(CompressionType.LZMA2)))
-        using (var source = new MemoryStream(Encoding.UTF8.GetBytes("plugin")))
         {
-            writer.Write("BepInEx/plugins/Example.dll", source, DateTime.UtcNow);
+            WriteSevenZipEntry(writer, "BepInEx/plugins/Example.dll", "plugin");
+            WriteSevenZipEntry(writer, "BepInEx/plugins/Data/one.txt", "one");
+            WriteSevenZipEntry(writer, "BepInEx/plugins/Data/two.txt", "two");
         }
         var destination = Path.Combine(_root, "out");
 
         var result = ArchiveExtractor.Extract(archive, destination);
 
-        var extracted = Assert.Single(result.Sources);
-        Assert.Equal("BepInEx/plugins/Example.dll", extracted.RelativePath);
-        Assert.Equal("plugin", File.ReadAllText(extracted.AbsolutePath));
+        Assert.Equal(3, result.Sources.Count);
+        Assert.Equal("plugin", File.ReadAllText(Path.Combine(destination, "BepInEx/plugins/Example.dll")));
+        Assert.Equal("one", File.ReadAllText(Path.Combine(destination, "BepInEx/plugins/Data/one.txt")));
+        Assert.Equal("two", File.ReadAllText(Path.Combine(destination, "BepInEx/plugins/Data/two.txt")));
         Assert.Empty(result.RejectedEntries);
     }
 
@@ -117,5 +119,11 @@ public sealed class MultiFormatArchiveExtractorTests : IDisposable
                 DataStream = new MemoryStream(bytes)
             });
         }
+    }
+
+    private static void WriteSevenZipEntry(IWriter writer, string name, string content)
+    {
+        using var source = new MemoryStream(Encoding.UTF8.GetBytes(content));
+        writer.Write(name, source, DateTime.UtcNow);
     }
 }

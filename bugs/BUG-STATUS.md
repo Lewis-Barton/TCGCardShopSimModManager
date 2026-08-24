@@ -327,15 +327,27 @@ boundaries were fixed before work continued on application-state defects.
   and size checks before it can enter an installation plan. Encrypted and
   multi-volume archives remain unsupported. Extension coverage and protected
   compressed-TAR extraction have regression tests.
+- **BUG-092 — Collect Em All cannot safely replace Real TCG Overhaul (High,
+  fixed):** the published manifests now use the same stable ids for their eight
+  shared Pokemon archives, so a switch keeps those entries instead of trying to
+  uninstall them. Collect Em All also declares one owner for every bundled
+  configuration and asset path found during a complete destination audit. The
+  corrected pack plans 82 archives and 6,753 files without a conflict.
+- **BUG-093 — solid 7Z archives are reopened for every entry (Medium, fixed):**
+  7Z extraction now uses one sequential reader for the complete archive. This
+  avoids restarting decompression for each file in a solid archive. The archive
+  classifier also strips one outer folder when it contains a complete BepInEx
+  tree, preserving the intended layout without weakening root-DLL protection.
+  Covered by multi-entry 7Z and wrapped-layout regressions.
 
 ## Summary
 | Severity | Open | Fixed |
 |----------|------|-------|
 | Critical | 0 | 3 |
-| High     | 0 | 32 |
-| Medium   | 0 | 43 |
+| High     | 0 | 33 |
+| Medium   | 0 | 44 |
 | Low      | 0 | 13 |
-| **Total**| **0** | **91** |
+| **Total**| **0** | **93** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

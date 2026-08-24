@@ -65,12 +65,15 @@ result before anything is installed. In order:
    contents mirror into the game's `BepInEx/` folder (plugins, config,
    patchers all land in the right place). Best for mods that ship config or
    patchers.
-2. **Loose plugin folder** — a bare `.dll` at the archive root. Everything goes
+2. **Wrapped BepInEx layout** — the archive's only top-level folder contains a
+   `BepInEx/` directory. The outer folder is stripped and the BepInEx contents
+   are mirrored into the game's `BepInEx/` folder.
+3. **Loose plugin folder** — a bare `.dll` at the archive root. Everything goes
    to `BepInEx/plugins/<mod name>/`.
-3. **Patcher** — a top-level `patchers/` folder. Its contents go to
+4. **Patcher** — a top-level `patchers/` folder. Its contents go to
    `BepInEx/patchers/`; anything else in the archive goes to
    `BepInEx/plugins/<mod name>/`.
-4. **Game root files** — anything else mirrors into the game folder root (for
+5. **Game root files** — anything else mirrors into the game folder root (for
    e.g. texture replacements).
 
 `README`, `LICENSE`, `CHANGELOG` and OS junk (`.DS_Store`, `__MACOSX`) are

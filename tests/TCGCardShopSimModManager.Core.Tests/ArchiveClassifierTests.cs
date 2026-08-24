@@ -51,6 +51,35 @@ public sealed class ArchiveClassifierTests
     }
 
     [Fact]
+    public void SingleWrapperContainingBepInEx_StripsWrapperFolder()
+    {
+        var plan = new ArchiveClassifier().BuildPlan(Mod, new[]
+        {
+            Source("StarWars Mod/BepInEx/plugins/StarWars/cards"),
+            Source("StarWars Mod/BepInEx/plugins/Phone - Overhaul/Icon.png")
+        });
+
+        Assert.Equal("wrapped BepInEx layout (strips one wrapper folder)", plan.LayoutName);
+        Assert.Contains(plan.Files, file => file.DestinationRelativePath ==
+            "BepInEx/plugins/StarWars/cards");
+        Assert.Contains(plan.Files, file => file.DestinationRelativePath ==
+            "BepInEx/plugins/Phone - Overhaul/Icon.png");
+    }
+
+    [Fact]
+    public void WrappedBepInExRootHijackDll_IsRejected()
+    {
+        var plan = new ArchiveClassifier().BuildPlan(Mod, new[]
+        {
+            Source("Wrapper/BepInEx/plugins/RealMod.dll"),
+            Source("Wrapper/BepInEx/winhttp.dll")
+        });
+
+        Assert.Single(plan.Files);
+        Assert.Contains(plan.SkippedEntries, entry => entry.Contains("winhttp.dll"));
+    }
+
+    [Fact]
     public void PatcherFolder_UsesPatcherLayout()
     {
         var plan = new ArchiveClassifier().BuildPlan(Mod, new[]

@@ -26,9 +26,10 @@ public sealed class MultiFormatArchiveExtractor : IArchiveExtractor
         if (FileExtension.Equals(".7z", StringComparison.OrdinalIgnoreCase))
         {
             using var archive = ArchiveFactory.OpenArchive(archivePath);
-            foreach (var entry in archive.Entries)
+            using var reader = archive.ExtractAllEntries();
+            while (reader.MoveToNextEntry())
             {
-                if (!writer.Process(entry, entry.OpenEntryStream, archivePath))
+                if (!writer.Process(reader.Entry, reader.OpenEntryStream, archivePath))
                     break;
             }
         }

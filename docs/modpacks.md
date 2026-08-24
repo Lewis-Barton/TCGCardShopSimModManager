@@ -137,6 +137,10 @@ are mirrored under `BepInEx/`. This is distinct from game-root content: a
 dependency such as `plugins/Example.API/Example.API.dll` must be available to
 BepInEx rather than copied beside the game files.
 
+An archive may wrap a complete `BepInEx/` directory in one named outer folder.
+The manager strips that single wrapper and mirrors the enclosed BepInEx tree.
+Files elsewhere in the wrapper are skipped.
+
 A ZIP may instead wrap a plugin DLL and its supporting files in one named
 directory, such as `TextureReplacer/TextureReplacer.dll`. When that DLL is
 directly inside the archive's only top-level directory, the manager preserves

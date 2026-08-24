@@ -12,12 +12,14 @@ namespace TCGCardShopSimModManager.Core;
 ///      the BepInEx/ root; those are refused unless the reserved framework entry
 ///      needs its game-root bootstrap DLL.
 ///   2. Loose .dll at the archive root -> whole mod goes to BepInEx/plugins/{Name}/.
-///   3. Contains a plugins/ folder -> treat plugins/, patchers/, and config/ as
+///   3. Contains one wrapper folder with a BepInEx/ folder inside -> strip the
+///      wrapper and mirror the BepInEx tree.
+///   4. Contains a plugins/ folder -> treat plugins/, patchers/, and config/ as
 ///      the contents of a BepInEx folder and mirror them there.
-///   4. Contains one top-level folder with a plugin DLL directly inside it ->
+///   5. Contains one top-level folder with a plugin DLL directly inside it ->
 ///      preserve that folder under BepInEx/plugins/.
-///   5. Contains a patchers/ folder -> files go to BepInEx/patchers/.
-///   6. Anything else -> mirror the archive root straight into the game root, except
+///   6. Contains a patchers/ folder -> files go to BepInEx/patchers/.
+///   7. Anything else -> mirror the archive root straight into the game root, except
 ///      hijack-target DLLs at the game root which are refused.
 /// Documentation and OS-junk files are skipped, not installed.
 /// </summary>
@@ -26,6 +28,7 @@ public sealed class ArchiveClassifier
     public enum LayoutKind
     {
         BepInExLayout,
+        WrappedBepInExLayout,
         PluginFolder,
         PluginTree,
         WrappedPluginFolder,
@@ -126,6 +129,11 @@ public sealed class ArchiveClassifier
         if (topLevelNames.Contains("BepInEx"))
             return LayoutKind.BepInExLayout;
 
+        if (topLevelNames.Count == 1 && sources.Any(source =>
+                source.RelativePath.Split('/').ElementAtOrDefault(1)?
+                    .Equals("BepInEx", StringComparison.OrdinalIgnoreCase) == true))
+            return LayoutKind.WrappedBepInExLayout;
+
         if (sources.Any(s =>
                 !s.RelativePath.Contains('/') &&
                 Path.GetExtension(s.RelativePath).Equals(".dll", StringComparison.OrdinalIgnoreCase)))
@@ -184,6 +192,16 @@ public sealed class ArchiveClassifier
                     return null;
                 return $"BepInEx/plugins/{mod.Name}/{relativePath}";
 
+            case LayoutKind.WrappedBepInExLayout when
+                segments.Length >= 3 &&
+                segments[1].Equals("BepInEx", StringComparison.OrdinalIgnoreCase):
+                if (segments.Length == 3 && IsHijackTarget(segments[2]))
+                    return null;
+                return $"BepInEx/{string.Join('/', segments[2..])}";
+
+            case LayoutKind.WrappedBepInExLayout:
+                return null;
+
             case LayoutKind.PluginTree when BepInExContentDirectories.Contains(segments[0]):
                 if (IsHijackTarget(segments[^1]))
                     return null;
@@ -235,6 +253,7 @@ public sealed class ArchiveClassifier
     private static string LayoutDisplayName(LayoutKind kind) => kind switch
     {
         LayoutKind.BepInExLayout => "BepInEx layout (mirrors the game's BepInEx folder)",
+        LayoutKind.WrappedBepInExLayout => "wrapped BepInEx layout (strips one wrapper folder)",
         LayoutKind.PluginFolder => "loose plugin folder (goes to BepInEx/plugins/<mod name>)",
         LayoutKind.PluginTree => "BepInEx content tree (mirrors plugins, patchers, and config)",
         LayoutKind.WrappedPluginFolder => "wrapped plugin folder (goes under BepInEx/plugins)",
