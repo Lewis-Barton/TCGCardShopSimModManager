@@ -353,15 +353,22 @@ boundaries were fixed before work continued on application-state defects.
   failures are no longer misreported as thousands of duplicate entries. Empty
   archive errors also cap rejection details at ten paths plus a remaining count.
   Covered by ZIP duplicate and write-failure regressions.
+- **BUG-096 — Collect Em All includes an entirely excluded mod (High, fixed):**
+  the MTG Shop archive contains only the same six phone-app images already
+  supplied by the base Magic pack. Excluding that overlap left the entry with
+  nothing to install and caused a late rollback. The redundant Nexus entry has
+  been removed from the manifest, index and retained selector list. A complete
+  cached-archive audit now finds 81 non-empty plans, 6,753 destinations and no
+  conflicts.
 
 ## Summary
 | Severity | Open | Fixed |
 |----------|------|-------|
 | Critical | 0 | 3 |
-| High     | 0 | 34 |
+| High     | 0 | 35 |
 | Medium   | 0 | 45 |
 | Low      | 0 | 13 |
-| **Total**| **0** | **95** |
+| **Total**| **0** | **96** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

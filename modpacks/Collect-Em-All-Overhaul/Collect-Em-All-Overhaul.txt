@@ -56,7 +56,6 @@ required nexus:988:5870 # Yu-Gi-Oh Accessories
 
 # Magic The Gathering
 required nexus:803:3757 # Magic The Gathering TCG
-required nexus:803:3796 # MTG Shop File
 required nexus:803:3797 # 001 - Lord of the Rings Module
 required nexus:803:3798 # 002 - War of the Spark JP Module
 required nexus:803:3799 # 003 - Lorwyn Block (Autumn 2007)

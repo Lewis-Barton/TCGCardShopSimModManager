@@ -617,22 +617,6 @@
       "required": true
     },
     {
-      "id": "magic-the-gathering-tcg-3796-803-3796",
-      "name": "Magic The Gathering TCG - MTG Shop",
-      "version": "1.0",
-      "archive": "803-3796-MTG Shop File-803-1-0-1769731416.rar",
-      "sha256": "0e82adee9a13fe5f1397e612db715bf38cfa083583a2df8459ce8262e5ddd6be",
-      "installType": "BepInExPlugin",
-      "dependencies": [],
-      "conflicts": [],
-      "nexusModId": 803,
-      "nexusFileId": 3796,
-      "required": true,
-      "excludedArchivePaths": [
-        "BepInEx/plugins/Phone - Overhaul/App Images/HHMTGShop/"
-      ]
-    },
-    {
       "id": "magic-the-gathering-tcg-3797-803-3797",
       "name": "Magic The Gathering TCG - Lord of the Rings",
       "version": "1.0",
@@ -1146,5 +1130,5 @@
       "required": false
     }
   ],
-  "totalSize": 29473389536
+  "totalSize": 29472761298
 }
