@@ -351,9 +351,12 @@ public sealed class ModpackInstaller
                     var result = installer.Uninstall(entry.ModName);
                     if (!result.Success)
                     {
-                        lines.Add($"Could not uninstall {entry.ModName}: {result.Error}");
-                        AddRollbackResult(lines, snapshot.Rollback());
-                        return DeploymentReport.Failure(lines, null);
+                        var failureLines = new List<string>
+                        {
+                            $"Could not uninstall {entry.ModName}: {result.Error}"
+                        };
+                        AddRollbackResult(failureLines, snapshot.Rollback());
+                        return DeploymentReport.Failure(failureLines, null);
                     }
 
                     lines.Add($"Uninstalled {entry.ModName}.");

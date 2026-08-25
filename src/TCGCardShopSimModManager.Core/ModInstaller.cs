@@ -168,7 +168,8 @@ public sealed class ModInstaller
             {
                 foreach (var file in existingEntry.Files.Where(f => File.Exists(f.Path)))
                 {
-                    if (!HashMatchesCurrent(file.Path, file.Sha256))
+                    if (!IsMutableRuntimeFile(file.Path) &&
+                        !HashMatchesCurrent(file.Path, file.Sha256))
                         return new InstallResult(false,
                             $"Cannot update {mod.Name}: a managed file was modified: {file.Path}", null);
                 }
@@ -178,7 +179,15 @@ public sealed class ModInstaller
             foreach (var file in plan.Files)
             {
                 var destination = PhysicalPath(_gameFolderPath, file.DestinationRelativePath);
-                if (!File.Exists(destination) || ownedPaths.ContainsKey(destination))
+                if (!File.Exists(destination))
+                    continue;
+                if (IsMutableConfiguration(destination))
+                {
+                    preservedPaths.Add(destination);
+                    skipped.Add($"{file.DestinationRelativePath} (kept existing configuration)");
+                    continue;
+                }
+                if (ownedPaths.ContainsKey(destination))
                     continue;
                 if (HashesMatch(file.SourceAbsolutePath, destination))
                 {
@@ -197,6 +206,7 @@ public sealed class ModInstaller
                 var destination = PhysicalPath(_gameFolderPath, file.DestinationRelativePath);
                 if (ownedPaths.TryGetValue(destination, out var ownedFile) &&
                     ownedFile.PreserveOnUninstall &&
+                    !IsMutableConfiguration(destination) &&
                     File.Exists(destination) &&
                     !HashesMatch(file.SourceAbsolutePath, destination))
                 {
@@ -250,7 +260,9 @@ public sealed class ModInstaller
 
             var installedSet = installedPaths.ToHashSet(StringComparer.OrdinalIgnoreCase);
             foreach (var oldFile in ownedPaths
-                         .Where(pair => !pair.Value.PreserveOnUninstall && !installedSet.Contains(pair.Key))
+                         .Where(pair => !pair.Value.PreserveOnUninstall &&
+                                        !installedSet.Contains(pair.Key) &&
+                                        !IsMutableConfiguration(pair.Key))
                          .Select(pair => pair.Key))
                 if (File.Exists(oldFile))
                     File.Delete(oldFile);
@@ -597,6 +609,27 @@ private string? RelativeToGame(string filePath)
     return full.StartsWith(game, StringComparison.OrdinalIgnoreCase) ? full[game.Length..] : null;
 }
 
+private bool IsMutableRuntimeFile(string filePath) =>
+    IsMutableConfiguration(filePath) || IsRuntimeCache(filePath);
+
+private bool IsMutableConfiguration(string filePath) =>
+    IsBepInExSection(filePath, "config");
+
+private bool IsRuntimeCache(string filePath) =>
+    IsBepInExSection(filePath, "cache");
+
+private bool IsBepInExSection(string filePath, string section)
+{
+    var relative = RelativeToGame(filePath);
+    if (relative is null)
+        return false;
+
+    var parts = relative.Replace('\\', '/').Split('/');
+    return parts.Length >= 3 &&
+           parts[0].Equals("BepInEx", StringComparison.OrdinalIgnoreCase) &&
+           parts[1].Equals(section, StringComparison.OrdinalIgnoreCase);
+}
+
 private bool HashMatchesCurrent(string path, string expectedSha256) =>
     ComputeSha256(path).Equals(expectedSha256, StringComparison.OrdinalIgnoreCase);
 
@@ -696,6 +729,18 @@ private void PruneEmptyActiveFolders()
         var currentHash = ComputeSha256(pathToDelete);
         if (!currentHash.Equals(file.Sha256, StringComparison.OrdinalIgnoreCase))
         {
+            if (IsMutableConfiguration(pathToDelete))
+            {
+                warnings.Add($"Modified configuration kept in place: {pathToDelete}");
+                continue;
+            }
+
+            if (IsRuntimeCache(pathToDelete))
+            {
+                filesToDelete.Add(pathToDelete);
+                continue;
+            }
+
             return new UninstallResult(false,
                 $"Uninstall stopped because a managed file was modified: {pathToDelete}",
                 warnings);

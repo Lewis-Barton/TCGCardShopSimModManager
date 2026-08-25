@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Avalonia;
@@ -398,7 +399,14 @@ public sealed class PackDetailWindow : Window
                 new ModpackInstaller(_gameFolder).Uninstall(_pack.Id));
             if (report.Success)
             {
-                _status.Text = $"Uninstalled {_pack.Name}.";
+                var warnings = report.Lines
+                    .Where(line => line.TrimStart().StartsWith(
+                        "warning:", StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                _status.Text = warnings.Count == 0
+                    ? $"Uninstalled {_pack.Name}."
+                    : $"Uninstalled {_pack.Name}.{Environment.NewLine}" +
+                      string.Join(Environment.NewLine, warnings);
                 _progressStatus.Text = "Uninstall complete.";
                 _uninstall.IsVisible = false;
             }

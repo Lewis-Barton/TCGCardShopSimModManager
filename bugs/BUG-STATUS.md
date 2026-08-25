@@ -362,15 +362,25 @@ boundaries were fixed before work continued on application-state defects.
   been removed from the manifest, index and retained selector list. A complete
   cached-archive audit now finds 81 non-empty plans, 6,753 destinations and no
   conflicts.
+- **BUG-097 — Normal gameplay prevents complete modpack uninstall (High,
+  fixed):** BepInEx rewrites cache data and mods update their configuration
+  after the game runs. Complete uninstall treated those expected changes like a
+  modified plugin binary, rolled back every removal and left the pack
+  installed. Modified configuration is now kept as user state, regenerated
+  BepInEx cache files can be removed, and later installs reuse existing
+  configuration without overwriting it. Ordinary modified files still stop
+  uninstall. Pack failures now put the actual blocker before rollback details,
+  while successful desktop uninstalls show warnings for retained files. Covered
+  by focused configuration, cache and rollback-order regressions.
 
 ## Summary
 | Severity | Open | Fixed |
 |----------|------|-------|
 | Critical | 0 | 3 |
-| High     | 0 | 35 |
+| High     | 0 | 36 |
 | Medium   | 0 | 45 |
 | Low      | 0 | 13 |
-| **Total**| **0** | **96** |
+| **Total**| **0** | **97** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

@@ -394,6 +394,54 @@ public sealed class ModInstallerTests : IDisposable
     }
 
     [Fact]
+    public void Uninstall_PreservesModifiedConfigurationAndRemovesModifiedCache()
+    {
+        var zip = CreateZip(
+            ("BepInEx/plugins/RealMod.dll", "dll-bytes"),
+            ("BepInEx/config/settings.cfg", "default-setting"),
+            ("BepInEx/cache/runtime.dat", "initial-cache"));
+        var mod = AddZip("mutable-files.zip", zip);
+        var install = _installer.Install(mod, _sourceDir);
+        Assert.True(install.Success, install.Error);
+        var config = Path.Combine(_gameFolder, "BepInEx", "config", "settings.cfg");
+        var cache = Path.Combine(_gameFolder, "BepInEx", "cache", "runtime.dat");
+        File.WriteAllText(config, "user-setting");
+        File.WriteAllText(cache, "runtime-change");
+
+        var result = _installer.Uninstall(mod.Name);
+
+        Assert.True(result.Success, result.Error);
+        Assert.Equal("user-setting", File.ReadAllText(config));
+        Assert.False(File.Exists(cache));
+        Assert.Contains(result.Warnings, warning =>
+            warning.Contains("Modified configuration kept", StringComparison.Ordinal));
+        Assert.Empty(new JournalStore(_gameFolder).Load());
+    }
+
+    [Fact]
+    public void Install_AdoptsExistingConfigurationWithoutOverwritingIt()
+    {
+        var zip = CreateZip(("BepInEx/config/settings.cfg", "pack-default"));
+        var mod = AddZip("configuration.zip", zip);
+        var config = Path.Combine(_gameFolder, "BepInEx", "config", "settings.cfg");
+        Directory.CreateDirectory(Path.GetDirectoryName(config)!);
+        File.WriteAllText(config, "user-setting");
+
+        var install = _installer.Install(mod, _sourceDir);
+
+        Assert.True(install.Success, install.Error);
+        Assert.Equal("user-setting", File.ReadAllText(config));
+        var journalFile = Assert.Single(Assert.Single(new JournalStore(_gameFolder).Load()).Files);
+        Assert.True(journalFile.PreserveOnUninstall);
+        Assert.Contains(install.SkippedEntries!, note =>
+            note.Contains("kept existing configuration", StringComparison.Ordinal));
+
+        var uninstall = _installer.Uninstall(mod.Name);
+        Assert.True(uninstall.Success, uninstall.Error);
+        Assert.Equal("user-setting", File.ReadAllText(config));
+    }
+
+    [Fact]
     public void Uninstall_ReportsError_WhenModNotInJournal()
     {
         var result = _installer.Uninstall("Never Installed");
@@ -578,6 +626,7 @@ public sealed class ModInstallerTests : IDisposable
         var report = new ModpackInstaller(_gameFolder).Uninstall("shared-pack");
 
         Assert.False(report.Success);
+        Assert.StartsWith("Could not uninstall Mod A:", report.Lines.First());
         Assert.Equal("user edit", File.ReadAllText(modAPath));
         Assert.Equal("b", File.ReadAllText(modBPath));
         Assert.Equal(2, new JournalStore(_gameFolder).Load().Count);
