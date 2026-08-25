@@ -9,7 +9,7 @@ required nexus:577:6026 # Pokémon Accessories
 required nexus:577:6024 # Pokémon Figurines
 required nexus:577:6092 # Pokémon Shop App
 required nexus:577:6025 # Pokémon Statues
-required nexus:867:3966 # Collection Tracker
+required nexus:867:6051 # Collection Tracker
 required nexus:1116:6054 # Enhanced Binder
 required nexus:1175:6105 # Pokémon Pocket Expansions - A1 and A1a
 required nexus:1175:6106 # Pokémon Pocket Expansions - A2 A2a and A2b

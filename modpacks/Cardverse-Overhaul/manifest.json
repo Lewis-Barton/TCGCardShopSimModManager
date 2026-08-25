@@ -127,14 +127,14 @@
     {
       "id": "collection-tracker-867-3966",
       "name": "Collection Tracker",
-      "version": "1.0",
-      "archive": "867-3966-Collection Tracker v1.0-867-1-0-1771903447.zip",
-      "sha256": "eebea5d4933feffdbfda46b994cfaee2237d78f604b2c545ff44c95357db74e7",
+      "version": "1.2.8",
+      "archive": "867-6051-Collection Tracker v1.2.8 867 1.2.8 2026-08-16T14-12Z Ue3KcUE0I.zip",
+      "sha256": "3c7d13450f44cd05979c5fe5aa44affdfcb933483446646c0d465710a1bfa6f9",
       "installType": "BepInExPlugin",
       "dependencies": [],
       "conflicts": [],
       "nexusModId": 867,
-      "nexusFileId": 3966,
+      "nexusFileId": 6051,
       "required": true
     },
     {
@@ -675,5 +675,5 @@
       "required": false
     }
   ],
-  "totalSize": 19051775784
+  "totalSize": 19521429013
 }

@@ -10,7 +10,7 @@ required nexus:1100:6050 # EPL Card Animator
 required nexus:612:5131 # Grading Overhaul
 required nexus:617:5256 # Holographic Overhaul
 required nexus:685:5260 # Phone - Overhaul
-required nexus:867:3966 # Collection Tracker
+required nexus:867:6051 # Collection Tracker
 required nexus:1116:6054 # Enhanced Binder
 required nexus:880:4107 # Price Slinger
 required nexus:836:4144 # Singles Slinger
