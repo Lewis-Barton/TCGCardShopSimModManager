@@ -2,6 +2,7 @@
   "manifestVersion": 1,
   "name": "Cardverse Overhaul",
   "game": "tcgcardshopsimulator",
+  "compatibleGameBuildIds": ["22936874"],
   "mods": [
     {
       "id": "bepinex",

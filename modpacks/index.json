@@ -49,6 +49,7 @@
       "manifest": "Cardverse-Overhaul/manifest.json",
       "version": "1.0.0",
       "updated": "2026-08-25",
+      "compatibleGameBuildIds": ["22936874"],
       "featured": true,
       "nsfw": false,
       "downloadSize": 18541977350,
