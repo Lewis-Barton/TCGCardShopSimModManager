@@ -19,28 +19,28 @@
     },
     {
       "id": "pokemon-tcg-card-shop-simulator-v3-4-577-6028",
-      "name": "Pokemon TCG Card Shop Simulator - v3.4",
-      "version": "3.4",
-      "archive": "577-6028-Pokemon Expansions - Generation 1 577 3.4 2026-08-14T21-47Z 8nJgf8Ut0.zip",
-      "sha256": "ebf02706f8d34e8c14dd2bf689964262ce0d0cf3ffb1cb4d8f85e8dfde991dc5",
+      "name": "Pokemon Expansions - Generation 1",
+      "version": "3.5",
+      "archive": "577-6108-Pokemon Expansions - Generation 1 577 3.5 2026-08-22T15-47Z AZ4ejAFax.zip",
+      "sha256": "30a4cbe4e9c6996541c95fcdd3b97d5647be2719ae7ed7875e50be478098206d",
       "installType": "BepInExPlugin",
       "dependencies": [],
       "conflicts": [],
       "nexusModId": 577,
-      "nexusFileId": 6028,
+      "nexusFileId": 6108,
       "required": true
     },
     {
       "id": "pokemon-tcg-card-shop-simulator-v3-4-6029-577-6029",
-      "name": "Pokemon TCG Card Shop Simulator - v3.4 - 6029",
-      "version": "3.4",
-      "archive": "577-6029-Pokemon Expansions - Generation 2 577 3.4 2026-08-14T21-53Z oEpP4otKf.zip",
-      "sha256": "64ade492808909ba23010bbc9cae4f504a3f473c456c1b5c61935f58a514de48",
+      "name": "Pokemon Expansions - Generation 2",
+      "version": "3.5",
+      "archive": "577-6109-Pokemon Expansions - Generation 2 577 3.5 2026-08-22T15-52Z lhkNOlyQX.zip",
+      "sha256": "5306f18e8a7a0bb05dffbcfb952c274a431d8897e230c00c676666af80937e09",
       "installType": "BepInExPlugin",
       "dependencies": [],
       "conflicts": [],
       "nexusModId": 577,
-      "nexusFileId": 6029,
+      "nexusFileId": 6109,
       "required": true,
       "excludedArchivePaths": [
         "BepInEx/plugins/Grading Overhaul/Admin/Defaults/"
@@ -48,15 +48,15 @@
     },
     {
       "id": "pokemon-tcg-card-shop-simulator-v3-4-6030-577-6030",
-      "name": "Pokemon TCG Card Shop Simulator - v3.4 - 6030",
-      "version": "3.4",
-      "archive": "577-6030-Pokemon Expansions - Generation 3 577 3.4 2026-08-14T21-54Z 4m2tX4nEP.zip",
-      "sha256": "a0592300e262368323fc805194a3dfa5cf69c6b47e3a3752d0fe7a87c647311a",
+      "name": "Pokemon Expansions - Generation 3",
+      "version": "3.5",
+      "archive": "577-6110-Pokemon Expansions - Generation 3 577 3.5 2026-08-22T15-53Z yDjIqyT9s.zip",
+      "sha256": "071cd46aba5be8e796aad0ce8c583cb7995cf54e6645bc10437eb8b487628080",
       "installType": "BepInExPlugin",
       "dependencies": [],
       "conflicts": [],
       "nexusModId": 577,
-      "nexusFileId": 6030,
+      "nexusFileId": 6110,
       "required": true,
       "excludedArchivePaths": [
         "BepInEx/plugins/Grading Overhaul/Admin/Defaults/"
@@ -90,15 +90,15 @@
     },
     {
       "id": "pokemon-tcg-card-shop-simulator-v3-4-6031-577-6031",
-      "name": "Pokemon TCG Card Shop Simulator - v3.4 - 6031",
-      "version": "3.4",
-      "archive": "577-6031-Pokemon Shop App 577 3.4 2026-08-14T21-58Z qalTsq6Dv.zip",
-      "sha256": "ab9f50fafcf221d04af986e588437c60bc0717c5a840e644545a685edd699462",
+      "name": "Pokemon Shop App",
+      "version": "3.5.1",
+      "archive": "577-6092-Pokemon Shop App 577 3.5.1 2026-08-20T20-35Z 4m2tX4nhN.zip",
+      "sha256": "e7ae4ebdfcf419ad2f86710b8c601f2d730dded264cdd4cc9c86e439da38c2ee",
       "installType": "BepInExPlugin",
       "dependencies": [],
       "conflicts": [],
       "nexusModId": 577,
-      "nexusFileId": 6031,
+      "nexusFileId": 6092,
       "required": true
     },
     {
@@ -143,14 +143,14 @@
     {
       "id": "pokemon-pocket-expansions-1175-6033",
       "name": "Pokemon Pocket Expansions",
-      "version": "1.2",
-      "archive": "1175-6033-Pokemon Pocket Expansions - A1 and A1a 1175 1.2 2026-08-14T22-09Z tiBSnt0wE.zip",
-      "sha256": "8161f5e3c5854c719b59de590e9f5639377ba6a5a105c866f1309d87a8e763fb",
+      "version": "1.3",
+      "archive": "1175-6105-Pokemon Pocket Expansions - A1 and A1a 1175 1.3 2026-08-22T15-33Z KV1sEKw4r.zip",
+      "sha256": "5567a098428ec25de9bd83c91edcc1c318b7b09856e0c6601bb0f97c693b905c",
       "installType": "BepInExPlugin",
       "dependencies": [],
       "conflicts": [],
       "nexusModId": 1175,
-      "nexusFileId": 6033,
+      "nexusFileId": 6105,
       "required": true,
       "excludedArchivePaths": [
         "BepInEx/plugins/Grading Overhaul/Admin/Defaults/"
@@ -158,15 +158,31 @@
     },
     {
       "id": "pokemon-pocket-expansions-6034-1175-6034",
-      "name": "Pokemon Pocket Expansions - 6034",
-      "version": "1.2",
-      "archive": "1175-6034-Pokemon Pocket Expansions - A2 A2a and A2b 1175 1.2 2026-08-14T22-13Z NfA2yNI8Q.zip",
-      "sha256": "6543823f53ff43fee454fd8d517448c6d53e9887d4f277617cb76961210001f1",
+      "name": "Pokemon Pocket Expansions - A2 A2a and A2b",
+      "version": "1.3",
+      "archive": "1175-6106-Pokemon Pocket Expansions - A2 A2a and A2b 1175 1.3 2026-08-22T15-36Z iBKzJirAH.zip",
+      "sha256": "3afba25357237f57724350537cc36b77d4e48d363a11037d092aa611b217ef8a",
       "installType": "BepInExPlugin",
       "dependencies": [],
       "conflicts": [],
       "nexusModId": 1175,
-      "nexusFileId": 6034,
+      "nexusFileId": 6106,
+      "required": true,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Grading Overhaul/Admin/Defaults/"
+      ]
+    },
+    {
+      "id": "pokemon-pocket-expansions-a3-1175-6107",
+      "name": "Pokemon Pocket Expansions - A3 A3a and A3b",
+      "version": "1.3",
+      "archive": "1175-6107-Pokemon Pocket Expansions - A3 A3a and A3b 1175 1.3 2026-08-22T15-38Z 6WyXG6kSD.zip",
+      "sha256": "52b8c3b9a7d8b031771a4445252eedd623ae85381c331f5595cfda650948945c",
+      "installType": "BepInExPlugin",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 1175,
+      "nexusFileId": 6107,
       "required": true,
       "excludedArchivePaths": [
         "BepInEx/plugins/Grading Overhaul/Admin/Defaults/"
@@ -174,15 +190,15 @@
     },
     {
       "id": "pokemon-pocket-expansions-6032-1175-6032",
-      "name": "Pokemon Pocket Expansions - 6032",
-      "version": "1.2",
-      "archive": "1175-6032-Pokemon Pocket Shop App 1175 1.2 2026-08-14T22-06Z JoErZJ3Bu.zip",
-      "sha256": "5ac8b6881ebd842f06d7f3c1666575364efd345d438b9e19a7003c01bbe305e9",
+      "name": "Pokemon Pocket Shop App",
+      "version": "1.3",
+      "archive": "1175-6091-Pokemon Pocket Shop App 1175 1.3 2026-08-20T20-34Z oEpP4ot59.zip",
+      "sha256": "f2c292f82aa84faa6dfd3401bf824ceed208f1f63956febb78bafe2bcee88a50",
       "installType": "BepInExPlugin",
       "dependencies": [],
       "conflicts": [],
       "nexusModId": 1175,
-      "nexusFileId": 6032,
+      "nexusFileId": 6091,
       "required": true,
       "excludedArchivePaths": [
         "BepInEx/config/EnhancedPrefabLoader.cfg",
@@ -207,14 +223,14 @@
     {
       "id": "enhanced-prefab-loader-496-5885",
       "name": "Enhanced Prefab Loader",
-      "version": "6.1.0",
-      "archive": "496-5885-EnhancedPrefabLoader 496 6.1.0 2026-07-27T21-07Z L6W5uLh3j.zip",
-      "sha256": "14dc8848bf688daf046ca6103d854f04a126af96b5ab40d976b82cebf06a8c33",
+      "version": "6.1.1",
+      "archive": "496-6094-EnhancedPrefabLoader 496 6.1.1 2026-08-20T21-40Z JoErZJ3j2.zip",
+      "sha256": "530ff917f2e6cbb65c802bafda86e9c1e13312246ebafcd955529dc1bf329ca8",
       "installType": "BepInExPlugin",
       "dependencies": [],
       "conflicts": [],
       "nexusModId": 496,
-      "nexusFileId": 5885,
+      "nexusFileId": 6094,
       "required": true
     },
     {
@@ -327,16 +343,16 @@
     {
       "id": "rtcgo-custom-tv-895-5777",
       "name": "RTCGO Custom TV",
-      "version": "1.8",
-      "archive": "895-5777-RTCGO Custom TV 895 1.8 2026-07-12T21-25Z alhCMaWYm.zip",
-      "sha256": "21ddfd8ceeebac61c808a974fb3e0c5333e5fed2e2e1d251bdc48b80cf7f061c",
+      "version": "1.9",
+      "archive": "895-6076-RTCGO Custom TV 895 1.9 2026-08-19T03-14Z F8npNF2WU.zip",
+      "sha256": "338bcd2a3cdd0ae6e631ea01e3ea3236e557712c8ae977103cb2f25a1f0a416f",
       "installType": "BepInExPlugin",
       "dependencies": [],
       "conflicts": [],
       "nexusModId": 895,
-      "nexusFileId": 5777,
+      "nexusFileId": 6076,
       "required": false
     }
   ],
-  "totalSize": 5494988226
+  "totalSize": 6004786660
 }
