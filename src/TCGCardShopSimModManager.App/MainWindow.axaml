@@ -8,7 +8,7 @@
     <Border Grid.Column="0" Background="{DynamicResource PanelBrush}"
             BorderBrush="{DynamicResource BorderBrushKey}" BorderThickness="0,0,1,0">
       <Grid Margin="14" RowDefinitions="Auto,*,Auto">
-        <StackPanel Spacing="2" Margin="4,8,4,28">
+        <StackPanel Spacing="2" Margin="12,8,4,28">
           <TextBlock Classes="header" FontSize="16" TextWrapping="Wrap"
                      Text="TCG Card Shop Sim Mod Manager" />
         </StackPanel>
