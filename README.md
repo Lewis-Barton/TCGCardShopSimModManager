@@ -40,7 +40,11 @@ enable, disable or uninstall managed mods. Nexus sign-in and update checks live
 under **Settings**. Appearance settings can follow Windows or use a light, dark
 or high-contrast theme. Text and modpack card sizes can be increased
 independently, and the choices are kept for the next launch. The CLI retains
-the local manifest validation, planning and installation commands.
+the local manifest validation, planning and installation commands. Settings
+also has a clearly labelled modpack-author tool for checking hosted manifests
+against Nexus. People who only install modpacks do not need it. The check is
+read-only and every suggested file still needs review and testing before a pack
+update is published.
 
 On open, the window tries to find TCG Card Shop Simulator through your Steam
 library folders automatically and fills the game folder; if not found, use

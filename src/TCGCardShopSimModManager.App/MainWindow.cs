@@ -64,6 +64,7 @@ public sealed partial class MainWindow : Window
     private async void OnEnableClick(object? sender, RoutedEventArgs e) => await RunHandler(OnEnableAsync);
     private async void OnDisableClick(object? sender, RoutedEventArgs e) => await RunHandler(OnDisableAsync);
     private async void OnUpdateCheckClick(object? sender, RoutedEventArgs e) => await RunHandler(OnUpdateCheckAsync);
+    private async void OnCheckPackFilesClick(object? sender, RoutedEventArgs e) => await RunHandler(OnCheckPackFilesAsync);
     private async void OnExportBundleClick(object? sender, RoutedEventArgs e) => await RunHandler(OnExportBundleAsync);
     private async void OnPickGameFolder(object? sender, RoutedEventArgs e) => await RunHandler(() => PickFolderAsync(_gameBox));
     private async void OnRefreshPacksClick(object? sender, RoutedEventArgs e) => await RunHandler(LoadPacksAsync);
@@ -720,5 +721,22 @@ public sealed partial class MainWindow : Window
 
         _log.Text = string.Join('\n', _visibleLogLines) + "\n";
         _log.CaretIndex = _log.Text.Length;
+    }
+
+    private async Task OnCheckPackFilesAsync()
+    {
+        if (NexusTokenStore.TryLoad() is null && !ApiKeyStore.Exists)
+        {
+            _nexusStatus.Text = "Modpack file checks need Nexus access. Sign in or enter a personal API key first.";
+            return;
+        }
+
+        if (_packs.Count == 0)
+            await LoadPacksAsync();
+        if (_packs.Count == 0)
+            return;
+
+        var window = new ModpackAuthorUpdateWindow(_packs, _packReader, _http);
+        await window.ShowDialog(this);
     }
 }

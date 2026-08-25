@@ -256,7 +256,11 @@ folder the user picked.
 - A newer published version adds an **Update available** badge to its card.
 - **Manage mods** contains game-folder selection and installed-mod lifecycle
   controls. Local manifest workflows remain available through the CLI.
-- **Settings** contains Nexus sign-in, update checks and support-bundle export.
+- **Settings** contains Nexus sign-in, app update checks and support-bundle
+  export. Its separate **Modpack author tools** section can check every hosted
+  manifest for newer, archived or missing pinned Nexus files. It is clearly
+  marked as unnecessary for people who only install packs, and it never edits
+  manifests or installs suggested replacements.
 
 ## Validating a submission
 
@@ -335,6 +339,11 @@ files, and suggests a replacement only when Nexus exposes a newer file with the
 same display name. Suggested replacements are printed as copy-ready selectors.
 The command does not edit the manifest or download anything; review and test
 each replacement, then increment the pack version before publishing it.
+
+The desktop Settings page exposes the same read-only check for all hosted packs
+under **Modpack author tools**. This is an authoring aid, not an update action
+for people who install packs. It requires Nexus access and leaves every
+manifest unchanged.
 
 The importer accepts ZIP, RAR, 7Z, TAR, GZ, TGZ, BZ2 and XZ files. Encrypted
 and multi-volume archives are not supported. Every format goes through the same
