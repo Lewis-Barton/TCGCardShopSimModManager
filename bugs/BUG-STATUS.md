@@ -372,12 +372,12 @@ boundaries were fixed before work continued on application-state defects.
   uninstall. Pack failures now put the actual blocker before rollback details,
   while successful desktop uninstalls show warnings for retained files. Covered
   by focused configuration, cache and rollback-order regressions.
-- **BUG-098 — Large accessibility layouts clip gallery content (Low, fixed):**
-  large text allowed only three description lines inside a card sized for less
-  text, cutting off longer pack descriptions. Large text cards now reserve
-  enough vertical space for four lines, including the combined large-card mode,
-  and the navigation branding has additional left inset so it doesn't touch the
-  window edge.
+- **BUG-098 — Gallery cards clip pack descriptions (Low, fixed):** standard
+  cards allowed only two description lines, while large text allowed three
+  lines inside a card sized for less text. Both cut off longer pack
+  descriptions. Standard and large-text cards now reserve enough vertical space
+  for four lines, including the combined large-card mode, and the navigation
+  branding has additional left inset so it doesn't touch the window edge.
 
 ## Summary
 | Severity | Open | Fixed |

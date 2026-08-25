@@ -311,11 +311,10 @@ public sealed partial class MainWindow : Window
     {
         var largeText = App.Preferences.TextSize == AppTextSize.Large;
         var largeCard = App.Preferences.CardSize == AppCardSize.Large;
-        var expanded = largeText || largeCard;
         var cardWidth = largeCard ? 340 : largeText ? 300 : 250;
         var cardHeight = largeText
             ? largeCard ? 380 : 340
-            : largeCard ? 330 : 234;
+            : largeCard ? 330 : 280;
         var previewHeight = largeCard ? 180 : largeText ? 145 : 125;
         var bannerHeight = largeText ? 32 : 24;
         var card = new Border
@@ -386,7 +385,7 @@ public sealed partial class MainWindow : Window
             Text = pack.ShortDescription,
             TextWrapping = TextWrapping.Wrap,
             FontSize = largeText ? 16 : 11,
-            MaxLines = largeText ? 4 : expanded ? 3 : 2
+            MaxLines = largeCard && !largeText ? 3 : 4
         });
 
         var compatibility = GameCompatibility.Evaluate(
