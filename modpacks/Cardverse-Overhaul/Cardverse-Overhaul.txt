@@ -3,7 +3,7 @@ bepinex nexus:2:2 # BepInEx with Configuration Manager
 
 # Core Files
 required nexus:698:4002 # BepInEx Mod Manager
-required nexus:496:5885 # EnhancedPrefabLoader
+required nexus:496:6094 # EnhancedPrefabLoader
 required nexus:1144:5886 # EnhancedPrefabLoader API
 required nexus:1084:5575 # EPL Demand
 required nexus:1100:6050 # EPL Card Animator
@@ -28,15 +28,16 @@ required nexus:69:5519 # TextureReplacer
 required nexus:858:4685 # Marvel TCG - Marvel Vs. System (129)
 
 # Pokémon
-required nexus:1175:6033 # Pokémon Pocket Expansions - A1 and A1a
-required nexus:1175:6034 # Pokémon Pocket Expansions - A2 A2a and A2b
-required nexus:1175:6032 # Pokémon Pocket Shop App
-required nexus:577:6028 # Pokémon Expansions - Generation 1
-required nexus:577:6029 # Pokémon Expansions - Generation 2
-required nexus:577:6030 # Pokémon Expansions - Generation 3
+required nexus:1175:6105 # Pokémon Pocket Expansions - A1 and A1a
+required nexus:1175:6106 # Pokémon Pocket Expansions - A2 A2a and A2b
+required nexus:1175:6107 # Pokémon Pocket Expansions - A3 A3a and A3b
+required nexus:1175:6091 # Pokémon Pocket Shop App
+required nexus:577:6108 # Pokémon Expansions - Generation 1
+required nexus:577:6109 # Pokémon Expansions - Generation 2
+required nexus:577:6110 # Pokémon Expansions - Generation 3
 required nexus:577:6026 # Pokémon Accessories
 required nexus:577:6024 # Pokémon Figurines
-required nexus:577:6031 # Pokémon Shop App
+required nexus:577:6092 # Pokémon Shop App
 required nexus:577:6025 # Pokémon Statues
 
 # Star Wars (21368)
@@ -58,4 +59,4 @@ required nexus:985:5764 # 010 - 2019 X-Universe (462)
 # Optionals
 optional nexus:135:3427 # TCGCSS Trainer (Cheats - Mod Menu)
 optional nexus:577:6027 # Pokémon Shop Textures
-optional nexus:895:5777 # RTCGO Custom TV
+optional nexus:895:6076 # RTCGO Custom TV
