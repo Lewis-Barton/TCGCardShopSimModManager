@@ -296,6 +296,9 @@ dotnet run --project src/TCGCardShopSimModManager.Cli -- `
 
 dotnet run --project src/TCGCardShopSimModManager.Cli -- `
   modpack import nexus-links.txt modpacks/my-pack "My Pack"
+
+dotnet run --project src/TCGCardShopSimModManager.Cli -- `
+  modpack check-updates cardverse-overhaul
 ```
 
 `modpack files` lists every file Nexus currently exposes for the mod, grouped
@@ -325,6 +328,13 @@ The command reads names, versions, filenames and sizes from Nexus, downloads and
 hashes every archive, and writes `manifest.json`. If that file already exists it
 writes `manifest.imported.json` instead and leaves the existing manifest alone.
 Reruns reuse the cache under `%LOCALAPPDATA%\TCGCardShopSimModManager`.
+
+`modpack check-updates` checks every pinned Nexus file in a local pack. It
+separates required and optional entries, reports current, missing and archived
+files, and suggests a replacement only when Nexus exposes a newer file with the
+same display name. Suggested replacements are printed as copy-ready selectors.
+The command does not edit the manifest or download anything; review and test
+each replacement, then increment the pack version before publishing it.
 
 The importer accepts ZIP, RAR, 7Z, TAR, GZ, TGZ, BZ2 and XZ files. Encrypted
 and multi-volume archives are not supported. Every format goes through the same

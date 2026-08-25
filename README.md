@@ -74,6 +74,7 @@ dotnet run --project src/TCGCardShopSimModManager.Cli -- profile  <list|use|enab
 dotnet run --project src/TCGCardShopSimModManager.Cli -- mods     <list <gameFolder> | disable <name> <gameFolder> | enable <name> <gameFolder>>
 dotnet run --project src/TCGCardShopSimModManager.Cli -- modpack install <id> [gameFolder] [optionalId1,optionalId2|all]
 dotnet run --project src/TCGCardShopSimModManager.Cli -- modpack files <NexusFilesUrl|modId>
+dotnet run --project src/TCGCardShopSimModManager.Cli -- modpack check-updates <packId|manifest.json>
 dotnet run --project src/TCGCardShopSimModManager.Cli -- modpack import <links.txt> <packFolder> [packName]
 ```
 

@@ -26,6 +26,12 @@ public static class ModpackCommand
             return;
         }
 
+        if (sub is "check-updates")
+        {
+            await ModpackUpdateCheckCommand.Run(arg1);
+            return;
+        }
+
         // `validate` is a local authoring check against modpacks/ on disk — it
         // never touches GitHub, so handle it before the live-index path.
         if (sub is "validate")
@@ -66,7 +72,7 @@ public static class ModpackCommand
 
         if (sub is not (null or "list" or "install"))
         {
-            Console.WriteLine("Usage: modpack <list | install <id> [game] [optionalIds|all] | validate [id] [root] | files <Nexus URL|modId> | import <links.txt> <packFolder> [packName]>");
+            Console.WriteLine("Usage: modpack <list | install <id> [game] [optionalIds|all] | validate [id] [root] | files <Nexus URL|modId> | check-updates <packId|manifest.json> | import <links.txt> <packFolder> [packName]>");
             Environment.ExitCode = 2;
             return;
         }
