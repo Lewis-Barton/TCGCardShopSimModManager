@@ -409,7 +409,7 @@ boundaries were fixed before work continued on application-state defects.
 | High     | 0 | 37 |
 | Medium   | 0 | 47 |
 | Low      | 0 | 14 |
-| **Total**| **0** | **100** |
+| **Total**| **0** | **101** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |
