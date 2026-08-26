@@ -43,6 +43,7 @@
       "nexusFileId": 6109,
       "required": true,
       "excludedArchivePaths": [
+        "BepInEx/plugins/HolographicBundleBridge/HolographicBundleBridge.dll",
         "BepInEx/plugins/Grading Overhaul/Admin/Defaults/"
       ]
     },
@@ -153,6 +154,7 @@
       "nexusFileId": 6105,
       "required": true,
       "excludedArchivePaths": [
+        "BepInEx/plugins/HolographicBundleBridge/HolographicBundleBridge.dll",
         "BepInEx/plugins/Grading Overhaul/Admin/Defaults/"
       ]
     },

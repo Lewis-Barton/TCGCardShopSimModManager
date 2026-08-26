@@ -378,15 +378,22 @@ boundaries were fixed before work continued on application-state defects.
   descriptions. Standard and large-text cards now reserve enough vertical space
   for four lines, including the combined large-card mode, and the navigation
   branding has additional left inset so it doesn't touch the window edge.
+- **BUG-099 — updated expansion archives conflict over their bundled bridge
+  plugin (High, fixed):** the August 25 Pokemon archive updates added
+  `HolographicBundleBridge.dll` to Generation 1, Generation 2 and Pocket A1.
+  The hosted manifests let all three entries claim the same destination, so a
+  clean install of either overhaul stopped during preflight. Generation 1 now
+  owns the shared plugin and the other two entries exclude their bundled copy.
+  Both pack versions were advanced so installed copies receive the correction.
 
 ## Summary
 | Severity | Open | Fixed |
 |----------|------|-------|
 | Critical | 0 | 3 |
-| High     | 0 | 36 |
+| High     | 0 | 37 |
 | Medium   | 0 | 45 |
 | Low      | 0 | 14 |
-| **Total**| **0** | **98** |
+| **Total**| **0** | **99** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |
