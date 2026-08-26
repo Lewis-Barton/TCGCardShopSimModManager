@@ -94,6 +94,10 @@ unit test already covers it, **[manual]** where it needs a real environment.
 - [x] **[auto]** Concurrent journal, modpack and profile updates retain every
       entry and leave valid JSON; replacement keeps a backup and no temporary
       files (`PersistenceStoreTests`).
+- [x] **[auto]** Install journals store file locations relative to the selected
+      game folder and migrate legacy absolute paths when a complete game folder
+      moves (`JournalStore_StoresRelativePathsAndResolvesThemForUse`,
+      `JournalStore_RebasesLegacyAbsolutePathsAfterGameFolderMoves`).
 - [ ] **[manual]** Disable + enable a mod on the real install and confirm the
       game stops/starts loading it.
 - [x] **[fixed]** A transient test failure turned out to be a real concurrency

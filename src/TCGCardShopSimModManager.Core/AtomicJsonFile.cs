@@ -33,6 +33,17 @@ internal sealed class AtomicJsonFile<T>
         });
     }
 
+    public TResult UpdateIfChanged<TResult>(Func<T, (T Value, TResult Result, bool Changed)> change)
+    {
+        return WithLock(() =>
+        {
+            var (value, result, changed) = change(ReadUnlocked());
+            if (changed)
+                WriteUnlocked(value);
+            return result;
+        });
+    }
+
     private T ReadUnlocked()
     {
         if (!File.Exists(_path))

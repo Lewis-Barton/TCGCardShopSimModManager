@@ -393,13 +393,21 @@ boundaries were fixed before work continued on application-state defects.
   installs now restore any missing workspace copy from the verified cache
   immediately before planning. Covered by a regression that removes the
   workspace archive at that boundary and confirms no second network request.
+- **BUG-101 — moving the game folder strands managed mods (Medium, fixed):**
+  install journals recorded absolute file locations, so moving a complete Steam
+  installation made every managed path appear to escape the newly selected game
+  folder. Journals now store paths relative to their game folder, resolve and
+  validate them only when used, and atomically migrate legacy absolute paths
+  when the original and current game folders have the same name. Hostile and
+  traversal paths remain outside that migration and are still rejected. Covered
+  by storage, moved-folder and hostile-journal regressions.
 
 ## Summary
 | Severity | Open | Fixed |
 |----------|------|-------|
 | Critical | 0 | 3 |
 | High     | 0 | 37 |
-| Medium   | 0 | 46 |
+| Medium   | 0 | 47 |
 | Low      | 0 | 14 |
 | **Total**| **0** | **100** |
 

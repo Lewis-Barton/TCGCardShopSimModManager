@@ -30,6 +30,46 @@ public sealed class PersistenceStoreTests : IDisposable
     }
 
     [Fact]
+    public void JournalStore_StoresRelativePathsAndResolvesThemForUse()
+    {
+        var installedPath = Path.Combine(_gameFolder, "BepInEx", "plugins", "Example.dll");
+        var store = new JournalStore(_gameFolder);
+
+        store.Add(new InstallJournalEntry(
+            "Example", DateTimeOffset.UtcNow,
+            [new JournalFileEntry(installedPath, "hash")]));
+
+        using var document = JsonDocument.Parse(File.ReadAllText(
+            Path.Combine(_gameFolder, "cardshopmodmanager.journal.json")));
+        var storedPath = document.RootElement[0].GetProperty("Files")[0].GetProperty("Path").GetString();
+        Assert.Equal(Path.Combine("BepInEx", "plugins", "Example.dll"), storedPath);
+        Assert.Equal(installedPath, store.Load().Single().Files.Single().Path);
+    }
+
+    [Fact]
+    public void JournalStore_RebasesLegacyAbsolutePathsAfterGameFolderMoves()
+    {
+        var previousGameFolder = Path.Combine(
+            Path.GetTempPath(), "old-library", Path.GetFileName(_gameFolder));
+        var previousPath = Path.Combine(previousGameFolder, "BepInEx", "plugins", "Example.dll");
+        var journalPath = Path.Combine(_gameFolder, "cardshopmodmanager.journal.json");
+        File.WriteAllText(journalPath, JsonSerializer.Serialize(new[]
+        {
+            new InstallJournalEntry(
+                "Example", DateTimeOffset.UtcNow,
+                [new JournalFileEntry(previousPath, "hash")])
+        }));
+
+        var loadedPath = new JournalStore(_gameFolder).Load().Single().Files.Single().Path;
+
+        Assert.Equal(Path.Combine(_gameFolder, "BepInEx", "plugins", "Example.dll"), loadedPath);
+        using var migrated = JsonDocument.Parse(File.ReadAllText(journalPath));
+        Assert.Equal(
+            Path.Combine("BepInEx", "plugins", "Example.dll"),
+            migrated.RootElement[0].GetProperty("Files")[0].GetProperty("Path").GetString());
+    }
+
+    [Fact]
     public async Task ModpackJournalStore_ConcurrentRecordsRetainEveryPack()
     {
         var tasks = Enumerable.Range(0, 20).Select(index => Task.Run(() =>

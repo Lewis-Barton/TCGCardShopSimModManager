@@ -23,28 +23,36 @@ public sealed class JournalStore
 
     public List<InstallJournalEntry> Load()
     {
-        return Validate(_file.Read());
+        return _file.UpdateIfChanged(entries =>
+        {
+            var resolved = ResolveForUse(entries);
+            var stored = PrepareForStorage(resolved);
+            var pathsMatch = entries.SelectMany(entry => entry.Files).Select(file => file.Path)
+                .SequenceEqual(stored.SelectMany(entry => entry.Files).Select(file => file.Path),
+                    StringComparer.Ordinal);
+            return (stored, resolved, !pathsMatch);
+        });
     }
 
     public void Save(List<InstallJournalEntry> entries)
     {
-        _file.Write(Validate(entries));
+        _file.Write(PrepareForStorage(entries));
     }
 
     public void Add(InstallJournalEntry entry)
     {
         _file.Update(entries =>
         {
-            Validate(entries);
-            Validate([entry]);
+            entries = ResolveForUse(entries);
+            var resolvedEntry = ResolveForUse([entry]).Single();
             entries.RemoveAll(e =>
-                (!string.IsNullOrWhiteSpace(entry.ModId) &&
+                (!string.IsNullOrWhiteSpace(resolvedEntry.ModId) &&
                  !string.IsNullOrWhiteSpace(e.ModId) &&
-                 e.ModId.Equals(entry.ModId, StringComparison.OrdinalIgnoreCase)) ||
+                 e.ModId.Equals(resolvedEntry.ModId, StringComparison.OrdinalIgnoreCase)) ||
                 (string.IsNullOrWhiteSpace(e.ModId) &&
-                 e.ModName.Equals(entry.ModName, StringComparison.OrdinalIgnoreCase)));
-            entries.Add(entry);
-            return (entries, true);
+                 e.ModName.Equals(resolvedEntry.ModName, StringComparison.OrdinalIgnoreCase)));
+            entries.Add(resolvedEntry);
+            return (PrepareForStorage(entries), true);
         });
     }
 
@@ -52,40 +60,88 @@ public sealed class JournalStore
     {
         _file.Update(entries =>
         {
-            Validate(entries);
+            entries = ResolveForUse(entries);
             entries.RemoveAll(e => e.ModName == modName);
-            return (entries, true);
+            return (PrepareForStorage(entries), true);
         });
     }
 
-    private List<InstallJournalEntry> Validate(List<InstallJournalEntry> entries)
+    private List<InstallJournalEntry> ResolveForUse(List<InstallJournalEntry> entries)
+    {
+        return entries.Select(entry => entry with
+        {
+            Files = entry.Files.Select(file => file with
+            {
+                Path = ResolvePath(file.Path, entry.ModName)
+            }).ToList()
+        }).ToList();
+    }
+
+    private List<InstallJournalEntry> PrepareForStorage(List<InstallJournalEntry> entries)
+    {
+        var resolved = ResolveForUse(entries);
+        return resolved.Select(entry => entry with
+        {
+            Files = entry.Files.Select(file => file with
+            {
+                Path = Path.GetRelativePath(_gameFolderPath, file.Path)
+            }).ToList()
+        }).ToList();
+    }
+
+    private string ResolvePath(string storedPath, string modName)
+    {
+        string fullPath;
+        try
+        {
+            fullPath = Path.IsPathRooted(storedPath)
+                ? Path.GetFullPath(storedPath)
+                : Path.GetFullPath(storedPath, _gameFolderPath);
+        }
+        catch (Exception ex) when (ex is ArgumentException or NotSupportedException)
+        {
+            throw new InvalidDataException(
+                $"Install journal contains an invalid path for {modName}.", ex);
+        }
+
+        if (!IsContained(fullPath) && Path.IsPathRooted(storedPath))
+            fullPath = TryRebaseLegacyPath(fullPath) ?? fullPath;
+
+        if (!IsContained(fullPath))
+            throw new InvalidDataException(
+                $"Install journal path for {modName} escapes the game folder: {storedPath}");
+
+        PathSafety.EnsureContainedWithoutReparsePoints(
+            _gameFolderPath, fullPath, $"Install journal path for {modName}");
+        return fullPath;
+    }
+
+    private string? TryRebaseLegacyPath(string fullPath)
+    {
+        var gameFolderName = Path.GetFileName(
+            _gameFolderPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+        if (string.IsNullOrWhiteSpace(gameFolderName))
+            return null;
+
+        var parts = fullPath.Split(
+            [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar],
+            StringSplitOptions.RemoveEmptyEntries);
+        var gameFolderIndex = Array.FindLastIndex(parts,
+            part => part.Equals(gameFolderName, StringComparison.OrdinalIgnoreCase));
+        if (gameFolderIndex < 0 || gameFolderIndex == parts.Length - 1)
+            return null;
+
+        var relative = Path.Combine(parts[(gameFolderIndex + 1)..]);
+        var candidate = Path.GetFullPath(relative, _gameFolderPath);
+        return IsContained(candidate) ? candidate : null;
+    }
+
+    private bool IsContained(string fullPath)
     {
         var prefix = Path.EndsInDirectorySeparator(_gameFolderPath)
             ? _gameFolderPath
             : _gameFolderPath + Path.DirectorySeparatorChar;
 
-        foreach (var entry in entries)
-        foreach (var file in entry.Files)
-        {
-            string fullPath;
-            try
-            {
-                fullPath = Path.GetFullPath(file.Path);
-            }
-            catch (Exception ex) when (ex is ArgumentException or NotSupportedException)
-            {
-                throw new InvalidDataException(
-                    $"Install journal contains an invalid path for {entry.ModName}.", ex);
-            }
-
-            if (!fullPath.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException(
-                    $"Install journal path for {entry.ModName} escapes the game folder: {file.Path}");
-
-            PathSafety.EnsureContainedWithoutReparsePoints(
-                _gameFolderPath, fullPath, $"Install journal path for {entry.ModName}");
-        }
-
-        return entries;
+        return fullPath.StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
     }
 }
