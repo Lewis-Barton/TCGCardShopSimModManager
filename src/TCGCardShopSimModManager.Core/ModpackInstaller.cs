@@ -149,6 +149,26 @@ public sealed class ModpackInstaller
             progress?.Report(new ModpackInstallProgress(
                 ModpackInstallStage.Preparing, null, 0, manifest.Mods.Count));
 
+            // A verified archive can outlive its disposable workspace copy. If
+            // that copy is missing before planning, restore it from the persistent
+            // cache instead of failing the complete pack with "Source file not found".
+            foreach (var entry in manifest.Mods)
+            {
+                var workspacePath = Path.Combine(cacheDirectory, entry.Archive);
+                if (File.Exists(workspacePath))
+                    continue;
+
+                var mod = new ModReference(
+                    entry.Id, entry.Archive, entry.Sha256, entry.Version,
+                    entry.NexusModId, entry.NexusFileId, entry.DownloadUrl);
+                var restored = await downloader.DownloadAsync(
+                    mod, cacheDirectory, cancellationToken: cancellationToken);
+                if (!restored.Success)
+                    return DeploymentReport.Failure(
+                        new List<string>(),
+                        $"Could not restore {entry.Name} before installation: {restored.Error}");
+            }
+
             GameOperationLock operation;
             try
             {

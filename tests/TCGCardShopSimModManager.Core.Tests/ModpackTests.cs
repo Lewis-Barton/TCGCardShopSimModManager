@@ -450,6 +450,49 @@ public sealed class ModpackTests : IDisposable
     }
 
     [Fact]
+    public async Task ModpackInstaller_RestoresMissingWorkspaceArchiveBeforePlanning()
+    {
+        var archiveBytes = MakeZip(("ExampleMod.dll", "dll-bytes"));
+        var requests = 0;
+        _server.Provider = _ =>
+        {
+            requests++;
+            return new HttpResponse(200, archiveBytes, null);
+        };
+        var mod = new ModEntry(
+            "example-mod", "Example Mod", null, "ExampleMod.zip", Sha(archiveBytes),
+            "BepInExPlugin", new List<string>(), new List<string>(),
+            DownloadUrl: _server.Url("ExampleMod.zip"));
+        var manifest = new ModListManifest(
+            1, "Workspace Recovery Pack", "tcgcardshopsimulator", new List<ModEntry> { mod });
+        var gameFolder = Path.Combine(_root, "workspace-recovery-game");
+        var workspace = Path.Combine(_root, "workspace-recovery-downloads");
+        var verifiedCache = Path.Combine(_root, "workspace-recovery-cache");
+        Directory.CreateDirectory(gameFolder);
+        var removed = false;
+        var progress = new RecordingProgress<ModpackInstallProgress>(update =>
+        {
+            if (removed || update.Stage != ModpackInstallStage.Preparing)
+                return;
+
+            File.Delete(Path.Combine(workspace, mod.Archive));
+            removed = true;
+        });
+
+        var report = await new ModpackInstaller(gameFolder).InstallAsync(
+            manifest,
+            cacheDirectory: workspace,
+            progress: progress,
+            verifiedCacheDirectory: verifiedCache);
+
+        Assert.True(removed);
+        Assert.True(report.Success, string.Join("\n", report.Lines));
+        Assert.Equal(1, requests);
+        Assert.True(File.Exists(Path.Combine(
+            gameFolder, "BepInEx", "plugins", "Example Mod", "ExampleMod.dll")));
+    }
+
+    [Fact]
     public async Task ModpackInstaller_ManifestNameCannotChooseCleanupDirectory()
     {
         var archiveBytes = MakeZip(("ExampleMod.dll", "dll-bytes"));

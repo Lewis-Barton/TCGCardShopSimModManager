@@ -385,15 +385,23 @@ boundaries were fixed before work continued on application-state defects.
   clean install of either overhaul stopped during preflight. Generation 1 now
   owns the shared plugin and the other two entries exclude their bundled copy.
   Both pack versions were advanced so installed copies receive the correction.
+- **BUG-100 — a missing workspace archive ignores the verified cache (Medium,
+  fixed):** a Cardverse install downloaded every selected mod but reached
+  preflight without the temporary copy of Pokemon Shop Textures. The verified
+  archive was still present in the persistent cache, but planning checked only
+  the disposable workspace and stopped the complete installation. Hosted
+  installs now restore any missing workspace copy from the verified cache
+  immediately before planning. Covered by a regression that removes the
+  workspace archive at that boundary and confirms no second network request.
 
 ## Summary
 | Severity | Open | Fixed |
 |----------|------|-------|
 | Critical | 0 | 3 |
 | High     | 0 | 37 |
-| Medium   | 0 | 45 |
+| Medium   | 0 | 46 |
 | Low      | 0 | 14 |
-| **Total**| **0** | **99** |
+| **Total**| **0** | **100** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |
