@@ -3,10 +3,25 @@ using System.Text.Json;
 namespace TCGCardShopSimModManager.Core;
 
 /// <summary>Outcome of validating one submitted modpack.</summary>
-public sealed record SubmissionResult(bool IsValid, List<string> Errors, List<string> Warnings)
+public sealed record SubmissionResult
 {
-    public static SubmissionResult Ok(List<string> warnings) => new(true, new List<string>(), warnings);
-    public static SubmissionResult Failure(List<string> errors, List<string> warnings) =>
+    public bool IsValid { get; }
+    public IReadOnlyList<string> Errors { get; }
+    public IReadOnlyList<string> Warnings { get; }
+
+    private SubmissionResult(
+        bool isValid, IEnumerable<string> errors, IEnumerable<string> warnings)
+    {
+        IsValid = isValid;
+        Errors = errors.ToArray();
+        Warnings = warnings.ToArray();
+    }
+
+    public static SubmissionResult Ok(IEnumerable<string> warnings) =>
+        new(true, Array.Empty<string>(), warnings);
+
+    public static SubmissionResult Failure(
+        IEnumerable<string> errors, IEnumerable<string> warnings) =>
         new(false, errors, warnings);
 }
 

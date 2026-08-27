@@ -1,9 +1,19 @@
 namespace TCGCardShopSimModManager.Core;
 
-public sealed record ValidationResult(bool IsValid, List<string> Errors)
+public sealed record ValidationResult
 {
-    public static ValidationResult Success() => new(true, new List<string>());
-    public static ValidationResult Failure(List<string> errors) => new(false, errors);
+    public bool IsValid { get; }
+    public IReadOnlyList<string> Errors { get; }
+
+    private ValidationResult(bool isValid, IEnumerable<string> errors)
+    {
+        IsValid = isValid;
+        Errors = errors.ToArray();
+    }
+
+    public static ValidationResult Success() => new(true, Array.Empty<string>());
+    public static ValidationResult Failure(IEnumerable<string> errors) =>
+        new(false, errors);
 }
 
 public sealed class ManifestValidator

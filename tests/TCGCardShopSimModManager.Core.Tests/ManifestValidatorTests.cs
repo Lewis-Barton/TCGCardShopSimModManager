@@ -6,6 +6,19 @@ namespace TCGCardShopSimModManager.Core.Tests;
 
 public sealed class ManifestValidatorTests
 {
+    [Fact]
+    public void FailureResultDoesNotExposeOrRetainMutableErrorList()
+    {
+        var errors = new List<string> { "first" };
+
+        var result = ValidationResult.Failure(errors);
+        errors.Add("second");
+
+        Assert.Equal(typeof(IReadOnlyList<string>),
+            typeof(ValidationResult).GetProperty(nameof(ValidationResult.Errors))!.PropertyType);
+        Assert.Equal(["first"], result.Errors);
+    }
+
     private static ModListManifest Manifest(params ModEntry[] mods) =>
         new(1, "Test Pack", "tcgcardshopsimulator", new List<ModEntry>(mods));
 

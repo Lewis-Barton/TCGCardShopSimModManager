@@ -20,6 +20,24 @@ public sealed class ModpackSubmissionTests : IDisposable
     }
 
     [Fact]
+    public void SubmissionResultDoesNotExposeOrRetainMutableLists()
+    {
+        var errors = new List<string> { "error" };
+        var warnings = new List<string> { "warning" };
+
+        var result = SubmissionResult.Failure(errors, warnings);
+        errors.Add("later error");
+        warnings.Add("later warning");
+
+        Assert.Equal(typeof(IReadOnlyList<string>),
+            typeof(SubmissionResult).GetProperty(nameof(SubmissionResult.Errors))!.PropertyType);
+        Assert.Equal(typeof(IReadOnlyList<string>),
+            typeof(SubmissionResult).GetProperty(nameof(SubmissionResult.Warnings))!.PropertyType);
+        Assert.Equal(["error"], result.Errors);
+        Assert.Equal(["warning"], result.Warnings);
+    }
+
+    [Fact]
     public void ValidatePack_Passes_ForAWellFormedSubmission()
     {
         WriteValidPack("essential-qol");
