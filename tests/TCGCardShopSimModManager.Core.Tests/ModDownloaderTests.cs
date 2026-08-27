@@ -160,6 +160,25 @@ public sealed class ModDownloaderTests : IDisposable
     }
 
     [Fact]
+    public async Task VerifiedCacheAndWorkspaceShareFileStorage()
+    {
+        if (!OperatingSystem.IsWindows())
+            return;
+
+        var payload = MakePayload(128);
+        var mod = Ref("mod.bytes", payload);
+        _server.Provider = _ => Http200(payload);
+
+        var result = await Run(_server, mod, _root);
+
+        Assert.True(result.Success, result.Error);
+        var destination = Path.Combine(_root, "mod.bytes");
+        var cacheFile = Assert.Single(Directory.GetFiles(Path.Combine(_root, ".cache")));
+        File.WriteAllBytes(destination, MakePayload(64));
+        Assert.Equal(File.ReadAllBytes(destination), File.ReadAllBytes(cacheFile));
+    }
+
+    [Fact]
     public async Task InsufficientDiskSpace_FailsFast_WithoutDownloading()
     {
         var mod = Ref("mod.bytes", MakePayload(32));

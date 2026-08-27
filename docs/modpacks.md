@@ -228,7 +228,10 @@ comes from. So the app's job is:
 2. For each mod in the chosen pack's manifest, resolve its source and download
    the archive into a temporary install workspace. Every verified archive is
    also retained in a content-addressed cache under
-   `%LOCALAPPDATA%\TCGCardShopSimModManager\download-cache`.
+   `%LOCALAPPDATA%\TCGCardShopSimModManager\download-cache`. On Windows, a
+   same-volume workspace uses hard links to those cached files so it does not
+   consume another pack-sized block of disk space. A normal copy remains the
+   fallback when links are unavailable.
 3. Call the existing `Install(manifest, workspace, gameFolder)`. The workspace
    is removed afterwards, while the verified cache survives failed and
    successful attempts for later retries.
@@ -257,7 +260,8 @@ folder the user picked.
 - **Manage mods** contains game-folder selection and installed-mod lifecycle
   controls. Local manifest workflows remain available through the CLI.
 - **Settings** contains Nexus sign-in, app update checks and support-bundle
-  export. Its separate **Modpack author tools** section can check every hosted
+  export. Export progress, failures and the saved bundle path appear beside the
+  action. Its separate **Modpack author tools** section can check every hosted
   manifest for newer, archived or missing pinned Nexus files. It is clearly
   marked as unnecessary for people who only install packs, and it never edits
   manifests or installs suggested replacements.

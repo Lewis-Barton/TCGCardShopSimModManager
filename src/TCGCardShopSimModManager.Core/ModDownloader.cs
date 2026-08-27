@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Runtime.InteropServices;
 
 namespace TCGCardShopSimModManager.Core;
 
@@ -69,7 +70,7 @@ public sealed class ModDownloader
         // 1. Verified cache hit — no source contact at all.
         if (File.Exists(cachePath) && HashMatches(cachePath, mod.Sha256))
         {
-            File.Copy(cachePath, destinationPath, overwrite: true);
+            MaterializeCachedFile(cachePath, destinationPath);
             return new DownloadResult(true, destinationPath, null, FromCache: true);
         }
 
@@ -103,7 +104,7 @@ public sealed class ModDownloader
 
                 try
                 {
-                    File.Copy(destinationPath, cachePath, overwrite: true);
+                    MaterializeCachedFile(destinationPath, cachePath);
                 }
                 catch
                 {
@@ -195,6 +196,29 @@ public sealed class ModDownloader
             // Best effort cleanup.
         }
     }
+
+    private static void MaterializeCachedFile(string sourcePath, string destinationPath)
+    {
+        try
+        {
+            File.Delete(destinationPath);
+            if (!TryCreateHardLink(destinationPath, sourcePath))
+                throw new IOException("The filesystem could not create a hard link.");
+        }
+        catch
+        {
+            File.Copy(sourcePath, destinationPath, overwrite: true);
+        }
+    }
+
+    private static bool TryCreateHardLink(string linkPath, string existingPath) =>
+        OperatingSystem.IsWindows() && CreateHardLink(linkPath, existingPath, IntPtr.Zero);
+
+    [DllImport("kernel32.dll", EntryPoint = "CreateHardLinkW", CharSet = CharSet.Unicode,
+        SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool CreateHardLink(
+        string fileName, string existingFileName, IntPtr securityAttributes);
 
     private void EnsureFreeSpace(long? totalBytes, string path)
     {

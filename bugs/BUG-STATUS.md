@@ -424,15 +424,25 @@ boundaries were fixed before work continued on application-state defects.
   `BepInEx/cache` no longer block a pack update; the installer keeps modified
   configuration through its existing preservation path. Covered by a runtime
   configuration and cache regression test.
+- **BUG-106 — hosted operations duplicate large pack data (High, fixed):**
+  verified cache files now use same-volume Windows hard links in disposable
+  install workspaces, with copies retained as the fallback. Pack updates also
+  use the durable recovery transaction as their only rollback snapshot instead
+  of copying every installed file into a second temporary backup. Covered by
+  cache-storage, download, update and rollback tests.
+- **BUG-107 — support export gives feedback on another page (Low, fixed):** the
+  Settings maintenance card now reports export progress, the saved bundle path
+  or the failure beside the export action and prevents duplicate clicks while
+  work is running. The existing Manage-page log remains available as history.
 
 ## Summary
 | Severity | Open | Fixed |
 |----------|------|-------|
 | Critical | 0 | 3 |
-| High     | 0 | 39 |
+| High     | 0 | 40 |
 | Medium   | 0 | 49 |
-| Low      | 0 | 14 |
-| **Total**| **0** | **105** |
+| Low      | 0 | 15 |
+| **Total**| **0** | **107** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

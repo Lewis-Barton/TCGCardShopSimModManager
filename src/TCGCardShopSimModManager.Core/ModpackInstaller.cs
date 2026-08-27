@@ -454,179 +454,18 @@ public sealed class ModpackInstaller
 
     private sealed class PackInstallSnapshot : IDisposable
     {
-        private readonly string _gameFolderPath;
-        private readonly string _packId;
-        private readonly string _backupRoot;
-        private readonly List<InstallJournalEntry> _journalEntries;
-        private readonly List<InstalledModpack> _packEntries;
-        private readonly List<FileSnapshot> _files;
         private readonly DurableRecoveryTransaction _durable;
-        private bool _committed;
 
-        private PackInstallSnapshot(
-            string gameFolderPath,
-            string packId,
-            string backupRoot,
-            List<InstallJournalEntry> journalEntries,
-            List<InstalledModpack> packEntries,
-            List<FileSnapshot> files,
-            DurableRecoveryTransaction durable)
-        {
-            _gameFolderPath = gameFolderPath;
-            _packId = packId;
-            _backupRoot = backupRoot;
-            _journalEntries = journalEntries;
-            _packEntries = packEntries;
-            _files = files;
-            _durable = durable;
-        }
+        private PackInstallSnapshot(DurableRecoveryTransaction durable) => _durable = durable;
 
-        public static PackInstallSnapshot Capture(string gameFolderPath, string packId)
-        {
-            var journalEntries = new JournalStore(gameFolderPath).Load();
-            var packEntries = new ModpackJournalStore(gameFolderPath).Load();
-            var backupRoot = Path.Combine(
-                Path.GetTempPath(), "cardshopmodmanager-pack-rollback", Guid.NewGuid().ToString("N"));
-            Directory.CreateDirectory(backupRoot);
+        public static PackInstallSnapshot Capture(string gameFolderPath, string packId) =>
+            new(DurableRecoveryTransaction.CapturePack(gameFolderPath, packId));
 
-            try
-            {
-                var files = new List<FileSnapshot>();
-                foreach (var file in journalEntries
-                             .Where(entry => entry.PackId?.Equals(
-                                 packId, StringComparison.OrdinalIgnoreCase) == true)
-                             .SelectMany(entry => entry.Files))
-                {
-                    var physicalPath = ExistingPath(file.Path, gameFolderPath);
-                    if (physicalPath is null)
-                        continue;
+        public void Commit() => _durable.Commit();
 
-                    var backupPath = Path.Combine(backupRoot, (files.Count + 1).ToString());
-                    File.Copy(physicalPath, backupPath);
-                    files.Add(new FileSnapshot(physicalPath, backupPath));
-                }
+        public List<string> Rollback() => _durable.Rollback();
 
-                var durable = DurableRecoveryTransaction.CapturePack(gameFolderPath, packId);
-                return new PackInstallSnapshot(
-                    gameFolderPath, packId, backupRoot, journalEntries, packEntries, files, durable);
-            }
-            catch
-            {
-                TemporaryDirectory.DeleteBestEffort(backupRoot);
-                throw;
-            }
-        }
-
-        public void Commit()
-        {
-            _durable.Commit();
-            _committed = true;
-        }
-
-        public List<string> Rollback()
-        {
-            if (_committed)
-                return new List<string>();
-
-            var durableErrors = _durable.Rollback();
-            if (durableErrors.Count > 0)
-                return durableErrors;
-
-            var errors = new List<string>();
-            try
-            {
-                var currentEntries = new JournalStore(_gameFolderPath).Load()
-                    .Where(entry => entry.PackId?.Equals(
-                        _packId, StringComparison.OrdinalIgnoreCase) == true)
-                    .ToList();
-                foreach (var file in currentEntries.SelectMany(entry => entry.Files))
-                {
-                    TryDelete(file.Path, errors);
-                    if (DisabledPath(file.Path, _gameFolderPath) is { } disabledPath)
-                        TryDelete(disabledPath, errors);
-                }
-            }
-            catch (Exception ex)
-            {
-                errors.Add($"Could not inspect the changed pack files: {ex.Message}");
-            }
-
-            foreach (var file in _files)
-            {
-                try
-                {
-                    Directory.CreateDirectory(Path.GetDirectoryName(file.Path)!);
-                    File.Copy(file.BackupPath, file.Path, overwrite: true);
-                }
-                catch (Exception ex)
-                {
-                    errors.Add($"Could not restore {file.Path}: {ex.Message}");
-                }
-            }
-
-            try { new JournalStore(_gameFolderPath).Save(_journalEntries); }
-            catch (Exception ex) { errors.Add($"Could not restore the install journal: {ex.Message}"); }
-            try { new ModpackJournalStore(_gameFolderPath).Save(_packEntries); }
-            catch (Exception ex) { errors.Add($"Could not restore the pack journal: {ex.Message}"); }
-
-            _committed = true;
-            return errors;
-        }
-
-        public void Dispose()
-        {
-            _durable.Dispose();
-            TemporaryDirectory.DeleteBestEffort(_backupRoot);
-        }
-
-        private static string? ExistingPath(string path, string gameFolderPath)
-        {
-            if (File.Exists(path))
-                return path;
-            var disabledPath = DisabledPath(path, gameFolderPath);
-            return disabledPath is not null && File.Exists(disabledPath) ? disabledPath : null;
-        }
-
-        private static string? DisabledPath(string path, string gameFolderPath)
-        {
-            var gameRoot = Path.GetFullPath(gameFolderPath)
-                .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) +
-                Path.DirectorySeparatorChar;
-            var fullPath = Path.GetFullPath(path);
-            if (!fullPath.StartsWith(gameRoot, StringComparison.OrdinalIgnoreCase))
-                return null;
-
-            var parts = fullPath[gameRoot.Length..].Replace('\\', '/').Split('/');
-            if (parts.Length < 3 ||
-                !parts[0].Equals("BepInEx", StringComparison.OrdinalIgnoreCase) ||
-                !(parts[1].Equals("plugins", StringComparison.OrdinalIgnoreCase) ||
-                  parts[1].Equals("patchers", StringComparison.OrdinalIgnoreCase)))
-                return null;
-
-            var suffix = parts.Skip(2).ToArray();
-            var primary = Path.Combine(
-                new[] { ModInstaller.DisabledRootFor(gameFolderPath) }.Concat(suffix).ToArray());
-            if (File.Exists(primary))
-                return primary;
-
-            var legacy = Path.Combine(new[] { ModInstaller.DisabledRoot }.Concat(suffix).ToArray());
-            return File.Exists(legacy) ? legacy : primary;
-        }
-
-        private static void TryDelete(string path, List<string> errors)
-        {
-            try
-            {
-                if (File.Exists(path))
-                    File.Delete(path);
-            }
-            catch (Exception ex)
-            {
-                errors.Add($"Could not remove changed file {path}: {ex.Message}");
-            }
-        }
-
-        private sealed record FileSnapshot(string Path, string BackupPath);
+        public void Dispose() => _durable.Dispose();
     }
 
     private static bool HasFreeSpace(string path, long neededBytes, out string message)

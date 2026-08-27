@@ -227,7 +227,10 @@ bytes from a given offset (`HttpModSource`, `LocalFileSource`,
 Hosted-pack downloads use a persistent, SHA-256-keyed cache under
 `%LOCALAPPDATA%\TCGCardShopSimModManager\download-cache`. A failed planning or
 installation attempt keeps verified archives there, so retrying does not
-download them again. Archive extraction remains bounded, but its production
+download them again. On Windows, the disposable install workspace uses hard
+links to cached archives when both locations support them, avoiding another
+full copy of a large pack; cross-volume and unsupported filesystems fall back to
+normal copies. Archive extraction remains bounded, but its production
 limits allow large game assets: up to 32 GiB for one file, 64 GiB extracted per
 archive and 100,000 entries. The archive limit is not a limit on the combined
 size of a modpack; packs containing multiple archives may be larger.
