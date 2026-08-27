@@ -401,15 +401,21 @@ boundaries were fixed before work continued on application-state defects.
   when the original and current game folders have the same name. Hostile and
   traversal paths remain outside that migration and are still rejected. Covered
   by storage, moved-folder and hostile-journal regressions.
+- **BUG-102 — recovery failures are reported as another running operation
+  (Medium, fixed):** the game-operation lock now limits its contention handling
+  to opening the lock file. If durable recovery fails after the lock is
+  acquired, the actual recovery error reaches the user instead of being retried
+  and replaced with a misleading message that survives a restart. Covered by a
+  recovery-failure regression test.
 
 ## Summary
 | Severity | Open | Fixed |
 |----------|------|-------|
 | Critical | 0 | 3 |
 | High     | 0 | 37 |
-| Medium   | 0 | 47 |
+| Medium   | 0 | 48 |
 | Low      | 0 | 14 |
-| **Total**| **0** | **101** |
+| **Total**| **0** | **102** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

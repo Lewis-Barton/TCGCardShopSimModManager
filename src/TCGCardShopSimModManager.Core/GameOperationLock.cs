@@ -22,33 +22,37 @@ internal sealed class GameOperationLock : IDisposable
 
         while (true)
         {
+            FileStream stream;
             try
             {
-                var stream = new FileStream(
+                stream = new FileStream(
                     lockPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
-                try
-                {
-                    DurableRecoveryTransaction.RecoverPending(gameFolderPath);
-                    return new GameOperationLock(stream);
-                }
-                catch
-                {
-                    stream.Dispose();
-                    throw;
-                }
             }
             catch (IOException) when (DateTime.UtcNow < deadline)
             {
                 Thread.Sleep(50);
+                continue;
             }
             catch (UnauthorizedAccessException) when (DateTime.UtcNow < deadline)
             {
                 Thread.Sleep(50);
+                continue;
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {
                 throw new IOException(
                     "Another mod manager operation is already changing this game installation. Try again when it has finished.", ex);
+            }
+
+            try
+            {
+                DurableRecoveryTransaction.RecoverPending(gameFolderPath);
+                return new GameOperationLock(stream);
+            }
+            catch
+            {
+                stream.Dispose();
+                throw;
             }
         }
     }
