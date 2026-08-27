@@ -185,8 +185,11 @@
               <TextBlock TextWrapping="Wrap" Text="Check for app updates or create a support bundle for troubleshooting." />
               <StackPanel Orientation="Horizontal" Spacing="8">
                 <Button Content="Check for updates" Click="OnUpdateCheckClick" />
-                <Button Content="Export support bundle" Classes="secondary" Click="OnExportBundleClick" />
+                <Button x:Name="_exportSupportBundle" Content="Export support bundle"
+                        Classes="secondary" Click="OnExportBundleClick" />
               </StackPanel>
+              <TextBlock x:Name="_supportBundleStatus" Classes="subtitle"
+                         TextWrapping="Wrap" IsVisible="False" />
             </StackPanel>
           </Border>
           <Border Classes="card">

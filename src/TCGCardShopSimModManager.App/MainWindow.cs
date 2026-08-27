@@ -646,9 +646,26 @@ public sealed partial class MainWindow : Window
     private async Task OnExportBundleAsync()
     {
         Log("--- Export support bundle");
-        var gameFolder = string.IsNullOrWhiteSpace(_gameBox.Text) ? null : _gameBox.Text;
-        var bundlePath = await Task.Run(() => SupportBundle.Create(gameFolder, outputDirectory: null));
-        Log($"Support bundle written to: {bundlePath}");
+        _exportSupportBundle.IsEnabled = false;
+        _supportBundleStatus.IsVisible = true;
+        _supportBundleStatus.Text = "Exporting support bundle...";
+        try
+        {
+            var gameFolder = string.IsNullOrWhiteSpace(_gameBox.Text) ? null : _gameBox.Text;
+            var bundlePath = await Task.Run(() => SupportBundle.Create(gameFolder, outputDirectory: null));
+            _supportBundleStatus.Text = $"Support bundle saved to {bundlePath}";
+            Log($"Support bundle written to: {bundlePath}");
+        }
+        catch (Exception ex)
+        {
+            _supportBundleStatus.Text = $"Could not export support bundle: {ex.Message}";
+            Log(_supportBundleStatus.Text);
+            Diagnostic.Write(ex.ToString(), "support-bundle");
+        }
+        finally
+        {
+            _exportSupportBundle.IsEnabled = true;
+        }
     }
 
     private async Task OnUninstallAsync()
