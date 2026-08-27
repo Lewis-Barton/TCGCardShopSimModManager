@@ -418,15 +418,21 @@ boundaries were fixed before work continued on application-state defects.
   snapshot and skip a backup copy when the destination already has identical
   content. An unchanged loader DLL no longer prevents recovery merely because
   the running game has it open. Covered by locked-file recovery tests.
+- **BUG-105 — update preflight rejects mutable runtime files (High, fixed):**
+  deployment preflight now applies the installer's existing mutable-file policy
+  when checking for modified managed files. Changes under `BepInEx/config` and
+  `BepInEx/cache` no longer block a pack update; the installer keeps modified
+  configuration through its existing preservation path. Covered by a runtime
+  configuration and cache regression test.
 
 ## Summary
 | Severity | Open | Fixed |
 |----------|------|-------|
 | Critical | 0 | 3 |
-| High     | 0 | 38 |
+| High     | 0 | 39 |
 | Medium   | 0 | 49 |
 | Low      | 0 | 14 |
-| **Total**| **0** | **104** |
+| **Total**| **0** | **105** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

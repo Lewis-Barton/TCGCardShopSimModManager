@@ -352,7 +352,9 @@ public sealed class ModInstaller
             return null;
 
         var modified = entry.Files.FirstOrDefault(file =>
-            File.Exists(file.Path) && !HashMatchesCurrent(file.Path, file.Sha256));
+            File.Exists(file.Path) &&
+            !IsMutableRuntimeFile(file.Path) &&
+            !HashMatchesCurrent(file.Path, file.Sha256));
         return modified is null
             ? null
             : $"Cannot update {mod.Name}: a managed file was modified: {modified.Path}";

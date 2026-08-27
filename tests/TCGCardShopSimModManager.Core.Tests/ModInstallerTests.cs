@@ -112,6 +112,31 @@ public sealed class ModInstallerTests : IDisposable
     }
 
     [Fact]
+    public void UpdateBlockReason_IgnoresModifiedRuntimeConfigurationAndCache()
+    {
+        var zip = CreateZip(
+            ("BepInEx/plugins/Example/Example.dll", "plugin"),
+            ("BepInEx/config/Example.cfg", "default-setting"),
+            ("BepInEx/cache/runtime.dat", "initial-cache"));
+        var mod = AddZip("runtime-files.zip", zip) with
+        {
+            Id = "stable-id",
+            Version = "1.0.0"
+        };
+        Assert.True(_installer.Install(mod, _sourceDir).Success);
+        File.WriteAllText(
+            Path.Combine(_gameFolder, "BepInEx", "config", "Example.cfg"),
+            "user-setting");
+        File.WriteAllText(
+            Path.Combine(_gameFolder, "BepInEx", "cache", "runtime.dat"),
+            "runtime-change");
+
+        var reason = _installer.UpdateBlockReason(mod with { Version = "2.0.0" });
+
+        Assert.Null(reason);
+    }
+
+    [Fact]
     public void Install_ZipWithBepInExLayout_LandsInsideAndJournalsEveryFile()
     {
         var zipPath = CreateZip(
