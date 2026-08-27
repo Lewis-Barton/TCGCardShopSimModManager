@@ -194,6 +194,21 @@
           </Border>
           <Border Classes="card">
             <StackPanel Spacing="10">
+              <TextBlock FontWeight="SemiBold" Text="Download storage" />
+              <TextBlock x:Name="_downloadCacheStatus" TextWrapping="Wrap"
+                         Text="Checking cached downloads..." />
+              <TextBlock Classes="subtitle" TextWrapping="Wrap"
+                         Text="Cached archives make reinstalls, updates and modpack switches faster. Clearing them does not remove installed mods." />
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Content="Refresh storage" Classes="secondary"
+                        Click="OnRefreshDownloadCacheClick" />
+                <Button x:Name="_clearDownloadCache" Content="Clear cached downloads"
+                        Classes="secondary" Click="OnClearDownloadCacheClick" />
+              </StackPanel>
+            </StackPanel>
+          </Border>
+          <Border Classes="card">
+            <StackPanel Spacing="10">
               <TextBlock FontWeight="SemiBold" Text="Modpack author tools" />
               <TextBlock FontWeight="SemiBold" TextWrapping="Wrap"
                          Text="For modpack authors only — people who only install modpacks do not need this tool." />

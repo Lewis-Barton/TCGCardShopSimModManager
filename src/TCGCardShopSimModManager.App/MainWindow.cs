@@ -66,15 +66,18 @@ public sealed partial class MainWindow : Window
     private async void OnUpdateCheckClick(object? sender, RoutedEventArgs e) => await RunHandler(OnUpdateCheckAsync);
     private async void OnCheckPackFilesClick(object? sender, RoutedEventArgs e) => await RunHandler(OnCheckPackFilesAsync);
     private async void OnExportBundleClick(object? sender, RoutedEventArgs e) => await RunHandler(OnExportBundleAsync);
+    private async void OnRefreshDownloadCacheClick(object? sender, RoutedEventArgs e) => await RunHandler(RefreshDownloadCacheAsync);
+    private async void OnClearDownloadCacheClick(object? sender, RoutedEventArgs e) => await RunHandler(OnClearDownloadCacheAsync);
     private async void OnPickGameFolder(object? sender, RoutedEventArgs e) => await RunHandler(() => PickFolderAsync(_gameBox));
     private async void OnRefreshPacksClick(object? sender, RoutedEventArgs e) => await RunHandler(LoadPacksAsync);
     private async void OnLaunchGameClick(object? sender, RoutedEventArgs e) => await RunHandler(OnLaunchGameAsync);
     private void OnBrowseNavClick(object? sender, RoutedEventArgs e) => ShowPage(_browsePage, _browseNav);
     private void OnManageNavClick(object? sender, RoutedEventArgs e) => ShowPage(_managePage, _manageNav);
-    private void OnSettingsNavClick(object? sender, RoutedEventArgs e)
+    private async void OnSettingsNavClick(object? sender, RoutedEventArgs e)
     {
         ShowPage(_settingsPage, _settingsNav);
         RefreshNexusStatus();
+        await RunHandler(RefreshDownloadCacheAsync);
     }
     private async void OnNexusLoginClick(object? sender, RoutedEventArgs e) => await OnNexusLoginAsync();
     private async void OnNexusApiKeyClick(object? sender, RoutedEventArgs e) => await OnNexusApiKeyAsync();
@@ -666,6 +669,54 @@ public sealed partial class MainWindow : Window
         {
             _exportSupportBundle.IsEnabled = true;
         }
+    }
+
+    private async Task RefreshDownloadCacheAsync()
+    {
+        var info = await Task.Run(() => new DownloadCacheManager().Inspect());
+        _downloadCacheStatus.Text = info.FileCount == 0
+            ? "No downloaded mod archives are cached."
+            : $"{FormatBytes(info.SizeBytes)} in {info.FileCount:N0} cached archive{(info.FileCount == 1 ? string.Empty : "s")}.";
+        _clearDownloadCache.IsEnabled = info.FileCount > 0;
+    }
+
+    private async Task OnClearDownloadCacheAsync()
+    {
+        var manager = new DownloadCacheManager();
+        var current = await Task.Run(manager.Inspect);
+        if (current.FileCount == 0)
+        {
+            await RefreshDownloadCacheAsync();
+            return;
+        }
+
+        var confirmation = new DownloadCacheClearConfirmationWindow(FormatBytes(current.SizeBytes));
+        if (!await confirmation.ShowDialog<bool>(this))
+            return;
+
+        _clearDownloadCache.IsEnabled = false;
+        _downloadCacheStatus.Text = "Clearing cached downloads...";
+        var result = await Task.Run(manager.Clear);
+        _downloadCacheStatus.Text = result.Errors.Count == 0
+            ? $"Cleared {FormatBytes(result.FreedBytes)} from downloaded mod storage."
+            : $"Cleared {FormatBytes(result.FreedBytes)}, but {result.Errors.Count:N0} file{(result.Errors.Count == 1 ? string.Empty : "s")} could not be removed.";
+        foreach (var error in result.Errors)
+            Log($"Download cache: {error}");
+        _clearDownloadCache.IsEnabled = result.Errors.Count > 0;
+    }
+
+    private static string FormatBytes(long bytes)
+    {
+        string[] units = ["B", "KiB", "MiB", "GiB", "TiB"];
+        var value = (double)Math.Max(0, bytes);
+        var unit = 0;
+        while (value >= 1024 && unit < units.Length - 1)
+        {
+            value /= 1024;
+            unit++;
+        }
+
+        return unit == 0 ? $"{value:N0} {units[unit]}" : $"{value:N1} {units[unit]}";
     }
 
     private async Task OnUninstallAsync()

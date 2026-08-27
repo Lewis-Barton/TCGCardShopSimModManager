@@ -434,15 +434,20 @@ boundaries were fixed before work continued on application-state defects.
   Settings maintenance card now reports export progress, the saved bundle path
   or the failure beside the export action and prevents duplicate clicks while
   work is running. The existing Manage-page log remains available as history.
+- **BUG-108 — persistent downloads grow without user controls (Medium, fixed):**
+  Settings now reports the file count and total size of the verified archive
+  cache. Users can clear it after confirmation without changing installed mods;
+  unexpected directories and linked files are left alone. Covered by missing,
+  populated and cleanup boundary tests.
 
 ## Summary
 | Severity | Open | Fixed |
 |----------|------|-------|
 | Critical | 0 | 3 |
 | High     | 0 | 40 |
-| Medium   | 0 | 49 |
+| Medium   | 0 | 50 |
 | Low      | 0 | 15 |
-| **Total**| **0** | **107** |
+| **Total**| **0** | **108** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

@@ -261,7 +261,9 @@ folder the user picked.
   controls. Local manifest workflows remain available through the CLI.
 - **Settings** contains Nexus sign-in, app update checks and support-bundle
   export. Export progress, failures and the saved bundle path appear beside the
-  action. Its separate **Modpack author tools** section can check every hosted
+  action. It also reports the number and total size of cached mod archives and
+  can clear those downloads after confirmation without changing installed
+  mods. Its separate **Modpack author tools** section can check every hosted
   manifest for newer, archived or missing pinned Nexus files. It is clearly
   marked as unnecessary for people who only install packs, and it never edits
   manifests or installs suggested replacements.
