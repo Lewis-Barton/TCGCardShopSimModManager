@@ -183,8 +183,11 @@ internal sealed class DurableRecoveryTransaction : IDisposable
                 if (file.BackupFile is not null)
                 {
                     var backupPath = BackupPath(file.BackupFile);
-                    Directory.CreateDirectory(Path.GetDirectoryName(file.Path)!);
-                    File.Copy(backupPath, file.Path, overwrite: true);
+                    if (!File.Exists(file.Path) || !FilesMatch(backupPath, file.Path))
+                    {
+                        Directory.CreateDirectory(Path.GetDirectoryName(file.Path)!);
+                        File.Copy(backupPath, file.Path, overwrite: true);
+                    }
                 }
                 else if (File.Exists(file.Path))
                     File.Delete(file.Path);
@@ -277,6 +280,9 @@ internal sealed class DurableRecoveryTransaction : IDisposable
     {
         try
         {
+            var originalPaths = _state.Files
+                .Select(file => Path.GetFullPath(file.Path))
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
             var entries = new JournalStore(_gameFolderPath).Load()
                 .Where(entry => entry.PackId?.Equals(
                     _state.PackId, StringComparison.OrdinalIgnoreCase) == true);
@@ -284,9 +290,11 @@ internal sealed class DurableRecoveryTransaction : IDisposable
             {
                 if (file.PreserveOnUninstall)
                     continue;
-                TryDelete(file.Path, errors);
+                if (!originalPaths.Contains(Path.GetFullPath(file.Path)))
+                    TryDelete(file.Path, errors);
                 if (DisabledPath(file.Path, _gameFolderPath) is { } disabledPath)
-                    TryDelete(disabledPath, errors);
+                    if (!originalPaths.Contains(Path.GetFullPath(disabledPath)))
+                        TryDelete(disabledPath, errors);
             }
         }
         catch (Exception ex)
@@ -299,15 +307,20 @@ internal sealed class DurableRecoveryTransaction : IDisposable
     {
         try
         {
+            var originalPaths = _state.Files
+                .Select(file => Path.GetFullPath(file.Path))
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
             var entries = new JournalStore(_gameFolderPath).Load()
                 .Where(entry => !string.IsNullOrWhiteSpace(entry.PackId));
             foreach (var file in entries.SelectMany(entry => entry.Files))
             {
                 if (file.PreserveOnUninstall)
                     continue;
-                TryDelete(file.Path, errors);
+                if (!originalPaths.Contains(Path.GetFullPath(file.Path)))
+                    TryDelete(file.Path, errors);
                 if (DisabledPath(file.Path, _gameFolderPath) is { } disabledPath)
-                    TryDelete(disabledPath, errors);
+                    if (!originalPaths.Contains(Path.GetFullPath(disabledPath)))
+                        TryDelete(disabledPath, errors);
             }
         }
         catch (Exception ex)
@@ -481,5 +494,18 @@ internal sealed class DurableRecoveryTransaction : IDisposable
         {
             errors.Add($"Could not remove changed file {path}: {ex.Message}");
         }
+    }
+
+    private static bool FilesMatch(string firstPath, string secondPath)
+    {
+        var firstInfo = new FileInfo(firstPath);
+        var secondInfo = new FileInfo(secondPath);
+        if (firstInfo.Length != secondInfo.Length)
+            return false;
+
+        using var first = new FileStream(firstPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        using var second = new FileStream(secondPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+        return System.Security.Cryptography.SHA256.HashData(first)
+            .SequenceEqual(System.Security.Cryptography.SHA256.HashData(second));
     }
 }

@@ -413,15 +413,20 @@ boundaries were fixed before work continued on application-state defects.
   include the install, modpack and profile journals plus pending recovery state,
   so a failed recovery can be diagnosed from the exported files. Covered by a
   support-bundle content regression test.
+- **BUG-104 — pack recovery rewrites unchanged locked files (High, fixed):**
+  pack and pack-switch rollback now remove only files added after their recovery
+  snapshot and skip a backup copy when the destination already has identical
+  content. An unchanged loader DLL no longer prevents recovery merely because
+  the running game has it open. Covered by locked-file recovery tests.
 
 ## Summary
 | Severity | Open | Fixed |
 |----------|------|-------|
 | Critical | 0 | 3 |
-| High     | 0 | 37 |
+| High     | 0 | 38 |
 | Medium   | 0 | 49 |
 | Low      | 0 | 14 |
-| **Total**| **0** | **103** |
+| **Total**| **0** | **104** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

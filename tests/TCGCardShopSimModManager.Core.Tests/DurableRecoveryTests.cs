@@ -107,6 +107,44 @@ public sealed class DurableRecoveryTests : IDisposable
     }
 
     [Fact]
+    public void PackRecoveryDoesNotRewriteUnchangedLockedOriginalFile()
+    {
+        var target = Path.Combine(_root, "winhttp.dll");
+        File.WriteAllText(target, "original loader");
+        var original = Entry("bepinex", "BepInEx", "1.0.0", target, "pack");
+        new JournalStore(_root).Save([original]);
+        new ModpackJournalStore(_root).Record("pack", "1.0.0", "Pack", []);
+        _ = DurableRecoveryTransaction.CapturePack(_root, "pack");
+
+        using var locked = new FileStream(
+            target, FileMode.Open, FileAccess.Read, FileShare.Read);
+        using var operation = GameOperationLock.Acquire(_root, TimeSpan.Zero);
+
+        Assert.Equal("original loader", File.ReadAllText(target));
+        Assert.Single(new JournalStore(_root).Load());
+        AssertRecoveryStorageClean();
+    }
+
+    [Fact]
+    public void PackSwitchRecoveryDoesNotRewriteUnchangedLockedOriginalFile()
+    {
+        var target = Path.Combine(_root, "winhttp.dll");
+        File.WriteAllText(target, "original loader");
+        var original = Entry("bepinex", "BepInEx", "1.0.0", target, "pack");
+        new JournalStore(_root).Save([original]);
+        new ModpackJournalStore(_root).Record("pack", "1.0.0", "Pack", []);
+        _ = DurableRecoveryTransaction.CapturePackSwitch(_root);
+
+        using var locked = new FileStream(
+            target, FileMode.Open, FileAccess.Read, FileShare.Read);
+        using var operation = GameOperationLock.Acquire(_root, TimeSpan.Zero);
+
+        Assert.Equal("original loader", File.ReadAllText(target));
+        Assert.Single(new JournalStore(_root).Load());
+        AssertRecoveryStorageClean();
+    }
+
+    [Fact]
     public void TamperedRecoveryRecordCannotTouchFileOutsideManagedStorage()
     {
         var target = Path.Combine(_root, "BepInEx", "plugins", "Example", "example.dll");
