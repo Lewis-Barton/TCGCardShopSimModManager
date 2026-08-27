@@ -29,7 +29,9 @@ public static class SupportBundle
         if (gameFolder is not null && Directory.Exists(gameFolder))
         {
             AddOptionalTextEntry(zip, "journal.json", Path.Combine(gameFolder, "cardshopmodmanager.journal.json"));
+            AddOptionalTextEntry(zip, "modpacks.json", Path.Combine(gameFolder, "cardshopmodmanager.modpacks.json"));
             AddOptionalTextEntry(zip, "profiles.json", Path.Combine(gameFolder, "cardshopmodmanager.profiles.json"));
+            AddRecoveryRecords(zip, gameFolder);
         }
 
         return bundlePath;
@@ -59,5 +61,21 @@ public static class SupportBundle
     {
         if (File.Exists(path))
             AddTextEntry(zip, name, File.ReadAllText(path));
+    }
+
+    private static void AddRecoveryRecords(ZipArchive zip, string gameFolder)
+    {
+        var recoveryRoot = Path.Combine(gameFolder, ".cardshopmodmanager-recovery");
+        if (!Directory.Exists(recoveryRoot))
+            return;
+
+        var index = 0;
+        foreach (var transactionFolder in Directory.EnumerateDirectories(recoveryRoot))
+        {
+            if ((File.GetAttributes(transactionFolder) & FileAttributes.ReparsePoint) != 0)
+                continue;
+            var statePath = Path.Combine(transactionFolder, "transaction.json");
+            AddOptionalTextEntry(zip, $"recovery/transaction-{++index}.json", statePath);
+        }
     }
 }

@@ -646,7 +646,8 @@ public sealed partial class MainWindow : Window
     private async Task OnExportBundleAsync()
     {
         Log("--- Export support bundle");
-        var bundlePath = await Task.Run(() => SupportBundle.Create(gameFolder: null, outputDirectory: null));
+        var gameFolder = string.IsNullOrWhiteSpace(_gameBox.Text) ? null : _gameBox.Text;
+        var bundlePath = await Task.Run(() => SupportBundle.Create(gameFolder, outputDirectory: null));
         Log($"Support bundle written to: {bundlePath}");
     }
 

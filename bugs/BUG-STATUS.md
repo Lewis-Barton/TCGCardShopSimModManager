@@ -407,15 +407,21 @@ boundaries were fixed before work continued on application-state defects.
   acquired, the actual recovery error reaches the user instead of being retried
   and replaced with a misleading message that survives a restart. Covered by a
   recovery-failure regression test.
+- **BUG-103 — desktop support bundles omit install failures and game state
+  (Medium, fixed):** pack-install failures now reach the diagnostic log, and the
+  desktop passes its selected game folder to support-bundle creation. Bundles
+  include the install, modpack and profile journals plus pending recovery state,
+  so a failed recovery can be diagnosed from the exported files. Covered by a
+  support-bundle content regression test.
 
 ## Summary
 | Severity | Open | Fixed |
 |----------|------|-------|
 | Critical | 0 | 3 |
 | High     | 0 | 37 |
-| Medium   | 0 | 48 |
+| Medium   | 0 | 49 |
 | Low      | 0 | 14 |
-| **Total**| **0** | **102** |
+| **Total**| **0** | **103** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

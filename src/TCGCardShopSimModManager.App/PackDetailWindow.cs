@@ -342,16 +342,23 @@ public sealed class PackDetailWindow : Window
                     selectedOptionalIds: selectedOptionalIds,
                     progress: progress,
                     switchInstalledPack: switching));
-            _status.Text = report.Success
-                ? $"Installed {_pack.Name}."
-                : "Install did not complete: " +
-                  (report.Lines.Count == 0
-                      ? "No further details were returned."
-                      : string.Join(Environment.NewLine, report.Lines));
+            if (report.Success)
+            {
+                _status.Text = $"Installed {_pack.Name}.";
+            }
+            else
+            {
+                var details = report.Lines.Count == 0
+                    ? "No further details were returned."
+                    : string.Join(Environment.NewLine, report.Lines);
+                _status.Text = "Install did not complete: " + details;
+                Diagnostic.Write(details, "modpack-install");
+            }
         }
         catch (Exception ex)
         {
             _status.Text = $"Install failed: {ex.Message}";
+            Diagnostic.Write(ex.ToString(), "modpack-install");
         }
         finally
         {
