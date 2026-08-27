@@ -33,33 +33,22 @@ public sealed class ModpackSubmissionValidator
 
     public SubmissionResult ValidatePack(string packId)
     {
-        var errors = new List<string>();
         var warnings = new List<string>();
+        if (!TryReadIndex(out var index, out var indexFailure))
+            return indexFailure!;
 
-        var indexPath = Path.Combine(_modpacksRoot, "index.json");
-        if (!File.Exists(indexPath))
-            return SubmissionResult.Failure(new List<string> { $"Missing index.json at {indexPath}." }, warnings);
-
-        ModpackIndex index;
-        try
-        {
-            index = JsonSerializer.Deserialize<ModpackIndex>(File.ReadAllText(indexPath), Options)
-                    ?? throw new InvalidOperationException("index.json parsed to null");
-        }
-        catch (Exception ex)
-        {
-            return SubmissionResult.Failure(new List<string> { $"index.json is not valid JSON: {ex.Message}" }, warnings);
-        }
-
-        // BUG-002: a malformed index may omit/garble 'packs'; treat a null array
-        // as a structural failure rather than letting LINQ throw ArgumentNull.
-        if (index.Packs is null)
-            return SubmissionResult.Failure(
-                new List<string> { "index.json is missing the required 'packs' array." }, warnings);
-
-        var entry = index.Packs.FirstOrDefault(p => p.Id.Equals(packId, StringComparison.OrdinalIgnoreCase));
+        var entry = index!.Packs!.FirstOrDefault(p =>
+            p.Id.Equals(packId, StringComparison.OrdinalIgnoreCase));
         if (entry is null)
             return SubmissionResult.Failure(new List<string> { $"No index entry for pack id '{packId}'." }, warnings);
+
+        return ValidateEntry(entry);
+    }
+
+    private SubmissionResult ValidateEntry(ModpackSummary entry)
+    {
+        var errors = new List<string>();
+        var warnings = new List<string>();
 
         // Logo: present and actually a PNG.
         // BUG-034: reject traversal/absolute logo refs before resolving.
@@ -137,16 +126,28 @@ public sealed class ModpackSubmissionValidator
 
     public List<(string PackId, SubmissionResult Result)> ValidateAll()
     {
-        var indexPath = Path.Combine(_modpacksRoot, "index.json");
-        // BUG-031: a missing index is a failure, not "zero valid packs = success".
-        if (!File.Exists(indexPath))
+        if (!TryReadIndex(out var index, out var indexFailure))
             return new List<(string, SubmissionResult)>
             {
-                ("(index.json)", SubmissionResult.Failure(
-                    new List<string> { $"Missing index.json at {indexPath}." }, new List<string>()))
+                ("(index.json)", indexFailure!)
             };
 
-        ModpackIndex index;
+        return index!.Packs!
+            .Select(entry => (entry.Id, ValidateEntry(entry)))
+            .ToList();
+    }
+
+    private bool TryReadIndex(out ModpackIndex? index, out SubmissionResult? failure)
+    {
+        var indexPath = Path.Combine(_modpacksRoot, "index.json");
+        if (!File.Exists(indexPath))
+        {
+            index = null;
+            failure = SubmissionResult.Failure(
+                new List<string> { $"Missing index.json at {indexPath}." }, new List<string>());
+            return false;
+        }
+
         try
         {
             index = JsonSerializer.Deserialize<ModpackIndex>(File.ReadAllText(indexPath), Options)
@@ -154,23 +155,22 @@ public sealed class ModpackSubmissionValidator
         }
         catch (Exception ex)
         {
-            return new List<(string, SubmissionResult)>
-            {
-                ("(index.json)", SubmissionResult.Failure(new List<string> { $"index.json is not valid JSON: {ex.Message}" }, new List<string>()))
-            };
+            index = null;
+            failure = SubmissionResult.Failure(
+                new List<string> { $"index.json is not valid JSON: {ex.Message}" }, new List<string>());
+            return false;
         }
 
-        // BUG-002: a null 'packs' array must surface as a failure, not throw.
+        // A malformed index may omit 'packs'; report it instead of letting validation throw.
         if (index.Packs is null)
-            return new List<(string, SubmissionResult)>
-            {
-                ("(index.json)", SubmissionResult.Failure(
-                    new List<string> { "index.json is missing the required 'packs' array." }, new List<string>()))
-            };
+        {
+            failure = SubmissionResult.Failure(
+                new List<string> { "index.json is missing the required 'packs' array." }, new List<string>());
+            return false;
+        }
 
-        return index.Packs
-            .Select(p => (p.Id, ValidatePack(p.Id)))
-            .ToList();
+        failure = null;
+        return true;
     }
 
     private static bool IsPng(string path)

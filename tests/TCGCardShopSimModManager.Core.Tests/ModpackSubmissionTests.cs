@@ -66,6 +66,18 @@ public sealed class ModpackSubmissionTests : IDisposable
     }
 
     [Fact]
+    public void ValidateAll_ValidatesMultipleIndexEntries()
+    {
+        WriteValidPacks("first-pack", "second-pack");
+
+        var results = new ModpackSubmissionValidator(_root).ValidateAll();
+
+        Assert.Equal(["first-pack", "second-pack"], results.Select(result => result.PackId));
+        Assert.All(results, result => Assert.True(
+            result.Result.IsValid, string.Join("\n", result.Result.Errors)));
+    }
+
+    [Fact]
     public void ValidatePack_Fails_WhenIndexMissingPacksArray() // BUG-002
     {
         WriteIndexNoPacks();
@@ -147,6 +159,24 @@ public sealed class ModpackSubmissionTests : IDisposable
         File.WriteAllText(Path.Combine(packDir, "manifest.json"), ManifestJson());
         if (withLogo)
             File.WriteAllBytes(Path.Combine(packDir, "logo.png"), MakePng());
+    }
+
+    private void WriteValidPacks(params string[] ids)
+    {
+        var entries = ids.Select(id =>
+            "{\"id\":\"" + id + "\",\"name\":\"Pack One\"," +
+            "\"shortDescription\":\"desc\",\"logo\":\"" + id + "/logo.png\"," +
+            "\"manifest\":\"" + id + "/manifest.json\",\"version\":\"1.0.0\"}");
+        File.WriteAllText(
+            Path.Combine(_root, "index.json"),
+            "{\"version\":1,\"packs\":[" + string.Join(',', entries) + "]}");
+        foreach (var id in ids)
+        {
+            var packDir = Path.Combine(_root, id);
+            Directory.CreateDirectory(packDir);
+            File.WriteAllText(Path.Combine(packDir, "manifest.json"), ManifestJson());
+            File.WriteAllBytes(Path.Combine(packDir, "logo.png"), MakePng());
+        }
     }
 
     private void WritePackWithoutBepInEx()
