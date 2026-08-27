@@ -44,6 +44,13 @@ public sealed class PackDetailWindow : Window
         IsVisible = false
     };
     private readonly Button _install = new() { Content = "Install modpack", IsEnabled = false, HorizontalAlignment = HorizontalAlignment.Stretch };
+    private readonly Button _cancelInstall = new()
+    {
+        Content = "Cancel install",
+        Classes = { "secondary" },
+        HorizontalAlignment = HorizontalAlignment.Stretch,
+        IsVisible = false
+    };
     private readonly Button _uninstall = new()
     {
         Content = "Uninstall modpack",
@@ -64,6 +71,7 @@ public sealed class PackDetailWindow : Window
     private int _progressModIndex;
     private long _lastProgressBytes;
     private TimeSpan _lastProgressTime;
+    private CancellationTokenSource? _installCancellation;
 
     public PackDetailWindow(
         ModpackSummary pack,
@@ -98,6 +106,7 @@ public sealed class PackDetailWindow : Window
         var requiredMods = new StackPanel { Spacing = 4 };
         var optionalMods = new StackPanel { Spacing = 4 };
         _install.Click += async (_, _) => await InstallAsync();
+        _cancelInstall.Click += (_, _) => CancelInstall();
         _uninstall.Click += async (_, _) => await UninstallAsync();
         _uninstall.IsVisible = installedPack is not null;
         _acknowledgeCompatibility.IsCheckedChanged += (_, _) => RefreshInstallAvailability();
@@ -142,6 +151,7 @@ public sealed class PackDetailWindow : Window
                     _progressStatus,
                     _downloadStats,
                     _install,
+                    _cancelInstall,
                     _uninstall,
                     _status
                 }
@@ -327,11 +337,14 @@ public sealed class PackDetailWindow : Window
         _progressStatus.Text = "Preparing downloads...";
         _downloadStats.Text = string.Empty;
         _install.IsEnabled = false;
+        _cancelInstall.IsVisible = true;
+        _cancelInstall.IsEnabled = true;
         SetOptionalChoicesEnabled(false);
         _speedTimer.Restart();
         _progressModIndex = 0;
         _lastProgressBytes = 0;
         _lastProgressTime = TimeSpan.Zero;
+        _installCancellation = new CancellationTokenSource();
         try
         {
             var fallback = BuildFallback(_pack);
@@ -341,7 +354,8 @@ public sealed class PackDetailWindow : Window
                 .InstallAsync(_manifest, fallback, pack: _pack,
                     selectedOptionalIds: selectedOptionalIds,
                     progress: progress,
-                    switchInstalledPack: switching));
+                    switchInstalledPack: switching,
+                    cancellationToken: _installCancellation.Token));
             if (report.Success)
             {
                 _status.Text = $"Installed {_pack.Name}.";
@@ -362,6 +376,9 @@ public sealed class PackDetailWindow : Window
         }
         finally
         {
+            _installCancellation.Dispose();
+            _installCancellation = null;
+            _cancelInstall.IsVisible = false;
             _speedTimer.Stop();
             SetOptionalChoicesEnabled(true);
             if (_status.Text?.StartsWith("Installed ", StringComparison.Ordinal) == true)
@@ -378,6 +395,16 @@ public sealed class PackDetailWindow : Window
             }
             RefreshInstallAvailability();
         }
+    }
+
+    private void CancelInstall()
+    {
+        if (_installCancellation is null)
+            return;
+
+        _cancelInstall.IsEnabled = false;
+        _progressStatus.Text = "Cancelling after the current file operation...";
+        _installCancellation.Cancel();
     }
 
     private async Task UninstallAsync()

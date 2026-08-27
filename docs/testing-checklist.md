@@ -199,6 +199,12 @@ unit test already covers it, **[manual]** where it needs a real environment.
       downloading finishes. During preflight and installation, confirm the
       current archive or mod and its position continue to change while the
       progress bar remains animated.
+- [ ] **[manual]** Cancel a hosted install once during a download and once after
+      file installation begins. The partial download should be removed, changed
+      mods should roll back, and retrying should complete normally.
+- [x] **[auto]** Cancelling after one mod installs rolls back that mod and its
+      journal entry before reporting the operation as cancelled
+      (`ModpackInstaller_CancellationDuringInstallRollsBackCompletedMods`).
 - [x] **[auto]** Hosted installs report the current mod and byte counts while
       downloading, followed by preparation, archive planning and per-mod
       installation stages

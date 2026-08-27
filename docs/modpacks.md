@@ -255,7 +255,10 @@ folder the user picked.
 - Clicking a card opens a modal with the logo, description and full mod list.
   The modal owns the **Install modpack**, **Update** and **Uninstall modpack**
   actions. Pack uninstall is transactional: a modified managed file stops the
-  operation and restores pack files already removed.
+  operation and restores pack files already removed. A running install also has
+  a **Cancel install** action. Download cancellation removes its partial file;
+  cancellation during installation stops between mods and rolls back changes
+  already made by that deployment.
 - A newer published version adds an **Update available** badge to its card.
 - **Manage mods** contains game-folder selection and installed-mod lifecycle
   controls. Local manifest workflows remain available through the CLI.

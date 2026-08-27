@@ -122,15 +122,18 @@ public sealed class DeploymentService
         ModListManifest manifest,
         string sourceDirectory,
         string gameFolderPath,
-        IProgress<ModpackInstallProgress>? progress = null) =>
-        InstallLocked(manifest, sourceDirectory, gameFolderPath, new List<string>(), progress);
+        IProgress<ModpackInstallProgress>? progress = null,
+        CancellationToken cancellationToken = default) =>
+        InstallLocked(
+            manifest, sourceDirectory, gameFolderPath, new List<string>(), progress, cancellationToken);
 
     private static DeploymentReport InstallLocked(
         ModListManifest manifest,
         string sourceDirectory,
         string gameFolderPath,
         List<string> lines,
-        IProgress<ModpackInstallProgress>? progress = null)
+        IProgress<ModpackInstallProgress>? progress = null,
+        CancellationToken cancellationToken = default)
     {
         // BUG-020: the local path must guarantee BepInEx sorts first just like the
         // hosted-modpack path does. Enforce it here so both `install` (this
@@ -168,6 +171,9 @@ public sealed class DeploymentService
             Directory.CreateDirectory(planRoot);
             for (var i = 0; i < toInstall.Count; i++)
             {
+                if (cancellationToken.IsCancellationRequested)
+                    return DeploymentReport.Failure(lines, "Installation cancelled.");
+
                 var extractionDirectory = Path.Combine(planRoot, $"mod-{i + 1}");
                 try
                 {
@@ -241,6 +247,20 @@ public sealed class DeploymentService
                     mod.Name,
                     i + 1,
                     toInstall.Count));
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    lines.Add("Installation cancelled. Rolling back completed changes.");
+                    var cancellationRollbackErrors = snapshot.Rollback();
+                    if (cancellationRollbackErrors.Count == 0)
+                        lines.Add("Deployment rollback completed.");
+                    else
+                    {
+                        lines.Add("Deployment rollback was incomplete:");
+                        lines.AddRange(cancellationRollbackErrors.Select(error => $"  - {error}"));
+                    }
+                    return DeploymentReport.Failure(lines, null);
+                }
+
                 var updating = installer.HasJournalEntry(mod);
                 var result = installer.Install(mod, sourceDirectory);
                 lines.Add(result.Success

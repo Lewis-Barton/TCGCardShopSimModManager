@@ -439,15 +439,20 @@ boundaries were fixed before work continued on application-state defects.
   cache. Users can clear it after confirmation without changing installed mods;
   unexpected directories and linked files are left alone. Covered by missing,
   populated and cleanup boundary tests.
+- **BUG-109 — desktop installs cannot be cancelled (Medium, fixed):** pack
+  details now shows a cancel action while installation is running. Downloads
+  remove their partial file through the existing cancellation path; planning
+  stops before the next archive, and file installation stops between mods and
+  rolls back completed changes. Covered by a cancellation rollback regression.
 
 ## Summary
 | Severity | Open | Fixed |
 |----------|------|-------|
 | Critical | 0 | 3 |
 | High     | 0 | 40 |
-| Medium   | 0 | 50 |
+| Medium   | 0 | 51 |
 | Low      | 0 | 15 |
-| **Total**| **0** | **108** |
+| **Total**| **0** | **109** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

@@ -25,8 +25,10 @@ dotnet run --project src/TCGCardShopSimModManager.App
 Browse the hosted modpack gallery, use its filters to find a pack, and open a
 card to review required and optional mods before installing it. The app confirms
 your optional choices and shows per-download progress and speed during the
-install. Packs that download from Nexus prompt for sign-in or a personal API key
-before installation can begin. The gallery identifies the installed pack and
+install. A running install can be cancelled; cancellation stops at a safe
+operation boundary and rolls back mods already changed by that operation. Packs
+that download from Nexus prompt for sign-in or a personal API key before
+installation can begin. The gallery identifies the installed pack and
 shows a green banner when its published pack version changes. Only one hosted
 pack can be installed at a time; choosing another offers a transactional switch
 that keeps matching shared mods, removes old-only mods and restores the original

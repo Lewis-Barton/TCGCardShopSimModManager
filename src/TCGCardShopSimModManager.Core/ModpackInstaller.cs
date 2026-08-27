@@ -218,7 +218,7 @@ public sealed class ModpackInstaller
                         snapshot = PackInstallSnapshot.Capture(_gameFolderPath, pack.Id);
 
                     var report = new DeploymentService().InstallWithLockHeld(
-                        manifest, cacheDirectory, _gameFolderPath, progress);
+                        manifest, cacheDirectory, _gameFolderPath, progress, cancellationToken);
                     if (!report.Success)
                     {
                         if (switchTransaction is not null)

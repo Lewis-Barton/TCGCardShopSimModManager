@@ -493,6 +493,42 @@ public sealed class ModpackTests : IDisposable
     }
 
     [Fact]
+    public async Task ModpackInstaller_CancellationDuringInstallRollsBackCompletedMods()
+    {
+        var firstBytes = MakeZip(("First.dll", "first"));
+        var secondBytes = MakeZip(("Second.dll", "second"));
+        _server.Provider = request => request.Path.Contains("First", StringComparison.Ordinal)
+            ? new HttpResponse(200, firstBytes, null)
+            : new HttpResponse(200, secondBytes, null);
+        var first = new ModEntry(
+            "first", "First", null, "First.zip", Sha(firstBytes), "BepInExPlugin",
+            new List<string>(), new List<string>(), DownloadUrl: _server.Url("First.zip"));
+        var second = new ModEntry(
+            "second", "Second", null, "Second.zip", Sha(secondBytes), "BepInExPlugin",
+            new List<string>(), new List<string>(), DownloadUrl: _server.Url("Second.zip"));
+        var manifest = new ModListManifest(
+            1, "Cancellation Pack", "tcgcardshopsimulator", new List<ModEntry> { first, second });
+        var gameFolder = Path.Combine(_root, "cancel-install-game");
+        Directory.CreateDirectory(gameFolder);
+        using var cancellation = new CancellationTokenSource();
+        var progress = new RecordingProgress<ModpackInstallProgress>(update =>
+        {
+            if (update.Stage == ModpackInstallStage.Installing && update.ModIndex == 2)
+                cancellation.Cancel();
+        });
+
+        var report = await new ModpackInstaller(gameFolder).InstallAsync(
+            manifest, progress: progress, cancellationToken: cancellation.Token);
+
+        Assert.False(report.Success);
+        Assert.Contains(report.Lines, line => line.Contains("cancelled", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(report.Lines, line => line == "Deployment rollback completed.");
+        Assert.False(File.Exists(Path.Combine(
+            gameFolder, "BepInEx", "plugins", "First", "First.dll")));
+        Assert.Empty(new JournalStore(gameFolder).Load());
+    }
+
+    [Fact]
     public async Task ModpackInstaller_ManifestNameCannotChooseCleanupDirectory()
     {
         var archiveBytes = MakeZip(("ExampleMod.dll", "dll-bytes"));
