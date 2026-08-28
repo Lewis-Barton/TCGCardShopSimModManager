@@ -451,18 +451,24 @@ boundaries were fixed before work continued on application-state defects.
   populated and cleanup boundary tests.
 - **BUG-109 — desktop installs cannot be cancelled (Medium, fixed):** pack
   details now shows a cancel action while installation is running. Downloads
-  remove their partial file through the existing cancellation path; planning
-  stops before the next archive, and file installation stops between mods and
-  rolls back completed changes. Covered by a cancellation rollback regression.
+  stop through the downloader's cancellation path; planning stops before the
+  next archive, and file installation stops between mods and rolls back
+  completed changes. Covered by a cancellation rollback regression.
+- **BUG-110 — cancellation discards resumable downloads (Medium, fixed):**
+  incomplete downloads now remain in the content-addressed cache and resume
+  safely across disposable install workspaces. A per-content lock prevents two
+  processes from writing the same partial, and only a complete hash-verified
+  file receives the usable cache name. Settings distinguishes resumable
+  partials from ready archives. Covered by cancellation/resume and storage tests.
 
 ## Summary
 | Severity | Open | Fixed |
 |----------|------|-------|
 | Critical | 0 | 3 |
 | High     | 0 | 40 |
-| Medium   | 0 | 51 |
+| Medium   | 0 | 52 |
 | Low      | 0 | 15 |
-| **Total**| **0** | **109** |
+| **Total**| **0** | **110** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

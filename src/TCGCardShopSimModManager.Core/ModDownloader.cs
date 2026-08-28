@@ -22,11 +22,11 @@ public sealed record DownloadOptions
 ///
 /// Safety contract — a cancelled, failed or corrupt download never leaves an
 /// apparently-valid file behind:
-///   1. Bytes are written to "<name>.partial" and only renamed to the final
-///      name after the whole file has passed its SHA-256 check.
+///   1. Bytes are written to a content-addressed ".partial" cache file and only
+///      receive the usable cache name after the whole file passes SHA-256.
 ///   2. An existing partial is resumed via the source (HTTP Range), or the
-///      download starts fresh.
-///   3. Every failure between attempts deletes the partial, and the run fails.
+///      download starts fresh. Cancellation keeps that partial for a later run.
+///   3. Other failures between attempts delete the partial, and the run fails.
 ///   4. Verified downloads are copied into a local cache, so a later request
 ///      never touches the network again.
 /// </summary>
@@ -64,87 +64,125 @@ public sealed class ModDownloader
             return new DownloadResult(false, null, ex.Message, FromCache: false);
         }
         Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
-        var partialPath = destinationPath + ".partial";
         var cachePath = Path.Combine(_options.CacheDirectory, CacheKey(mod));
-
-        // 1. Verified cache hit — no source contact at all.
-        if (File.Exists(cachePath) && HashMatches(cachePath, mod.Sha256))
+        var partialPath = cachePath + ".partial";
+        var lockPath = cachePath + ".lock";
+        FileStream downloadLock;
+        try
         {
-            MaterializeCachedFile(cachePath, destinationPath);
-            return new DownloadResult(true, destinationPath, null, FromCache: true);
+            downloadLock = await AcquireDownloadLockAsync(lockPath, cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            return new DownloadResult(false, null, "Download cancelled.", FromCache: false);
         }
 
-        // 2. Already present and verified — nothing to do.
-        if (File.Exists(destinationPath))
+        try
         {
-            if (HashMatches(destinationPath, mod.Sha256))
-                return new DownloadResult(true, destinationPath, null, FromCache: false);
-
-            // Present but corrupt/stale — replace it rather than trust it.
-            File.Delete(destinationPath);
-        }
-
-        // 3. Attempt loop: fresh run, or resume any partial from the last attempt.
-        for (var attempt = 1; attempt <= _options.MaxAttempts; attempt++)
-        {
-            try
+            // 1. Verified cache hit — no source contact at all.
+            if (File.Exists(cachePath) && HashMatches(cachePath, mod.Sha256))
             {
-                var existingPartial = GetLength(partialPath);
-                using var opened = await _source.OpenAsync(mod, existingPartial > 0 ? existingPartial : null, cancellationToken);
+                MaterializeCachedFile(cachePath, destinationPath);
+                return new DownloadResult(true, destinationPath, null, FromCache: true);
+            }
+            if (File.Exists(cachePath))
+                File.Delete(cachePath);
 
-                EnsureFreeSpace(opened.TotalBytes, destinationDirectory);
+            // 2. Already present and verified — nothing to do.
+            if (File.Exists(destinationPath))
+            {
+                if (HashMatches(destinationPath, mod.Sha256))
+                    return new DownloadResult(true, destinationPath, null, FromCache: false);
 
-                await WriteToFileAsync(opened, partialPath, cancellationToken, onProgress);
+                // Present but corrupt/stale — replace it rather than trust it.
+                File.Delete(destinationPath);
+            }
 
-                if (!HashMatches(partialPath, mod.Sha256))
-                    throw new DownloadException("Downloaded file does not match the expected SHA-256 (corrupt download).");
-
-                // Verify before commit: only now does the final name appear.
-                File.Move(partialPath, destinationPath);
-
+            // 3. Attempt loop: fresh run, or resume a partial from an earlier run.
+            for (var attempt = 1; attempt <= _options.MaxAttempts; attempt++)
+            {
                 try
                 {
-                    MaterializeCachedFile(destinationPath, cachePath);
+                    var existingPartial = GetLength(partialPath);
+                    using var opened = await _source.OpenAsync(mod, existingPartial > 0 ? existingPartial : null, cancellationToken);
+
+                    long? bytesStillNeeded = opened.TotalBytes is { } totalBytes
+                        ? Math.Max(0, totalBytes - existingPartial)
+                        : null;
+                    EnsureFreeSpace(bytesStillNeeded, _options.CacheDirectory);
+
+                    await WriteToFileAsync(opened, partialPath, cancellationToken, onProgress);
+
+                    if (!HashMatches(partialPath, mod.Sha256))
+                        throw new DownloadException("Downloaded file does not match the expected SHA-256 (corrupt download).");
+
+                    // Verify before commit: only now does the persistent cache name appear.
+                    File.Move(partialPath, cachePath);
+                    MaterializeCachedFile(cachePath, destinationPath);
+
+                    return new DownloadResult(true, destinationPath, null, FromCache: false);
                 }
-                catch
+                catch (OperationCanceledException)
                 {
-                    // The download succeeded; the cache is a convenience, not a
-                    // requirement, so a cache write failure is not fatal.
+                    return new DownloadResult(false, null, "Download cancelled.", FromCache: false);
                 }
+                catch (DownloadException ex) when (!ex.Retryable)
+                {
+                    TryDelete(partialPath);
+                    Diagnostic.Write($"download failed for {mod.Id}: {ex.Message}", "download");
+                    return new DownloadResult(false, null, ex.Message, FromCache: false);
+                }
+                catch (Exception ex) when (attempt < _options.MaxAttempts)
+                {
+                    TryDelete(partialPath);
 
-                return new DownloadResult(true, destinationPath, null, FromCache: false);
-            }
-            catch (OperationCanceledException)
-            {
-                TryDelete(partialPath);
-                return new DownloadResult(false, null, "Download cancelled.", FromCache: false);
-            }
-            catch (DownloadException ex) when (!ex.Retryable)
-            {
-                TryDelete(partialPath);
-                Diagnostic.Write($"download failed for {mod.Id}: {ex.Message}", "download");
-                return new DownloadResult(false, null, ex.Message, FromCache: false);
-            }
-            catch (Exception ex) when (attempt < _options.MaxAttempts)
-            {
-                TryDelete(partialPath);
+                    // Respect an explicit "wait this long" (rate limits) before
+                    // falling back to our own exponential backoff.
+                    var delay = ex is DownloadException { RetryAfterSeconds: > 0 } rateLimited
+                        ? TimeSpan.FromSeconds(rateLimited.RetryAfterSeconds)
+                        : TimeSpan.FromMilliseconds(BackoffMs(attempt));
 
-                // Respect an explicit "wait this long" (rate limits) before
-                // falling back to our own exponential backoff.
-                var delay = ex is DownloadException { RetryAfterSeconds: > 0 } rateLimited
-                    ? TimeSpan.FromSeconds(rateLimited.RetryAfterSeconds)
-                    : TimeSpan.FromMilliseconds(BackoffMs(attempt));
-
-                await Task.Delay(delay, cancellationToken);
+                    try
+                    {
+                        await Task.Delay(delay, cancellationToken);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        return new DownloadResult(false, null, "Download cancelled.", FromCache: false);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    TryDelete(partialPath);
+                    return new DownloadResult(false, null, $"Download failed: {ex.Message}", FromCache: false);
+                }
             }
-            catch (Exception ex)
+
+            return new DownloadResult(false, null, "Download failed after multiple attempts.", FromCache: false);
+        }
+        finally
+        {
+            downloadLock.Dispose();
+            TryDelete(lockPath);
+        }
+    }
+
+    private static async Task<FileStream> AcquireDownloadLockAsync(
+        string lockPath, CancellationToken cancellationToken)
+    {
+        while (true)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            try
             {
-                TryDelete(partialPath);
-                return new DownloadResult(false, null, $"Download failed: {ex.Message}", FromCache: false);
+                return new FileStream(
+                    lockPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+            }
+            catch (IOException)
+            {
+                await Task.Delay(100, cancellationToken);
             }
         }
-
-        return new DownloadResult(false, null, "Download failed after multiple attempts.", FromCache: false);
     }
 
     private async Task WriteToFileAsync(

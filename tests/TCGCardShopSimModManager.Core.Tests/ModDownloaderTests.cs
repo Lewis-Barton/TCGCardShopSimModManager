@@ -72,7 +72,7 @@ public sealed class ModDownloaderTests : IDisposable
     }
 
     [Fact]
-    public async Task Cancellation_RemovesPartial_AndLeavesNoFinalFile()
+    public async Task Cancellation_KeepsResumablePartial_AndLeavesNoFinalFile()
     {
         var payload = MakePayload(200_000); // bigger than the copy buffer
         var mod = Ref("mod.bytes", payload);
@@ -84,7 +84,7 @@ public sealed class ModDownloaderTests : IDisposable
         Assert.False(result.Success);
         Assert.Contains("cancelled", result.Error, StringComparison.OrdinalIgnoreCase);
         Assert.False(File.Exists(Path.Combine(_root, "mod.bytes")));
-        Assert.False(File.Exists(Path.Combine(_root, "mod.bytes.partial")));
+        Assert.Single(Directory.GetFiles(Path.Combine(_root, ".cache"), "*.partial"));
     }
 
     [Fact]
@@ -94,7 +94,8 @@ public sealed class ModDownloaderTests : IDisposable
         var mod = Ref("mod.bytes", payload);
 
         // Seed a partial file with the first 16 KiB as if a download was cut short.
-        var partialPath = Path.Combine(_root, "mod.bytes.partial");
+        var partialPath = Path.Combine(_root, ".cache", $"{mod.Sha256}.bytes.partial");
+        Directory.CreateDirectory(Path.GetDirectoryName(partialPath)!);
         File.WriteAllBytes(partialPath, payload[..16_000]);
 
         var sawRangeRequest = false;
@@ -113,6 +114,46 @@ public sealed class ModDownloaderTests : IDisposable
         Assert.True(result.Success, result.Error);
         Assert.True(sawRangeRequest, "The server should have been asked for a resumable range.");
         Assert.Equal(payload, File.ReadAllBytes(Path.Combine(_root, "mod.bytes")));
+    }
+
+    [Fact]
+    public async Task CancelledDownloadResumesIntoANewWorkspace()
+    {
+        var payload = MakePayload(200_000);
+        var mod = Ref("mod.bytes", payload);
+        _server.Provider = _ => Http200(payload);
+        using var cts = new CancellationTokenSource();
+        var firstWorkspace = Path.Combine(_root, "first-workspace");
+        var secondWorkspace = Path.Combine(_root, "second-workspace");
+
+        var cancelled = await Run(
+            _server, mod, firstWorkspace, onProgress: _ => cts.Cancel(), ct: cts.Token,
+            cacheDirectory: Path.Combine(_root, ".shared-cache"));
+        var partial = Assert.Single(Directory.GetFiles(
+            Path.Combine(_root, ".shared-cache"), "*.partial"));
+        var partialLength = new FileInfo(partial).Length;
+        var sawResume = false;
+        _server.Provider = request =>
+        {
+            if (request.RangeStart == partialLength)
+            {
+                sawResume = true;
+                return new HttpResponse(
+                    206, payload[(int)partialLength..],
+                    $"bytes {partialLength}-{payload.Length - 1}/{payload.Length}");
+            }
+            return Http200(payload);
+        };
+
+        var resumed = await Run(
+            _server, mod, secondWorkspace,
+            cacheDirectory: Path.Combine(_root, ".shared-cache"));
+
+        Assert.False(cancelled.Success);
+        Assert.True(resumed.Success, resumed.Error);
+        Assert.True(sawResume);
+        Assert.Equal(payload, File.ReadAllBytes(Path.Combine(secondWorkspace, "mod.bytes")));
+        Assert.Empty(Directory.GetFiles(Path.Combine(_root, ".shared-cache"), "*.partial"));
     }
 
     [Fact]
@@ -276,14 +317,15 @@ public sealed class ModDownloaderTests : IDisposable
         ModReference mod,
         string destination,
         Action<DownloadProgress>? onProgress = null,
-        CancellationToken ct = default)
+        CancellationToken ct = default,
+        string? cacheDirectory = null)
     {
         return await new ModDownloader(
             new HttpModSource(m => server.Url(m.FileName)),
             new DownloadOptions
             {
                 RetryBaseDelayMs = 10,
-                CacheDirectory = Path.Combine(destination, ".cache")
+                CacheDirectory = cacheDirectory ?? Path.Combine(destination, ".cache")
             })
             .DownloadAsync(mod, destination, onProgress, ct);
     }

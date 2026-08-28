@@ -681,7 +681,9 @@ public sealed partial class MainWindow : Window
         var info = await Task.Run(() => new DownloadCacheManager().Inspect());
         _downloadCacheStatus.Text = info.FileCount == 0
             ? "No downloaded mod archives are cached."
-            : $"{FormatBytes(info.SizeBytes)} in {info.FileCount:N0} cached archive{(info.FileCount == 1 ? string.Empty : "s")}.";
+            : info.PartialFileCount == 0
+                ? $"{FormatBytes(info.SizeBytes)} in {info.VerifiedFileCount:N0} cached archive{(info.VerifiedFileCount == 1 ? string.Empty : "s")}."
+                : $"{FormatBytes(info.SizeBytes)} in {info.VerifiedFileCount:N0} ready archive{(info.VerifiedFileCount == 1 ? string.Empty : "s")} and {info.PartialFileCount:N0} resumable partial download{(info.PartialFileCount == 1 ? string.Empty : "s")}.";
         _clearDownloadCache.IsEnabled = info.FileCount > 0;
     }
 

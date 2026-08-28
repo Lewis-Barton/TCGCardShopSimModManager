@@ -256,9 +256,10 @@ folder the user picked.
   The modal owns the **Install modpack**, **Update** and **Uninstall modpack**
   actions. Pack uninstall is transactional: a modified managed file stops the
   operation and restores pack files already removed. A running install also has
-  a **Cancel install** action. Download cancellation removes its partial file;
-  cancellation during installation stops between mods and rolls back changes
-  already made by that deployment.
+  a **Cancel install** action. Download cancellation keeps incomplete data in
+  the content cache for a ranged resume on retry; the `.partial` file is never
+  treated as an installable archive. Cancellation during installation stops
+  between mods and rolls back changes already made by that deployment.
 - A pack switch can optionally keep separate save progress for each modpack.
   The manager stores `savedGames_Release*` and `savedGames_BackupFile*` under
   `%LOCALAPPDATA%\TCGCardShopSimModManager\save-profiles`; keybinds, logs and

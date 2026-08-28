@@ -1,6 +1,9 @@
 namespace TCGCardShopSimModManager.Core;
 
-public sealed record DownloadCacheInfo(long SizeBytes, int FileCount);
+public sealed record DownloadCacheInfo(long SizeBytes, int FileCount, int PartialFileCount = 0)
+{
+    public int VerifiedFileCount => FileCount - PartialFileCount;
+}
 
 public sealed record DownloadCacheClearResult(
     long FreedBytes,
@@ -22,17 +25,21 @@ public sealed class DownloadCacheManager
 
         long size = 0;
         var count = 0;
+        var partialCount = 0;
         foreach (var path in Directory.EnumerateFiles(_cacheDirectory, "*", SearchOption.TopDirectoryOnly))
         {
             var file = new FileInfo(path);
-            if (file.Attributes.HasFlag(FileAttributes.ReparsePoint))
+            if (file.Attributes.HasFlag(FileAttributes.ReparsePoint) ||
+                file.Extension.Equals(".lock", StringComparison.OrdinalIgnoreCase))
                 continue;
 
             size += file.Length;
             count++;
+            if (file.Extension.Equals(".partial", StringComparison.OrdinalIgnoreCase))
+                partialCount++;
         }
 
-        return new DownloadCacheInfo(size, count);
+        return new DownloadCacheInfo(size, count, partialCount);
     }
 
     public DownloadCacheClearResult Clear()
