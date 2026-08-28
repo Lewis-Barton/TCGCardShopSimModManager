@@ -68,6 +68,8 @@ public sealed partial class MainWindow : Window
     private async void OnExportBundleClick(object? sender, RoutedEventArgs e) => await RunHandler(OnExportBundleAsync);
     private async void OnRefreshDownloadCacheClick(object? sender, RoutedEventArgs e) => await RunHandler(RefreshDownloadCacheAsync);
     private async void OnClearDownloadCacheClick(object? sender, RoutedEventArgs e) => await RunHandler(OnClearDownloadCacheAsync);
+    private async void OnRefreshSaveProfileStorageClick(object? sender, RoutedEventArgs e) => await RunHandler(RefreshSaveProfileStorageAsync);
+    private async void OnClearSaveProfileStorageClick(object? sender, RoutedEventArgs e) => await RunHandler(OnClearSaveProfileStorageAsync);
     private async void OnPickGameFolder(object? sender, RoutedEventArgs e) => await RunHandler(() => PickFolderAsync(_gameBox));
     private async void OnRefreshPacksClick(object? sender, RoutedEventArgs e) => await RunHandler(LoadPacksAsync);
     private async void OnLaunchGameClick(object? sender, RoutedEventArgs e) => await RunHandler(OnLaunchGameAsync);
@@ -77,7 +79,10 @@ public sealed partial class MainWindow : Window
     {
         ShowPage(_settingsPage, _settingsNav);
         RefreshNexusStatus();
-        await RunHandler(RefreshDownloadCacheAsync);
+        await RunHandler(async () =>
+        {
+            await Task.WhenAll(RefreshDownloadCacheAsync(), RefreshSaveProfileStorageAsync());
+        });
     }
     private async void OnNexusLoginClick(object? sender, RoutedEventArgs e) => await OnNexusLoginAsync();
     private async void OnNexusApiKeyClick(object? sender, RoutedEventArgs e) => await OnNexusApiKeyAsync();
@@ -703,6 +708,41 @@ public sealed partial class MainWindow : Window
         foreach (var error in result.Errors)
             Log($"Download cache: {error}");
         _clearDownloadCache.IsEnabled = result.Errors.Count > 0;
+    }
+
+    private async Task RefreshSaveProfileStorageAsync()
+    {
+        var info = await Task.Run(() => new ModpackSaveProfileManager().InspectStorage());
+        _saveProfileStorageStatus.Text = info.ProfileCount == 0
+            ? "No separate modpack saves are stored."
+            : $"{FormatBytes(info.SizeBytes)} in {info.FileCount:N0} save file{(info.FileCount == 1 ? string.Empty : "s")} for {info.ProfileCount:N0} modpack{(info.ProfileCount == 1 ? string.Empty : "s")}.";
+        _clearSaveProfileStorage.IsEnabled = info.FileCount > 0;
+    }
+
+    private async Task OnClearSaveProfileStorageAsync()
+    {
+        var manager = new ModpackSaveProfileManager();
+        var current = await Task.Run(manager.InspectStorage);
+        if (current.FileCount == 0)
+        {
+            await RefreshSaveProfileStorageAsync();
+            return;
+        }
+
+        var confirmation = new SaveProfilesClearConfirmationWindow(
+            FormatBytes(current.SizeBytes), current.ProfileCount);
+        if (!await confirmation.ShowDialog<bool>(this))
+            return;
+
+        _clearSaveProfileStorage.IsEnabled = false;
+        _saveProfileStorageStatus.Text = "Clearing stored modpack saves...";
+        var result = await Task.Run(manager.ClearStorage);
+        _saveProfileStorageStatus.Text = result.Errors.Count == 0
+            ? $"Cleared {FormatBytes(result.FreedBytes)} from modpack save storage."
+            : $"Cleared {FormatBytes(result.FreedBytes)}, but {result.Errors.Count:N0} profile{(result.Errors.Count == 1 ? string.Empty : "s")} could not be fully removed.";
+        foreach (var error in result.Errors)
+            Log($"Save profiles: {error}");
+        _clearSaveProfileStorage.IsEnabled = result.Errors.Count > 0;
     }
 
     private static string FormatBytes(long bytes)

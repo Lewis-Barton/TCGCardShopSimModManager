@@ -116,5 +116,46 @@ public sealed class ModpackSaveProfileTests : IDisposable
         Assert.False(Directory.Exists(transaction));
     }
 
+    [Fact]
+    public void StorageInspectionAndClearCoverOnlyOwnedSaveProfiles()
+    {
+        var saves = Path.Combine(_root, "storage-management-saves");
+        var storage = Path.Combine(_root, "storage-management");
+        Directory.CreateDirectory(saves);
+        File.WriteAllBytes(Path.Combine(saves, "savedGames_Release0.gd"), new byte[128]);
+        File.WriteAllText(Path.Combine(saves, "savedGames_KeybindSetting.gd"), "keep");
+        var manager = new ModpackSaveProfileManager(saves, storage, () => false);
+        using (var swap = manager.BeginSwap("pack-a", "pack-b"))
+            swap.Commit();
+        var unexpected = Path.Combine(storage, "unexpected-folder");
+        Directory.CreateDirectory(unexpected);
+        File.WriteAllText(Path.Combine(unexpected, "keep.txt"), "keep");
+
+        Assert.Equal(new ModpackSaveStorageInfo(1, 1, 128), manager.InspectStorage());
+        var result = manager.ClearStorage();
+
+        Assert.Equal(128, result.FreedBytes);
+        Assert.Equal(1, result.DeletedFiles);
+        Assert.Empty(result.Errors);
+        Assert.Equal(new ModpackSaveStorageInfo(0, 0, 0), manager.InspectStorage());
+        Assert.Equal("keep", File.ReadAllText(Path.Combine(unexpected, "keep.txt")));
+        Assert.Equal("keep", File.ReadAllText(Path.Combine(saves, "savedGames_KeybindSetting.gd")));
+    }
+
+    [Fact]
+    public void StorageClearRefusesToRaceAnActiveSaveSwap()
+    {
+        var saves = Path.Combine(_root, "locked-storage-saves");
+        var storage = Path.Combine(_root, "locked-storage");
+        Directory.CreateDirectory(saves);
+        File.WriteAllText(Path.Combine(saves, "savedGames_Release0.gd"), "pack-a");
+        var manager = new ModpackSaveProfileManager(saves, storage, () => false);
+        using var swap = manager.BeginSwap("pack-a", "pack-b");
+
+        var error = Assert.Throws<IOException>(manager.ClearStorage);
+
+        Assert.Contains("Another save-profile operation", error.Message);
+    }
+
     public void Dispose() => TemporaryDirectory.DeleteBestEffort(_root);
 }

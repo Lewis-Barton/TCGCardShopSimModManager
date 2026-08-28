@@ -10,6 +10,13 @@ public sealed record ModpackSaveProfileInfo(int FileCount, long SizeBytes)
     public bool HasSaves => FileCount > 0;
 }
 
+public sealed record ModpackSaveStorageInfo(int ProfileCount, int FileCount, long SizeBytes);
+
+public sealed record ModpackSaveStorageClearResult(
+    long FreedBytes,
+    int DeletedFiles,
+    IReadOnlyList<string> Errors);
+
 internal sealed record ModpackSaveSwapState(
     int Version,
     string CurrentPackId,
@@ -51,6 +58,66 @@ public sealed class ModpackSaveProfileManager
         return new ModpackSaveProfileInfo(files.Count, files.Sum(path => new FileInfo(path).Length));
     }
 
+    public ModpackSaveStorageInfo InspectStorage()
+    {
+        if (!Directory.Exists(_storageRoot))
+            return new ModpackSaveStorageInfo(0, 0, 0);
+        RejectReparsePath(_storageRoot, "Save-profile storage");
+
+        var profiles = 0;
+        var files = 0;
+        long size = 0;
+        foreach (var directory in ProfileDirectories())
+        {
+            RejectReparsePath(directory, "Save profile");
+            var profileFiles = SaveFiles(directory);
+            if (profileFiles.Count == 0)
+                continue;
+            profiles++;
+            files += profileFiles.Count;
+            size += profileFiles.Sum(path => new FileInfo(path).Length);
+        }
+        return new ModpackSaveStorageInfo(profiles, files, size);
+    }
+
+    public ModpackSaveStorageClearResult ClearStorage()
+    {
+        if (!Directory.Exists(_storageRoot))
+            return new ModpackSaveStorageClearResult(0, 0, Array.Empty<string>());
+        RejectReparsePath(_storageRoot, "Save-profile storage");
+
+        using var operationLock = AcquireOperationLock();
+        long freed = 0;
+        var deleted = 0;
+        var errors = new List<string>();
+        foreach (var directory in ProfileDirectories())
+        {
+            try
+            {
+                RejectReparsePath(directory, "Save profile");
+                foreach (var path in SaveFiles(directory))
+                {
+                    var length = new FileInfo(path).Length;
+                    File.Delete(path);
+                    freed += length;
+                    deleted++;
+                }
+
+                var metadata = Path.Combine(directory, "profile.json");
+                if (File.Exists(metadata) &&
+                    !File.GetAttributes(metadata).HasFlag(FileAttributes.ReparsePoint))
+                    File.Delete(metadata);
+                if (!Directory.EnumerateFileSystemEntries(directory).Any())
+                    Directory.Delete(directory);
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"Could not clear save profile {Path.GetFileName(directory)}: {ex.Message}");
+            }
+        }
+        return new ModpackSaveStorageClearResult(freed, deleted, errors);
+    }
+
     public ModpackSaveProfileTransaction BeginSwap(string currentPackId, string targetPackId)
     {
         if (string.IsNullOrWhiteSpace(currentPackId) || string.IsNullOrWhiteSpace(targetPackId))
@@ -66,17 +133,7 @@ public sealed class ModpackSaveProfileManager
         RejectReparsePath(_saveDirectory, "Game save directory");
         RejectReparsePath(_storageRoot, "Save-profile storage");
 
-        var lockPath = Path.Combine(_storageRoot, ".save-profiles.lock");
-        FileStream operationLock;
-        try
-        {
-            operationLock = new FileStream(
-                lockPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
-        }
-        catch (IOException)
-        {
-            throw new IOException("Another save-profile operation is already running. Try again when it finishes.");
-        }
+        var operationLock = AcquireOperationLock();
 
         var currentProfile = ProfileDirectory(currentPackId);
         var targetProfile = ProfileDirectory(targetPackId);
@@ -129,6 +186,28 @@ public sealed class ModpackSaveProfileManager
         var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(packId.Trim().ToLowerInvariant())))
             .ToLowerInvariant();
         return Path.Combine(_storageRoot, hash);
+    }
+
+    private IEnumerable<string> ProfileDirectories() =>
+        Directory.EnumerateDirectories(_storageRoot, "*", SearchOption.TopDirectoryOnly)
+            .Where(path => IsProfileDirectoryName(Path.GetFileName(path)));
+
+    private static bool IsProfileDirectoryName(string name) =>
+        name.Length == 64 && name.All(Uri.IsHexDigit);
+
+    private FileStream AcquireOperationLock()
+    {
+        Directory.CreateDirectory(_storageRoot);
+        var lockPath = Path.Combine(_storageRoot, ".save-profiles.lock");
+        try
+        {
+            return new FileStream(
+                lockPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+        }
+        catch (IOException)
+        {
+            throw new IOException("Another save-profile operation is already running. Try again when it finishes.");
+        }
     }
 
     private static void WriteProfileMetadata(string directory, string packId)

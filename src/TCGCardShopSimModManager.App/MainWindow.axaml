@@ -209,6 +209,21 @@
           </Border>
           <Border Classes="card">
             <StackPanel Spacing="10">
+              <TextBlock FontWeight="SemiBold" Text="Modpack save storage" />
+              <TextBlock x:Name="_saveProfileStorageStatus" TextWrapping="Wrap"
+                         Text="Checking stored modpack saves..." />
+              <TextBlock Classes="subtitle" TextWrapping="Wrap"
+                         Text="Separate modpack saves let each pack resume its own progress. Clearing this storage does not change the saves currently used by the game." />
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Content="Refresh storage" Classes="secondary"
+                        Click="OnRefreshSaveProfileStorageClick" />
+                <Button x:Name="_clearSaveProfileStorage" Content="Clear stored saves"
+                        Classes="secondary" Click="OnClearSaveProfileStorageClick" />
+              </StackPanel>
+            </StackPanel>
+          </Border>
+          <Border Classes="card">
+            <StackPanel Spacing="10">
               <TextBlock FontWeight="SemiBold" Text="Modpack author tools" />
               <TextBlock FontWeight="SemiBold" TextWrapping="Wrap"
                          Text="For modpack authors only — people who only install modpacks do not need this tool." />

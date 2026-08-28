@@ -46,8 +46,9 @@ under **Settings**. Appearance settings can follow Windows or use a light, dark
 or high-contrast theme. Text and modpack card sizes can be increased
 independently, and the choices are kept for the next launch. The CLI retains
 the local manifest validation, planning and installation commands. Settings
-also reports how much space downloaded mod archives use and can clear that
-cache without changing installed mods. A clearly labelled modpack-author tool
+reports how much space downloaded mod archives and separate modpack saves use.
+Either store can be cleared independently without changing installed mods or
+the saves currently active in the game. A clearly labelled modpack-author tool
 checks hosted manifests against Nexus. People who only install modpacks do not
 need it. The check is read-only and every suggested file still needs review and
 testing before a pack update is published.

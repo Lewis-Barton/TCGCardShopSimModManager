@@ -268,6 +268,9 @@ folder the user picked.
 - Save swapping requires the game to be closed. Steam Cloud can restore or
   overwrite local files independently of the manager, so the switch dialog
   recommends disabling it for this game before separate pack saves are used.
+- Settings reports the number and size of stored save profiles. **Clear stored
+  saves** removes only the manager's inactive per-pack copies after confirmation;
+  it does not touch the save files currently used by the game.
 - A newer published version adds an **Update available** badge to its card.
 - **Manage mods** contains game-folder selection and installed-mod lifecycle
   controls. Local manifest workflows remain available through the CLI.
@@ -275,7 +278,8 @@ folder the user picked.
   export. Export progress, failures and the saved bundle path appear beside the
   action. It also reports the number and total size of cached mod archives and
   can clear those downloads after confirmation without changing installed
-  mods. Its separate **Modpack author tools** section can check every hosted
+  mods. Stored modpack saves have a separate usage display and clear action.
+  Its separate **Modpack author tools** section can check every hosted
   manifest for newer, archived or missing pinned Nexus files. It is clearly
   marked as unnecessary for people who only install packs, and it never edits
   manifests or installs suggested replacements.

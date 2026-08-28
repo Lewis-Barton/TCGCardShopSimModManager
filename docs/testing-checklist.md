@@ -193,11 +193,19 @@ unit test already covers it, **[manual]** where it needs a real environment.
       save transaction before the next swap (`ModpackSaveProfileTests`,
       `ModpackInstaller_SwitchCanKeepSeparateSaveProfiles`,
       `ModpackInstaller_FailedSwitchRestoresActiveSaveProfile`).
+- [x] **[auto]** Save storage inspection counts only recognized per-pack save
+      files, and clearing it preserves the game's active saves and unexpected
+      storage content. A clear cannot race an active swap
+      (`StorageInspectionAndClearCoverOnlyOwnedSaveProfiles`,
+      `StorageClearRefusesToRaceAnActiveSaveSwap`).
 - [ ] **[manual]** With Steam Cloud disabled and the game closed, opt into
       separate saves while switching between two packs. Create different
       progress in each pack, switch both ways, and confirm each pack restores
       its own save slots while keybinds remain unchanged. Repeat with the game
       running and confirm the manager refuses to move saves.
+- [ ] **[manual]** Settings reports stored modpack save usage. Cancel **Clear
+      stored saves** once, then confirm clearing removes inactive pack progress
+      without changing the save currently loaded by the game.
 - [x] **[manual]** With one pack installed, confirm its card and the Browse
       header show its name and version. Open another pack, cancel the switch
       summary once, confirm its keep/update/remove/add counts, then complete the

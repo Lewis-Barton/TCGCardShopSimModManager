@@ -144,6 +144,10 @@ and testing found the following additional issues, now fixed:
   closed, unrelated Unity files remain active, pack and save changes roll back
   together on failure, and interrupted save swaps recover before the next one.
   Steam Cloud remains external to the transaction and is called out in the UI.
+- **FEATURE-004 — stored modpack saves can be managed:** Settings reports the
+  number and size of inactive per-pack save files and can remove them after a
+  destructive-action confirmation. Clearing is serialized with save swapping,
+  ignores unrelated storage content and does not change the game's active saves.
 
 ## 2026-08-17 red-team review
 
