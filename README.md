@@ -333,8 +333,10 @@ automatically when no OAuth session is active.
   after a process or machine stop.
 - Every installed file is hashed in `cardshopmodmanager.journal.json` in the
   game folder, so uninstall can prove a file is still what we installed before
-  deleting it. File locations are stored relative to that game folder, allowing
-  a complete Steam installation to move without leaving stale absolute paths.
+  deleting it. The hash calculated while verifying a new copy is reused for the
+  journal, avoiding a second full read of large installed assets. File locations
+  are stored relative to that game folder, allowing a complete Steam installation
+  to move without leaving stale absolute paths.
 
 ## Supported archive formats
 

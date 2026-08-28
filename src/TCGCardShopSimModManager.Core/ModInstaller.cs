@@ -145,6 +145,7 @@ public sealed class ModInstaller
         var installedPaths = new List<string>();
         var changedPaths = new List<string>();
         var preservedPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var verifiedInstalledHashes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         var backups = new List<(string Original, string Backup)>();
         try
         {
@@ -254,8 +255,9 @@ public sealed class ModInstaller
                 installedPaths.Add(destinationPath);
                 changedPaths.Add(destinationPath);
                 File.Copy(file.SourceAbsolutePath, destinationPath, overwrite: ownedPaths.ContainsKey(destinationPath));
-                if (!HashesMatch(file.SourceAbsolutePath, destinationPath))
+                if (!HashesMatch(file.SourceAbsolutePath, destinationPath, out var installedHash))
                     throw new IOException($"Verification failed after copying {file.DestinationRelativePath}");
+                verifiedInstalledHashes[destinationPath] = installedHash;
             }
 
             var installedSet = installedPaths.ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -274,7 +276,11 @@ public sealed class ModInstaller
                 plan.Mod.Name,
                 DateTimeOffset.UtcNow,
                 installedPaths.Select(p => new JournalFileEntry(
-                    p, ComputeSha256(p), preservedPaths.Contains(p))).ToList(),
+                    p,
+                    verifiedInstalledHashes.TryGetValue(p, out var verifiedHash)
+                        ? verifiedHash
+                        : ComputeSha256(p),
+                    preservedPaths.Contains(p))).ToList(),
                 PackId: mod.PackId,
                 ModId: mod.Id,
                 Version: mod.Version,
@@ -808,6 +814,13 @@ private void PruneEmptyActiveFolders()
 
     private static bool HashesMatch(string first, string second) =>
         ComputeSha256(first).Equals(ComputeSha256(second), StringComparison.OrdinalIgnoreCase);
+
+    private static bool HashesMatch(string first, string second, out string secondHash)
+    {
+        var firstHash = ComputeSha256(first);
+        secondHash = ComputeSha256(second);
+        return firstHash.Equals(secondHash, StringComparison.OrdinalIgnoreCase);
+    }
 
     private static string? MatchingArchiveExclusion(
         string relativePath, List<string>? exclusions)

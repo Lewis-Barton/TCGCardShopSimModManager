@@ -42,6 +42,7 @@ public sealed class ModInstallerTests : IDisposable
         var entry = Assert.Single(new JournalStore(_gameFolder).Load(), e => e.ModName == mod.Name);
         var file = Assert.Single(entry.Files);
         Assert.Equal(installed, file.Path);
+        Assert.Equal(ComputeSha256(installed), file.Sha256);
         Assert.Equal(mod.Id, entry.ModId);
         Assert.Equal(mod.Version, entry.Version);
         Assert.Equal(mod.Sha256, entry.ArchiveSha256);

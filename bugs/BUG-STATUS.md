@@ -148,6 +148,11 @@ and testing found the following additional issues, now fixed:
   number and size of inactive per-pack save files and can remove them after a
   destructive-action confirmation. Clearing is serialized with save swapping,
   ignores unrelated storage content and does not change the game's active saves.
+- **FEATURE-005 — installation reuses verified file hashes:** after a new file
+  is copied, source and destination are still hashed and compared before the
+  install can continue. The proven destination hash is carried into the journal
+  instead of reading the installed file a second time, removing one complete
+  disk pass over newly installed assets without weakening copy verification.
 
 ## 2026-08-17 red-team review
 

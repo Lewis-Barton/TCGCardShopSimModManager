@@ -98,6 +98,9 @@ unit test already covers it, **[manual]** where it needs a real environment.
       game folder and migrate legacy absolute paths when a complete game folder
       moves (`JournalStore_StoresRelativePathsAndResolvesThemForUse`,
       `JournalStore_RebasesLegacyAbsolutePathsAfterGameFolderMoves`).
+- [x] **[auto]** A newly copied file's verified destination hash is recorded in
+      the install journal without a second destination read
+      (`Install_LooseFile_GoesToPluginFolderAndJournals`).
 - [x] **[manual]** Disable + enable a mod on the real install and confirm the
       game stops/starts loading it.
 - [x] **[fixed]** A transient test failure turned out to be a real concurrency
