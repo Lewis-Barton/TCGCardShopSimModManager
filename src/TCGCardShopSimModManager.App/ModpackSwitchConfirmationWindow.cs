@@ -7,24 +7,47 @@ using TCGCardShopSimModManager.Core;
 
 namespace TCGCardShopSimModManager.App;
 
+public sealed record ModpackSwitchChoice(bool SwapSaveProfile);
+
 public sealed class ModpackSwitchConfirmationWindow : Window
 {
     public ModpackSwitchConfirmationWindow(
         string currentPackName,
         string nextPackName,
-        ModpackSwitchPlan plan)
+        ModpackSwitchPlan plan,
+        ModpackSaveProfileInfo targetSaveProfile)
     {
         Title = "Confirm modpack switch";
         Width = 620;
-        Height = 560;
+        Height = 650;
         MinWidth = 500;
         MinHeight = 420;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
+        var saveSwap = new CheckBox
+        {
+            Content = "Keep separate save progress for each modpack",
+            IsChecked = false
+        };
+        var saveExplanation = new TextBlock
+        {
+            Text = targetSaveProfile.HasSaves
+                ? $"{nextPackName} has {targetSaveProfile.FileCount} stored save file(s). They will replace the active save slots for this switch."
+                : $"No stored saves were found for {nextPackName}. Its active save slots will start empty, and the current saves will be kept for {currentPackName}.",
+            TextWrapping = TextWrapping.Wrap,
+            Classes = { "subtitle" }
+        };
+        var cloudWarning = new TextBlock
+        {
+            Text = "Close the game first. Steam Cloud may restore or overwrite local saves, so disable it for this game before using separate modpack saves.",
+            TextWrapping = TextWrapping.Wrap,
+            Classes = { "subtitle" }
+        };
+
         var switchButton = new Button { Content = "Switch modpacks" };
-        switchButton.Click += (_, _) => Close(true);
+        switchButton.Click += (_, _) => Close(new ModpackSwitchChoice(saveSwap.IsChecked == true));
         var cancel = new Button { Content = "Cancel", Classes = { "secondary" } };
-        cancel.Click += (_, _) => Close(false);
+        cancel.Click += (_, _) => Close(null);
 
         var changes = new StackPanel
         {
@@ -73,20 +96,29 @@ public sealed class ModpackSwitchConfirmationWindow : Window
         var content = new Grid
         {
             Margin = new Thickness(18),
-            RowDefinitions = new RowDefinitions("Auto,Auto,Auto,*,Auto"),
+            RowDefinitions = new RowDefinitions("Auto,Auto,Auto,*,Auto,Auto,Auto,Auto"),
             Children =
             {
                 heading,
                 explanation,
                 summary,
                 changeList,
+                saveSwap,
+                saveExplanation,
+                cloudWarning,
                 actions
             }
         };
         Grid.SetRow(explanation, 1);
         Grid.SetRow(summary, 2);
         Grid.SetRow(changeList, 3);
-        Grid.SetRow(actions, 4);
+        Grid.SetRow(saveSwap, 4);
+        Grid.SetRow(saveExplanation, 5);
+        Grid.SetRow(cloudWarning, 6);
+        Grid.SetRow(actions, 7);
+        saveSwap.Margin = new Thickness(0, 12, 0, 0);
+        saveExplanation.Margin = new Thickness(0, 4, 0, 0);
+        cloudWarning.Margin = new Thickness(0, 6, 0, 0);
         actions.Margin = new Thickness(0, 14, 0, 0);
         Content = content;
     }

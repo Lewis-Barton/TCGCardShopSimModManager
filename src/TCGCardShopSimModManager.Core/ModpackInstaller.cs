@@ -14,16 +14,21 @@ public sealed class ModpackInstaller
 {
     private readonly string _gameFolderPath;
     private readonly HttpClient? _http;
+    private readonly ModpackSaveProfileManager _saveProfiles;
 
     public static string DefaultDownloadCacheDirectory => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "TCGCardShopSimModManager",
         "download-cache");
 
-    public ModpackInstaller(string gameFolderPath, HttpClient? http = null)
+    public ModpackInstaller(
+        string gameFolderPath,
+        HttpClient? http = null,
+        ModpackSaveProfileManager? saveProfiles = null)
     {
         _gameFolderPath = gameFolderPath;
         _http = http;
+        _saveProfiles = saveProfiles ?? new ModpackSaveProfileManager();
     }
 
     public async Task<DeploymentReport> InstallAsync(
@@ -35,7 +40,8 @@ public sealed class ModpackInstaller
         IEnumerable<string>? selectedOptionalIds = null,
         IProgress<ModpackInstallProgress>? progress = null,
         string? verifiedCacheDirectory = null,
-        bool switchInstalledPack = false)
+        bool switchInstalledPack = false,
+        bool swapSaveProfile = false)
     {
         manifest = EnforceBepInExFirst(manifest);
         var validation = new ManifestValidator().Validate(manifest);
@@ -183,6 +189,7 @@ public sealed class ModpackInstaller
             {
                 PackInstallSnapshot? snapshot = null;
                 DurableRecoveryTransaction? switchTransaction = null;
+                ModpackSaveProfileTransaction? saveTransaction = null;
                 try
                 {
                     var otherPacks = pack is null ? new List<InstalledModpack>() : InstalledPacksExcept(pack.Id);
@@ -191,7 +198,13 @@ public sealed class ModpackInstaller
 
                     if (otherPacks.Count > 0)
                     {
+                        if (swapSaveProfile && otherPacks.Count != 1)
+                            return DeploymentReport.Failure(
+                                new List<string>(),
+                                "Save swapping requires exactly one installed modpack.");
                         switchTransaction = DurableRecoveryTransaction.CapturePackSwitch(_gameFolderPath);
+                        if (swapSaveProfile)
+                            saveTransaction = _saveProfiles.BeginSwap(otherPacks[0].PackId, pack!.Id);
                         var targetIds = manifest.Mods.Select(mod => mod.Id)
                             .ToHashSet(StringComparer.OrdinalIgnoreCase);
                         var oldEntries = new JournalStore(_gameFolderPath).Load()
@@ -210,6 +223,7 @@ public sealed class ModpackInstaller
                                 var lines = new List<string>
                                     { $"Could not remove {entry.ModName} while switching modpacks: {uninstall.Error}" };
                                 AddRollbackResult(lines, switchTransaction.Rollback());
+                                AddSaveRollbackResult(lines, saveTransaction?.Rollback());
                                 return DeploymentReport.Failure(lines, null);
                             }
                         }
@@ -222,7 +236,10 @@ public sealed class ModpackInstaller
                     if (!report.Success)
                     {
                         if (switchTransaction is not null)
+                        {
                             AddRollbackResult(report.Lines, switchTransaction.Rollback());
+                            AddSaveRollbackResult(report.Lines, saveTransaction?.Rollback());
+                        }
                         else if (snapshot is not null)
                             AddRollbackResult(report.Lines, snapshot.Rollback());
                         return report;
@@ -286,6 +303,7 @@ public sealed class ModpackInstaller
 
                     snapshot?.Commit();
                     switchTransaction?.Commit();
+                    saveTransaction?.Commit();
                     return report;
                 }
                 catch (Exception ex)
@@ -295,6 +313,7 @@ public sealed class ModpackInstaller
                     {
                         lines.Add($"The modpack switch could not be completed: {ex.Message}");
                         AddRollbackResult(lines, switchTransaction.Rollback());
+                        AddSaveRollbackResult(lines, saveTransaction?.Rollback());
                     }
                     else if (snapshot is not null)
                     {
@@ -309,6 +328,7 @@ public sealed class ModpackInstaller
                 {
                     snapshot?.Dispose();
                     switchTransaction?.Dispose();
+                    saveTransaction?.Dispose();
                 }
             }
         }
@@ -448,6 +468,20 @@ public sealed class ModpackInstaller
         else
         {
             lines.Add("Pack installation rollback was incomplete:");
+            lines.AddRange(errors.Select(error => $"  - {error}"));
+        }
+    }
+
+    private static void AddSaveRollbackResult(
+        List<string> lines, IReadOnlyCollection<string>? errors)
+    {
+        if (errors is null)
+            return;
+        if (errors.Count == 0)
+            lines.Add("Save-profile rollback completed.");
+        else
+        {
+            lines.Add("Save-profile rollback was incomplete:");
             lines.AddRange(errors.Select(error => $"  - {error}"));
         }
     }

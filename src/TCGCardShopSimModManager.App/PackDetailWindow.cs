@@ -315,6 +315,7 @@ public sealed class PackDetailWindow : Window
             return;
 
         var switching = _activePack is not null && !_pack.IsId(_activePack.PackId);
+        var swapSaveProfile = false;
         if (switching)
         {
             var selectedIds = selectedOptionalMods.Select(mod => mod.Id).ToArray();
@@ -323,10 +324,14 @@ public sealed class PackDetailWindow : Window
                 .Where(entry => entry.PackId?.Equals(
                     _activePack!.PackId, StringComparison.OrdinalIgnoreCase) == true);
             var switchPlan = ModpackSwitchPlanner.Create(currentEntries, selectedManifest.Mods);
+            var targetSaveProfile = await Task.Run(() =>
+                new ModpackSaveProfileManager().Inspect(_pack.Id));
             var switchConfirmation = new ModpackSwitchConfirmationWindow(
-                _activePack!.Name, _pack.Name, switchPlan);
-            if (!await switchConfirmation.ShowDialog<bool>(this))
+                _activePack!.Name, _pack.Name, switchPlan, targetSaveProfile);
+            var choice = await switchConfirmation.ShowDialog<ModpackSwitchChoice?>(this);
+            if (choice is null)
                 return;
+            swapSaveProfile = choice.SwapSaveProfile;
         }
 
         _progress.IsVisible = true;
@@ -355,6 +360,7 @@ public sealed class PackDetailWindow : Window
                     selectedOptionalIds: selectedOptionalIds,
                     progress: progress,
                     switchInstalledPack: switching,
+                    swapSaveProfile: swapSaveProfile,
                     cancellationToken: _installCancellation.Token));
             if (report.Success)
             {

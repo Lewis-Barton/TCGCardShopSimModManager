@@ -259,6 +259,15 @@ folder the user picked.
   a **Cancel install** action. Download cancellation removes its partial file;
   cancellation during installation stops between mods and rolls back changes
   already made by that deployment.
+- A pack switch can optionally keep separate save progress for each modpack.
+  The manager stores `savedGames_Release*` and `savedGames_BackupFile*` under
+  `%LOCALAPPDATA%\TCGCardShopSimModManager\save-profiles`; keybinds, logs and
+  other Unity files remain in place. Returning to a pack restores its saved
+  slots. A failed or interrupted switch restores the previous active saves and
+  stored profiles before another save swap begins.
+- Save swapping requires the game to be closed. Steam Cloud can restore or
+  overwrite local files independently of the manager, so the switch dialog
+  recommends disabling it for this game before separate pack saves are used.
 - A newer published version adds an **Update available** badge to its card.
 - **Manage mods** contains game-folder selection and installed-mod lifecycle
   controls. Local manifest workflows remain available through the CLI.

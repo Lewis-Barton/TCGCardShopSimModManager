@@ -187,6 +187,17 @@ unit test already covers it, **[manual]** where it needs a real environment.
 - [x] **[auto]** The switch preview classifies unchanged shared mods, changed
       shared mods, old-only mods and new-only mods as keep, update, remove and
       add (`ModpackSwitchPlannerTests`).
+- [x] **[auto]** An opted-in pack switch stores the current world saves,
+      restores the destination pack's saves, preserves unrelated game settings,
+      rolls saves back when the mod switch fails and recovers an interrupted
+      save transaction before the next swap (`ModpackSaveProfileTests`,
+      `ModpackInstaller_SwitchCanKeepSeparateSaveProfiles`,
+      `ModpackInstaller_FailedSwitchRestoresActiveSaveProfile`).
+- [ ] **[manual]** With Steam Cloud disabled and the game closed, opt into
+      separate saves while switching between two packs. Create different
+      progress in each pack, switch both ways, and confirm each pack restores
+      its own save slots while keybinds remain unchanged. Repeat with the game
+      running and confirm the manager refuses to move saves.
 - [x] **[manual]** With one pack installed, confirm its card and the Browse
       header show its name and version. Open another pack, cancel the switch
       summary once, confirm its keep/update/remove/add counts, then complete the

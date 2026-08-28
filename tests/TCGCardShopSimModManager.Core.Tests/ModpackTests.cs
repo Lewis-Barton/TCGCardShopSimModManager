@@ -767,6 +767,87 @@ public sealed class ModpackTests : IDisposable
         Assert.Equal("first-pack", Assert.Single(new ModpackJournalStore(gameFolder).Load()).PackId);
     }
 
+    [Fact]
+    public async Task ModpackInstaller_SwitchCanKeepSeparateSaveProfiles()
+    {
+        var firstArchive = MakeZip(("First.dll", "first"));
+        var secondArchive = MakeZip(("Second.dll", "second"));
+        var archives = new Dictionary<string, byte[]>
+        {
+            ["/First.zip"] = firstArchive,
+            ["/Second.zip"] = secondArchive
+        };
+        _server.Provider = request => new HttpResponse(200, archives[request.Path], null);
+        var gameFolder = Path.Combine(_root, "save-switch-game");
+        var saveFolder = Path.Combine(_root, "active-saves");
+        var saveStorage = Path.Combine(_root, "save-storage");
+        Directory.CreateDirectory(gameFolder);
+        Directory.CreateDirectory(saveFolder);
+        var activeSave = Path.Combine(saveFolder, "savedGames_Release0.gd");
+        File.WriteAllText(activeSave, "first-progress");
+        var saveProfiles = new ModpackSaveProfileManager(saveFolder, saveStorage, () => false);
+        var installer = new ModpackInstaller(gameFolder, saveProfiles: saveProfiles);
+        var first = Manifest("first", "First", "First.zip", firstArchive);
+        var second = Manifest("second", "Second", "Second.zip", secondArchive);
+        Assert.True((await installer.InstallAsync(first,
+            pack: Summary("first-pack", "First pack"))).Success);
+
+        var toSecond = await installer.InstallAsync(second,
+            pack: Summary("second-pack", "Second pack"),
+            switchInstalledPack: true,
+            swapSaveProfile: true);
+
+        Assert.True(toSecond.Success, string.Join("\n", toSecond.Lines));
+        Assert.False(File.Exists(activeSave));
+        Assert.True(saveProfiles.Inspect("first-pack").HasSaves);
+        File.WriteAllText(activeSave, "second-progress");
+
+        var backToFirst = await installer.InstallAsync(first,
+            pack: Summary("first-pack", "First pack"),
+            switchInstalledPack: true,
+            swapSaveProfile: true);
+
+        Assert.True(backToFirst.Success, string.Join("\n", backToFirst.Lines));
+        Assert.Equal("first-progress", File.ReadAllText(activeSave));
+        Assert.True(saveProfiles.Inspect("second-pack").HasSaves);
+    }
+
+    [Fact]
+    public async Task ModpackInstaller_FailedSwitchRestoresActiveSaveProfile()
+    {
+        var oldArchive = MakeZip(("Old.dll", "old"));
+        var rejectedArchive = MakeZip(("blocked.exe", "blocked"));
+        var archives = new Dictionary<string, byte[]>
+        {
+            ["/Old.zip"] = oldArchive,
+            ["/Rejected.zip"] = rejectedArchive
+        };
+        _server.Provider = request => new HttpResponse(200, archives[request.Path], null);
+        var gameFolder = Path.Combine(_root, "failed-save-switch-game");
+        var saveFolder = Path.Combine(_root, "failed-active-saves");
+        var saveStorage = Path.Combine(_root, "failed-save-storage");
+        Directory.CreateDirectory(gameFolder);
+        Directory.CreateDirectory(saveFolder);
+        var activeSave = Path.Combine(saveFolder, "savedGames_Release0.gd");
+        File.WriteAllText(activeSave, "original-progress");
+        var saveProfiles = new ModpackSaveProfileManager(saveFolder, saveStorage, () => false);
+        var installer = new ModpackInstaller(gameFolder, saveProfiles: saveProfiles);
+        Assert.True((await installer.InstallAsync(
+            Manifest("old", "Old", "Old.zip", oldArchive),
+            pack: Summary("first-pack", "First pack"))).Success);
+
+        var report = await installer.InstallAsync(
+            Manifest("rejected", "Rejected", "Rejected.zip", rejectedArchive),
+            pack: Summary("second-pack", "Second pack"),
+            switchInstalledPack: true,
+            swapSaveProfile: true);
+
+        Assert.False(report.Success);
+        Assert.Equal("original-progress", File.ReadAllText(activeSave));
+        Assert.False(saveProfiles.Inspect("first-pack").HasSaves);
+        Assert.Equal("first-pack", Assert.Single(new ModpackJournalStore(gameFolder).Load()).PackId);
+    }
+
     private ModListManifest Manifest(string id, string name, string archiveName, byte[] archive) =>
         new(1, name, "tcgcardshopsimulator", new List<ModEntry> { Entry(id, name, archiveName, archive) });
 

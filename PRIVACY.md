@@ -30,6 +30,11 @@ content.
 - **Installed-mod records** (`cardshopmodmanager.journal.json`,
   `cardshopmodmanager.profiles.json`) live inside the game folder you manage.
   They record file paths and hashes only.
+- **Separate modpack saves** are optional and stay on this machine under
+  `%LOCALAPPDATA%\TCGCardShopSimModManager\save-profiles`. The manager moves
+  only the game's world save and backup files between local pack profiles. Save
+  contents are never added to diagnostic logs or support bundles and are never
+  uploaded by the manager.
 
 This project is open source: the source of truth for the privacy behaviour is
 the code, which anyone can inspect.

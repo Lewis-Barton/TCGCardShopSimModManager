@@ -138,6 +138,12 @@ and testing found the following additional issues, now fixed:
   the catalog and manifest. Matching packs are confirmed as compatible;
   mismatches, unknown builds and undeclared packs are marked as potentially
   unsupported and require desktop acknowledgement before installation.
+- **FEATURE-003 — modpacks can keep separate save progress:** the switch
+  confirmation can store the current world saves under the installed pack and
+  restore saves previously stored for the destination pack. The game must be
+  closed, unrelated Unity files remain active, pack and save changes roll back
+  together on failure, and interrupted save swaps recover before the next one.
+  Steam Cloud remains external to the transaction and is called out in the UI.
 
 ## 2026-08-17 red-team review
 
