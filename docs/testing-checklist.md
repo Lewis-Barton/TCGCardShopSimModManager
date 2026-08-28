@@ -284,6 +284,10 @@ unit test already covers it, **[manual]** where it needs a real environment.
       pushed builds of the same base version are distinguishable
       (`UpdateCheckerTests`).
 - [x] **[manual]** `update-check` reports correctly with no release and offline.
+- [ ] **[manual]** On Settings, **Check for updates** reports checking, failure,
+      up-to-date and update-available states beside the button. An available
+      update exposes a working **Open release page** action, and repeated clicks
+      cannot start overlapping checks.
 - [x] `support-bundle` produces a zip that contains environment info + logs and
       **no** API key.
 - [x] Read `PRIVACY.md`, `THIRD-PARTY-NOTICES.md`; license ships with the exe.

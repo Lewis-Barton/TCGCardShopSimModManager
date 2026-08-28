@@ -276,10 +276,12 @@ folder the user picked.
 - **Manage mods** contains game-folder selection and installed-mod lifecycle
   controls. Local manifest workflows remain available through the CLI.
 - **Settings** contains Nexus sign-in, app update checks and support-bundle
-  export. Export progress, failures and the saved bundle path appear beside the
-  action. It also reports the number and total size of cached mod archives and
-  can clear those downloads after confirmation without changing installed
-  mods. Stored modpack saves have a separate usage display and clear action.
+  export. Update results and support-export progress, failures and saved paths
+  appear beside their actions. An available update includes a button that opens
+  its release page. Settings also reports the number and total size of cached
+  mod archives. It can clear those downloads after confirmation without
+  changing installed mods. Stored modpack saves have a separate usage display
+  and clear action.
   Its separate **Modpack author tools** section can check every hosted
   manifest for newer, archived or missing pinned Nexus files. It is clearly
   marked as unnecessary for people who only install packs, and it never edits

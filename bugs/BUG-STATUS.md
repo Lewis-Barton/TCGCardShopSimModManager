@@ -460,6 +460,11 @@ boundaries were fixed before work continued on application-state defects.
   processes from writing the same partial, and only a complete hash-verified
   file receives the usable cache name. Settings distinguishes resumable
   partials from ready archives. Covered by cancellation/resume and storage tests.
+- **BUG-111 — update checks report on another page (Low, fixed):** the Settings
+  maintenance card now shows checking, failure, current and update-available
+  results beside the action, prevents overlapping checks and offers a release
+  page button only for a valid web address. Browser-launch failures remain on
+  the same card. Verified by a warning-free desktop build and source review.
 
 ## Summary
 | Severity | Open | Fixed |
@@ -467,8 +472,8 @@ boundaries were fixed before work continued on application-state defects.
 | Critical | 0 | 3 |
 | High     | 0 | 40 |
 | Medium   | 0 | 52 |
-| Low      | 0 | 15 |
-| **Total**| **0** | **110** |
+| Low      | 0 | 16 |
+| **Total**| **0** | **111** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

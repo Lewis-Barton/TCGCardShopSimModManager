@@ -33,6 +33,7 @@ public sealed partial class MainWindow : Window
     private readonly ModpackIndexReader _packReader;
     private bool _usingCachedPackIndex;
     private string? _installedGameBuildId;
+    private string? _latestReleaseUrl;
     private bool _loadingAppearance;
 
     public MainWindow()
@@ -64,6 +65,7 @@ public sealed partial class MainWindow : Window
     private async void OnEnableClick(object? sender, RoutedEventArgs e) => await RunHandler(OnEnableAsync);
     private async void OnDisableClick(object? sender, RoutedEventArgs e) => await RunHandler(OnDisableAsync);
     private async void OnUpdateCheckClick(object? sender, RoutedEventArgs e) => await RunHandler(OnUpdateCheckAsync);
+    private async void OnOpenLatestReleaseClick(object? sender, RoutedEventArgs e) => await RunHandler(OpenLatestReleaseAsync);
     private async void OnCheckPackFilesClick(object? sender, RoutedEventArgs e) => await RunHandler(OnCheckPackFilesAsync);
     private async void OnExportBundleClick(object? sender, RoutedEventArgs e) => await RunHandler(OnExportBundleAsync);
     private async void OnRefreshDownloadCacheClick(object? sender, RoutedEventArgs e) => await RunHandler(RefreshDownloadCacheAsync);
@@ -628,28 +630,79 @@ public sealed partial class MainWindow : Window
     private async Task OnUpdateCheckAsync()
     {
         Log("--- Update check");
+        _checkForUpdates.IsEnabled = false;
+        _updateCheckStatus.IsVisible = true;
+        _updateCheckStatus.Text = "Checking for updates...";
+        _openLatestRelease.IsVisible = false;
+        _latestReleaseUrl = null;
         var local = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown";
-
-        var result = await Task.Run(async () =>
+        try
         {
-            using var checker = new UpdateChecker(
-                "Lewis-Barton/TCGCardShopSimModManager", local, _http);
-            return await checker.CheckAsync(CancellationToken.None);
-        });
+            var result = await Task.Run(async () =>
+            {
+                using var checker = new UpdateChecker(
+                    "Lewis-Barton/TCGCardShopSimModManager", local, _http);
+                return await checker.CheckAsync(CancellationToken.None);
+            });
 
-        if (result.Error is not null)
+            if (result.Error is not null)
+            {
+                _updateCheckStatus.Text = result.Error;
+                Log(result.Error);
+                return;
+            }
+
+            if (!result.HasRelease)
+                _updateCheckStatus.Text = $"Version {local} is installed. No published release was found.";
+            else if (result.IsUpToDate)
+                _updateCheckStatus.Text = $"Version {local} is up to date. Latest release: {result.LatestVersion}.";
+            else
+            {
+                _updateCheckStatus.Text = $"Version {result.LatestVersion} is available. You have {local}.";
+                if (IsWebUrl(result.ReleaseUrl))
+                {
+                    _latestReleaseUrl = result.ReleaseUrl;
+                    _openLatestRelease.IsVisible = true;
+                }
+            }
+            Log(_updateCheckStatus.Text);
+        }
+        catch (Exception ex)
         {
-            Log(result.Error);
-            return;
+            _updateCheckStatus.Text = $"Could not check for updates: {ex.Message}";
+            Log(_updateCheckStatus.Text);
+            Diagnostic.Write(ex.ToString(), "update-check");
+        }
+        finally
+        {
+            _checkForUpdates.IsEnabled = true;
+        }
+    }
+
+    private Task OpenLatestReleaseAsync()
+    {
+        if (_latestReleaseUrl is not { } releaseUrl || !IsWebUrl(releaseUrl))
+        {
+            _openLatestRelease.IsVisible = false;
+            _updateCheckStatus.Text = "The release page address is unavailable. Check again and retry.";
+            return Task.CompletedTask;
         }
 
-        if (!result.HasRelease)
-            Log($"Local version: {local}. No GitHub releases published yet.");
-        else
-            Log(result.IsUpToDate
-                ? $"Local {local} — up to date (latest {result.LatestVersion})."
-                : $"Update available: {result.LatestVersion} ({result.ReleaseUrl})");
+        try
+        {
+            Process.Start(new ProcessStartInfo(releaseUrl) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            _updateCheckStatus.Text = $"Could not open the release page: {ex.Message}";
+            Diagnostic.Write(ex.ToString(), "update-check");
+        }
+        return Task.CompletedTask;
     }
+
+    private static bool IsWebUrl(string? value) =>
+        Uri.TryCreate(value, UriKind.Absolute, out var uri) &&
+        (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp);
 
     private async Task OnExportBundleAsync()
     {
