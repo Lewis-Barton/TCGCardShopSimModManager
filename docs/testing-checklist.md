@@ -201,6 +201,11 @@ unit test already covers it, **[manual]** where it needs a real environment.
       storage content. A clear cannot race an active swap
       (`StorageInspectionAndClearCoverOnlyOwnedSaveProfiles`,
       `StorageClearRefusesToRaceAnActiveSaveSwap`).
+- [x] **[auto]** Stored profiles retain their original pack IDs, list with file
+      counts and sizes, and can be deleted individually without removing another
+      pack's progress. Metadata for a different pack is rejected
+      (`StoredProfilesCanBeListedAndDeletedIndividually`,
+      `StoredProfileListRejectsMetadataForAnotherPack`).
 - [ ] **[manual]** With Steam Cloud disabled and the game closed, opt into
       separate saves while switching between two packs. Create different
       progress in each pack, switch both ways, and confirm each pack restores
@@ -209,6 +214,9 @@ unit test already covers it, **[manual]** where it needs a real environment.
 - [ ] **[manual]** Settings reports stored modpack save usage. Cancel **Clear
       stored saves** once, then confirm clearing removes inactive pack progress
       without changing the save currently loaded by the game.
+- [ ] **[manual]** **Manage stored saves** lists each saved pack with its file
+      count and size. Delete one profile and confirm the other stored profiles
+      and the game's active saves remain unchanged.
 - [x] **[manual]** With one pack installed, confirm its card and the Browse
       header show its name and version. Open another pack, cancel the switch
       summary once, confirm its keep/update/remove/add counts, then complete the

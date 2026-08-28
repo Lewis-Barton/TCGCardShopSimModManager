@@ -12,10 +12,17 @@ public sealed record ModpackSaveProfileInfo(int FileCount, long SizeBytes)
 
 public sealed record ModpackSaveStorageInfo(int ProfileCount, int FileCount, long SizeBytes);
 
+public sealed record StoredModpackSaveProfile(
+    string PackId,
+    int FileCount,
+    long SizeBytes);
+
 public sealed record ModpackSaveStorageClearResult(
     long FreedBytes,
     int DeletedFiles,
     IReadOnlyList<string> Errors);
+
+internal sealed record ModpackSaveProfileMetadata(string PackId);
 
 internal sealed record ModpackSaveSwapState(
     int Version,
@@ -24,7 +31,11 @@ internal sealed record ModpackSaveSwapState(
 
 public sealed class ModpackSaveProfileManager
 {
-    private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        WriteIndented = true,
+        PropertyNameCaseInsensitive = true
+    };
     private readonly string _saveDirectory;
     private readonly string _storageRoot;
     private readonly Func<bool> _isGameRunning;
@@ -80,6 +91,65 @@ public sealed class ModpackSaveProfileManager
         return new ModpackSaveStorageInfo(profiles, files, size);
     }
 
+    public IReadOnlyList<StoredModpackSaveProfile> ListStoredProfiles()
+    {
+        if (!Directory.Exists(_storageRoot))
+            return Array.Empty<StoredModpackSaveProfile>();
+        RejectReparsePath(_storageRoot, "Save-profile storage");
+
+        var profiles = new List<StoredModpackSaveProfile>();
+        foreach (var directory in ProfileDirectories())
+        {
+            RejectReparsePath(directory, "Save profile");
+            var files = SaveFiles(directory);
+            if (files.Count == 0)
+                continue;
+
+            var metadataPath = Path.Combine(directory, "profile.json");
+            ModpackSaveProfileMetadata? metadata;
+            try
+            {
+                var metadataFile = new FileInfo(metadataPath);
+                if (!metadataFile.Exists ||
+                    metadataFile.Attributes.HasFlag(FileAttributes.ReparsePoint) ||
+                    metadataFile.Length > 16 * 1024)
+                    throw new InvalidDataException(
+                        $"Stored save-profile metadata is missing or unsafe: {metadataPath}");
+                metadata = JsonSerializer.Deserialize<ModpackSaveProfileMetadata>(
+                    File.ReadAllText(metadataPath), JsonOptions);
+            }
+            catch (Exception ex) when (ex is IOException or JsonException)
+            {
+                throw new InvalidDataException(
+                    $"Stored save-profile metadata is unreadable: {metadataPath}", ex);
+            }
+            if (metadata is null || string.IsNullOrWhiteSpace(metadata.PackId) ||
+                !Path.GetFullPath(ProfileDirectory(metadata.PackId)).Equals(
+                    Path.GetFullPath(directory), StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException(
+                    $"Stored save-profile metadata does not match its directory: {metadataPath}");
+
+            profiles.Add(new StoredModpackSaveProfile(
+                metadata.PackId,
+                files.Count,
+                files.Sum(path => new FileInfo(path).Length)));
+        }
+        return profiles.OrderBy(profile => profile.PackId, StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
+    public ModpackSaveStorageClearResult DeleteStoredProfile(string packId)
+    {
+        var directory = ProfileDirectory(packId);
+        if (!Directory.Exists(directory))
+            return new ModpackSaveStorageClearResult(0, 0, Array.Empty<string>());
+        RejectReparsePath(_storageRoot, "Save-profile storage");
+
+        using var operationLock = AcquireOperationLock();
+        var errors = new List<string>();
+        var result = ClearProfileDirectory(directory, errors);
+        return new ModpackSaveStorageClearResult(result.FreedBytes, result.DeletedFiles, errors);
+    }
+
     public ModpackSaveStorageClearResult ClearStorage()
     {
         if (!Directory.Exists(_storageRoot))
@@ -92,28 +162,9 @@ public sealed class ModpackSaveProfileManager
         var errors = new List<string>();
         foreach (var directory in ProfileDirectories())
         {
-            try
-            {
-                RejectReparsePath(directory, "Save profile");
-                foreach (var path in SaveFiles(directory))
-                {
-                    var length = new FileInfo(path).Length;
-                    File.Delete(path);
-                    freed += length;
-                    deleted++;
-                }
-
-                var metadata = Path.Combine(directory, "profile.json");
-                if (File.Exists(metadata) &&
-                    !File.GetAttributes(metadata).HasFlag(FileAttributes.ReparsePoint))
-                    File.Delete(metadata);
-                if (!Directory.EnumerateFileSystemEntries(directory).Any())
-                    Directory.Delete(directory);
-            }
-            catch (Exception ex)
-            {
-                errors.Add($"Could not clear save profile {Path.GetFileName(directory)}: {ex.Message}");
-            }
+            var result = ClearProfileDirectory(directory, errors);
+            freed += result.FreedBytes;
+            deleted += result.DeletedFiles;
         }
         return new ModpackSaveStorageClearResult(freed, deleted, errors);
     }
@@ -195,6 +246,36 @@ public sealed class ModpackSaveProfileManager
     private static bool IsProfileDirectoryName(string name) =>
         name.Length == 64 && name.All(Uri.IsHexDigit);
 
+    private static (long FreedBytes, int DeletedFiles) ClearProfileDirectory(
+        string directory, List<string> errors)
+    {
+        long freed = 0;
+        var deleted = 0;
+        try
+        {
+            RejectReparsePath(directory, "Save profile");
+            foreach (var path in SaveFiles(directory))
+            {
+                var length = new FileInfo(path).Length;
+                File.Delete(path);
+                freed += length;
+                deleted++;
+            }
+
+            var metadata = Path.Combine(directory, "profile.json");
+            if (File.Exists(metadata) &&
+                !File.GetAttributes(metadata).HasFlag(FileAttributes.ReparsePoint))
+                File.Delete(metadata);
+            if (!Directory.EnumerateFileSystemEntries(directory).Any())
+                Directory.Delete(directory);
+        }
+        catch (Exception ex)
+        {
+            errors.Add($"Could not clear save profile {Path.GetFileName(directory)}: {ex.Message}");
+        }
+        return (freed, deleted);
+    }
+
     private FileStream AcquireOperationLock()
     {
         Directory.CreateDirectory(_storageRoot);
@@ -213,7 +294,8 @@ public sealed class ModpackSaveProfileManager
     private static void WriteProfileMetadata(string directory, string packId)
     {
         var path = Path.Combine(directory, "profile.json");
-        File.WriteAllText(path, JsonSerializer.Serialize(new { packId }, JsonOptions));
+        File.WriteAllText(path, JsonSerializer.Serialize(
+            new ModpackSaveProfileMetadata(packId), JsonOptions));
     }
 
     private static void WriteTransactionState(

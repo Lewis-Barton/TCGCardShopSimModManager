@@ -225,6 +225,8 @@
               <StackPanel Orientation="Horizontal" Spacing="8">
                 <Button Content="Refresh storage" Classes="secondary"
                         Click="OnRefreshSaveProfileStorageClick" />
+                <Button x:Name="_manageSaveProfiles" Content="Manage stored saves"
+                        Classes="secondary" Click="OnManageSaveProfilesClick" />
                 <Button x:Name="_clearSaveProfileStorage" Content="Clear stored saves"
                         Classes="secondary" Click="OnClearSaveProfileStorageClick" />
               </StackPanel>

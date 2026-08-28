@@ -71,6 +71,7 @@ public sealed partial class MainWindow : Window
     private async void OnRefreshDownloadCacheClick(object? sender, RoutedEventArgs e) => await RunHandler(RefreshDownloadCacheAsync);
     private async void OnClearDownloadCacheClick(object? sender, RoutedEventArgs e) => await RunHandler(OnClearDownloadCacheAsync);
     private async void OnRefreshSaveProfileStorageClick(object? sender, RoutedEventArgs e) => await RunHandler(RefreshSaveProfileStorageAsync);
+    private async void OnManageSaveProfilesClick(object? sender, RoutedEventArgs e) => await RunHandler(OnManageSaveProfilesAsync);
     private async void OnClearSaveProfileStorageClick(object? sender, RoutedEventArgs e) => await RunHandler(OnClearSaveProfileStorageAsync);
     private async void OnPickGameFolder(object? sender, RoutedEventArgs e) => await RunHandler(() => PickFolderAsync(_gameBox));
     private async void OnRefreshPacksClick(object? sender, RoutedEventArgs e) => await RunHandler(LoadPacksAsync);
@@ -772,6 +773,42 @@ public sealed partial class MainWindow : Window
             ? "No separate modpack saves are stored."
             : $"{FormatBytes(info.SizeBytes)} in {info.FileCount:N0} save file{(info.FileCount == 1 ? string.Empty : "s")} for {info.ProfileCount:N0} modpack{(info.ProfileCount == 1 ? string.Empty : "s")}.";
         _clearSaveProfileStorage.IsEnabled = info.FileCount > 0;
+        _manageSaveProfiles.IsEnabled = info.ProfileCount > 0;
+    }
+
+    private async Task OnManageSaveProfilesAsync()
+    {
+        var manager = new ModpackSaveProfileManager();
+        var profiles = await Task.Run(manager.ListStoredProfiles);
+        if (profiles.Count == 0)
+        {
+            await RefreshSaveProfileStorageAsync();
+            return;
+        }
+
+        var selectedPackId = await new SaveProfilesManageWindow(profiles)
+            .ShowDialog<string?>(this);
+        if (string.IsNullOrWhiteSpace(selectedPackId))
+            return;
+
+        _manageSaveProfiles.IsEnabled = false;
+        _clearSaveProfileStorage.IsEnabled = false;
+        _saveProfileStorageStatus.Text = $"Deleting stored saves for {selectedPackId}...";
+        var result = await Task.Run(() => manager.DeleteStoredProfile(selectedPackId));
+        var remaining = await Task.Run(manager.InspectStorage);
+        _clearSaveProfileStorage.IsEnabled = remaining.FileCount > 0;
+        _manageSaveProfiles.IsEnabled = remaining.ProfileCount > 0;
+        if (result.Errors.Count == 0)
+            _saveProfileStorageStatus.Text =
+                $"Deleted {FormatBytes(result.FreedBytes)} of stored saves for {selectedPackId}. " +
+                $"{remaining.ProfileCount:N0} stored profile{(remaining.ProfileCount == 1 ? string.Empty : "s")} remain.";
+        else
+        {
+            _saveProfileStorageStatus.Text =
+                $"Stored saves for {selectedPackId} could not be fully removed.";
+            foreach (var error in result.Errors)
+                Log($"Save profiles: {error}");
+        }
     }
 
     private async Task OnClearSaveProfileStorageAsync()

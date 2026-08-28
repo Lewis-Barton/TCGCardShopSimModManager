@@ -49,7 +49,8 @@ independently, and the choices are kept for the next launch. The CLI retains
 the local manifest validation, planning and installation commands. Settings
 reports how much space downloaded mod archives and separate modpack saves use.
 Either store can be cleared independently without changing installed mods or
-the saves currently active in the game. Update checks report their result on
+the saves currently active in the game. Stored saves can also be reviewed by
+modpack and deleted individually. Update checks report their result on
 Settings and link directly to a newer release when one is available. A clearly
 labelled modpack-author tool
 checks hosted manifests against Nexus. People who only install modpacks do not

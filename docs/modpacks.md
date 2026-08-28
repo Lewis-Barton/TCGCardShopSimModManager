@@ -271,7 +271,9 @@ folder the user picked.
   recommends disabling it for this game before separate pack saves are used.
 - Settings reports the number and size of stored save profiles. **Clear stored
   saves** removes only the manager's inactive per-pack copies after confirmation;
-  it does not touch the save files currently used by the game.
+  it does not touch the save files currently used by the game. **Manage stored
+  saves** lists each pack's file count and size so one obsolete profile can be
+  deleted without removing progress kept for other packs.
 - A newer published version adds an **Update available** badge to its card.
 - **Manage mods** contains game-folder selection and installed-mod lifecycle
   controls. Local manifest workflows remain available through the CLI.
@@ -280,8 +282,8 @@ folder the user picked.
   appear beside their actions. An available update includes a button that opens
   its release page. Settings also reports the number and total size of cached
   mod archives. It can clear those downloads after confirmation without
-  changing installed mods. Stored modpack saves have a separate usage display
-  and clear action.
+  changing installed mods. Stored modpack saves have a separate usage display,
+  per-pack management and clear action.
   Its separate **Modpack author tools** section can check every hosted
   manifest for newer, archived or missing pinned Nexus files. It is clearly
   marked as unnecessary for people who only install packs, and it never edits

@@ -153,6 +153,11 @@ and testing found the following additional issues, now fixed:
   install can continue. The proven destination hash is carried into the journal
   instead of reading the installed file a second time, removing one complete
   disk pass over newly installed assets without weakening copy verification.
+- **FEATURE-006 — stored saves can be removed per modpack:** Settings can list
+  inactive save profiles by their original pack ID, file count and size. Users
+  can delete one obsolete profile without clearing progress for every pack or
+  touching the saves currently used by the game. Metadata must match the hashed
+  profile directory, and deletion shares the save-operation lock.
 
 ## 2026-08-17 red-team review
 

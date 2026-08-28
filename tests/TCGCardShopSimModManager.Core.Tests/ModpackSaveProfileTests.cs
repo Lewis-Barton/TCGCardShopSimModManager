@@ -157,5 +157,53 @@ public sealed class ModpackSaveProfileTests : IDisposable
         Assert.Contains("Another save-profile operation", error.Message);
     }
 
+    [Fact]
+    public void StoredProfilesCanBeListedAndDeletedIndividually()
+    {
+        var saves = Path.Combine(_root, "selective-saves");
+        var storage = Path.Combine(_root, "selective-storage");
+        Directory.CreateDirectory(saves);
+        File.WriteAllBytes(Path.Combine(saves, "savedGames_Release0.gd"), new byte[32]);
+        var manager = new ModpackSaveProfileManager(saves, storage, () => false);
+        using (var first = manager.BeginSwap("pack-a", "pack-b"))
+            first.Commit();
+        File.WriteAllBytes(Path.Combine(saves, "savedGames_Release0.gd"), new byte[64]);
+        using (var second = manager.BeginSwap("pack-b", "pack-c"))
+            second.Commit();
+
+        var profiles = manager.ListStoredProfiles();
+        Assert.Collection(
+            profiles,
+            profile => Assert.Equal(new StoredModpackSaveProfile("pack-a", 1, 32), profile),
+            profile => Assert.Equal(new StoredModpackSaveProfile("pack-b", 1, 64), profile));
+
+        var result = manager.DeleteStoredProfile("pack-a");
+
+        Assert.Equal(32, result.FreedBytes);
+        Assert.Equal(1, result.DeletedFiles);
+        Assert.Empty(result.Errors);
+        Assert.Equal("pack-b", Assert.Single(manager.ListStoredProfiles()).PackId);
+    }
+
+    [Fact]
+    public void StoredProfileListRejectsMetadataForAnotherPack()
+    {
+        var saves = Path.Combine(_root, "spoofed-metadata-saves");
+        var storage = Path.Combine(_root, "spoofed-metadata-storage");
+        Directory.CreateDirectory(saves);
+        File.WriteAllText(Path.Combine(saves, "savedGames_Release0.gd"), "pack-a");
+        var manager = new ModpackSaveProfileManager(saves, storage, () => false);
+        using (var swap = manager.BeginSwap("pack-a", "pack-b"))
+            swap.Commit();
+        var profileDirectory = Assert.Single(
+            Directory.GetDirectories(storage),
+            path => Directory.GetFiles(path, "*.gd").Length > 0);
+        File.WriteAllText(Path.Combine(profileDirectory, "profile.json"), "{\"PackId\":\"pack-b\"}");
+
+        var error = Assert.Throws<InvalidDataException>(() => manager.ListStoredProfiles());
+
+        Assert.Contains("does not match its directory", error.Message);
+    }
+
     public void Dispose() => TemporaryDirectory.DeleteBestEffort(_root);
 }
