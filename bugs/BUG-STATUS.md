@@ -475,15 +475,21 @@ boundaries were fixed before work continued on application-state defects.
   results beside the action, prevents overlapping checks and offers a release
   page button only for a valid web address. Browser-launch failures remain on
   the same card. Verified by a warning-free desktop build and source review.
+- **BUG-112 — Browse waits behind startup discovery and network refresh
+  (Medium, fixed):** catalog loading now begins alongside Steam detection rather
+  than after complete installed-mod hashing. Browse renders a saved or bundled
+  catalog snapshot immediately, then refreshes GitHub in the background. Logo
+  fetches are bounded and each decoded image is reused across card rebuilds.
+  Covered by saved/bundled catalog tests and a warning-free desktop build.
 
 ## Summary
 | Severity | Open | Fixed |
 |----------|------|-------|
 | Critical | 0 | 3 |
 | High     | 0 | 40 |
-| Medium   | 0 | 52 |
+| Medium   | 0 | 53 |
 | Low      | 0 | 16 |
-| **Total**| **0** | **111** |
+| **Total**| **0** | **112** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

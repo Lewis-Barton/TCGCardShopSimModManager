@@ -110,6 +110,15 @@ unit test already covers it, **[manual]** where it needs a real environment.
 
 ## Hosted modpacks (modpacks/)
 
+- [x] **[auto]** The published catalog is embedded for immediate first-launch
+      rendering, and a saved catalog can be read without a network request
+      (`IndexReader_BundledCatalogContainsPublishedPacks`,
+      `IndexReader_ReadsSavedCatalogWithoutNetworkRequest`).
+- [ ] **[manual]** With a populated game folder and no network connection, open
+      Browse during startup. Cards should appear from the local catalog before
+      installed-mod discovery finishes; repeated filter changes should reuse
+      logos without visible reloads.
+
 - [x] **[manual]** Resize the desktop window at its minimum and normal sizes;
       the navigation remains visible, filters remain usable and cards wrap
       without overlapping or clipping.

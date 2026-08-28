@@ -31,17 +31,21 @@ public sealed partial class MainWindow : Window
     private List<InstalledModpack> _installedPacks = new();
     private readonly HttpClient _http = new();
     private readonly ModpackIndexReader _packReader;
+    private readonly object _logoCacheLock = new();
+    private readonly Dictionary<string, Task<Bitmap?>> _logoCache = new(StringComparer.OrdinalIgnoreCase);
+    private readonly SemaphoreSlim _logoLoadSlots = new(4, 4);
     private bool _usingCachedPackIndex;
     private string? _installedGameBuildId;
     private string? _latestReleaseUrl;
     private bool _loadingAppearance;
+    private bool _closed;
 
     public MainWindow()
     {
         _packReader = new ModpackIndexReader(_http);
         InitializeComponent();
         InitializeAppearanceSettings();
-        Closed += (_, _) => _http.Dispose();
+        Closed += (_, _) => DisposeWindowResources();
 
         var version = Assembly.GetExecutingAssembly().GetName().Version;
         if (version is not null)
@@ -146,6 +150,10 @@ public sealed partial class MainWindow : Window
     {
         Log("Looking for TCG Card Shop Simulator through Steam...");
 
+        // Catalog loading is independent of installed-mod discovery. Start it
+        // immediately so hashing a large game folder cannot hold Browse empty.
+        var catalogTask = LoadPacksAsync();
+
         var path = await Task.Run(() =>
             new SteamLocator().FindGameInstallPath(SteamLocator.GameAppId));
 
@@ -158,9 +166,9 @@ public sealed partial class MainWindow : Window
             await OnListModsAsync();
         }
 
-        // Best-effort: populate the Modpacks gallery too. If we're offline this
-        // logs and carries on; the tab just shows "could not load".
-        await LoadPacksAsync();
+        await catalogTask;
+        if (path is not null)
+            await RefreshPackInstallationStateAsync();
     }
 
     private async Task OnListModsAsync()
@@ -191,6 +199,28 @@ public sealed partial class MainWindow : Window
         _packProgress.IsVisible = true;
         try
         {
+            if (_packs.Count == 0)
+            {
+                var immediate = await Task.Run(() =>
+                    _packReader.ReadCachedIndex() ?? _packReader.ReadBundledIndex());
+                if (immediate is { Packs.Count: > 0 })
+                {
+                    _packs = immediate.Packs;
+                    _usingCachedPackIndex = true;
+                    try
+                    {
+                        _installedPacks = ReadInstalledPacks();
+                    }
+                    catch
+                    {
+                        _installedPacks = new List<InstalledModpack>();
+                    }
+                    ApplyPackFilters();
+                    _packStatus.Text =
+                        $"{_packs.Count} modpack(s) available. Checking GitHub for updates...";
+                }
+            }
+
             var gameFolder = _gameBox.Text;
             _installedGameBuildId = string.IsNullOrWhiteSpace(gameFolder)
                 ? null
@@ -217,7 +247,10 @@ public sealed partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            _packStatus.Text = $"Could not load modpacks: {ex.Message}";
+            _packStatus.Text = _packs.Count > 0
+                ? $"{_packs.Count} modpack(s) available from the local catalog. " +
+                  $"Could not refresh GitHub: {ex.Message}"
+                : $"Could not load modpacks: {ex.Message}";
         }
         finally
         {
@@ -352,12 +385,8 @@ public sealed partial class MainWindow : Window
         };
         Grid.SetRow(img, 1);
 
-        // Fetch the logo off the UI thread, then drop it in once it arrives.
-        _ = LoadLogoAsync(_packReader.LogoUrl(pack)).ContinueWith(t =>
-        {
-            if (t.Status == TaskStatus.RanToCompletion && t.Result is Bitmap bmp)
-                Dispatcher.UIThread.Post(() => img.Source = bmp);
-        });
+        // Reuse one fetch/decode task per logo across filter and card rebuilds.
+        _ = SetLogoAsync(img, _packReader.LogoUrl(pack));
 
         grid.Children.Add(img);
         var installed = _installedPacks.FirstOrDefault(entry => pack.IsId(entry.PackId));
@@ -434,6 +463,7 @@ public sealed partial class MainWindow : Window
 
     private async Task<Bitmap?> LoadLogoAsync(string url)
     {
+        await _logoLoadSlots.WaitAsync();
         try
         {
             var bytes = await _http.GetByteArrayAsync(url);
@@ -442,6 +472,50 @@ public sealed partial class MainWindow : Window
         catch
         {
             return null;
+        }
+        finally
+        {
+            _logoLoadSlots.Release();
+        }
+    }
+
+    private Task<Bitmap?> CachedLogoAsync(string url)
+    {
+        lock (_logoCacheLock)
+        {
+            if (_logoCache.TryGetValue(url, out var cached))
+                return cached;
+            var loading = LoadLogoAsync(url);
+            _logoCache[url] = loading;
+            return loading;
+        }
+    }
+
+    private async Task SetLogoAsync(Image image, string url)
+    {
+        var bitmap = await CachedLogoAsync(url);
+        if (bitmap is not null && !_closed)
+            await Dispatcher.UIThread.InvokeAsync(() => image.Source = bitmap);
+    }
+
+    private void DisposeWindowResources()
+    {
+        _closed = true;
+        _http.Dispose();
+        lock (_logoCacheLock)
+        {
+            foreach (var task in _logoCache.Values)
+            {
+                if (task.Status == TaskStatus.RanToCompletion)
+                    task.Result?.Dispose();
+                else
+                    _ = task.ContinueWith(
+                        completed => completed.Result?.Dispose(),
+                        CancellationToken.None,
+                        TaskContinuationOptions.OnlyOnRanToCompletion,
+                        TaskScheduler.Default);
+            }
+            _logoCache.Clear();
         }
     }
 
@@ -539,6 +613,25 @@ public sealed partial class MainWindow : Window
         {
             _nexusApiKey.IsEnabled = true;
         }
+    }
+
+    private async Task RefreshPackInstallationStateAsync()
+    {
+        var gameFolder = _gameBox.Text;
+        _installedGameBuildId = string.IsNullOrWhiteSpace(gameFolder)
+            ? null
+            : await Task.Run(() => new SteamLocator().FindGameBuildId(
+                gameFolder, SteamLocator.GameAppId));
+        try
+        {
+            _installedPacks = ReadInstalledPacks();
+        }
+        catch (Exception ex)
+        {
+            _installedPacks = new List<InstalledModpack>();
+            _packStatus.Text = $"Could not read installed modpacks: {ex.Message}";
+        }
+        ApplyPackFilters();
     }
 
     private async Task OnNexusLoginAsync()

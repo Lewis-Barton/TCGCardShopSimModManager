@@ -121,6 +121,19 @@ public sealed class ModpackIndexReader : IDisposable
     public string LogoUrl(ModpackSummary summary, string? baseUrl = null) =>
         Combine(baseUrl ?? ModpackCatalog.DefaultIndexBaseUrl, summary.Logo);
 
+    /// <summary>Returns the last saved catalog without making a network request.</summary>
+    public ModpackIndex? ReadCachedIndex() => TryReadCache(out var index) ? index : null;
+
+    /// <summary>Returns the catalog snapshot shipped with this build.</summary>
+    public ModpackIndex ReadBundledIndex()
+    {
+        using var stream = typeof(ModpackIndexReader).Assembly.GetManifestResourceStream(
+            "TCGCardShopSimModManager.Core.modpack-index.json")
+            ?? throw new InvalidOperationException("The bundled modpack catalog is missing.");
+        return JsonSerializer.Deserialize<ModpackIndex>(stream, Options)
+            ?? throw new InvalidOperationException("The bundled modpack catalog is invalid.");
+    }
+
     public string ManifestUrl(ModpackSummary summary, string? baseUrl = null) =>
         Combine(baseUrl ?? ModpackCatalog.DefaultIndexBaseUrl, summary.Manifest);
 

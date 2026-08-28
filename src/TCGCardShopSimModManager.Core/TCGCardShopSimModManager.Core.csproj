@@ -16,4 +16,9 @@
     <InternalsVisibleTo Include="TCGCardShopSimModManager.Core.Tests" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\modpacks\index.json"
+                      LogicalName="TCGCardShopSimModManager.Core.modpack-index.json" />
+  </ItemGroup>
+
 </Project>

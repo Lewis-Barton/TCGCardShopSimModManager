@@ -100,6 +100,36 @@ public sealed class ModpackTests : IDisposable
     }
 
     [Fact]
+    public async Task IndexReader_ReadsSavedCatalogWithoutNetworkRequest()
+    {
+        var cachePath = Path.Combine(_root, "immediate-index.json");
+        var requests = 0;
+        _server.Provider = _ =>
+        {
+            requests++;
+            return Json(IndexJson());
+        };
+        var writer = new ModpackIndexReader(cachePath: cachePath);
+        await writer.FetchIndexAsync(_server.Url(""));
+        var reader = new ModpackIndexReader(cachePath: cachePath);
+
+        var cached = reader.ReadCachedIndex();
+
+        Assert.NotNull(cached);
+        Assert.Single(cached.Packs);
+        Assert.Equal(1, requests);
+    }
+
+    [Fact]
+    public void IndexReader_BundledCatalogContainsPublishedPacks()
+    {
+        var index = new ModpackIndexReader().ReadBundledIndex();
+
+        Assert.Contains(index.Packs, pack => pack.Id == "real-tcg-overhaul");
+        Assert.Contains(index.Packs, pack => pack.Id == "cardverse-overhaul");
+    }
+
+    [Fact]
     public async Task IndexReader_UsesLastGoodCacheAfterRetriesFail()
     {
         var cachePath = Path.Combine(_root, "fallback-index.json");

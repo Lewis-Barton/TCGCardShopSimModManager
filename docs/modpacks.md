@@ -252,6 +252,10 @@ folder the user picked.
 - **Browse modpacks** shows a wrapping grid of cards beside fixed search, tag,
   featured and NSFW filters. Each card shows the logo, name, short description,
   tags and compressed download size when available.
+- Browse renders the last saved catalog, or the snapshot bundled with the app on
+  first launch, before its GitHub refresh completes. Catalog loading starts in
+  parallel with installed-mod discovery. Logo downloads are bounded and decoded
+  images are reused when search or filter changes rebuild cards.
 - Clicking a card opens a modal with the logo, description and full mod list.
   The modal owns the **Install modpack**, **Update** and **Uninstall modpack**
   actions. Pack uninstall is transactional: a modified managed file stops the
