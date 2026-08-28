@@ -32,8 +32,12 @@ public static class ModDiscovery
         ("BepInEx/patchers", "BepInEx/patchers")
     };
 
-    public static List<DiscoveredMod> Discover(string gameFolderPath, string? disabledRoot = null)
+    public static List<DiscoveredMod> Discover(
+        string gameFolderPath,
+        string? disabledRoot = null,
+        CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var legacyDisabledRoot = disabledRoot is null ? ModInstaller.DisabledRoot : null;
         disabledRoot ??= ModInstaller.DisabledRootFor(gameFolderPath);
         var journal = new JournalStore(gameFolderPath).Load();
@@ -42,6 +46,7 @@ public static class ModDiscovery
 
         foreach (var entry in journal)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             foreach (var file in entry.Files)
             {
                 claimed.Add(Normalize(file.Path));
@@ -49,14 +54,17 @@ public static class ModDiscovery
                     claimed.Add(Normalize(disabledPath));
             }
 
-            discovered.Add(FromJournal(entry, gameFolderPath, disabledRoot, legacyDisabledRoot));
+            discovered.Add(FromJournal(
+                entry, gameFolderPath, disabledRoot, legacyDisabledRoot, cancellationToken));
         }
 
         foreach (var (relative, label) in FolderRoots)
-            AddUnmanagedFolders(discovered, claimed, Path.Combine(gameFolderPath, ToNative(relative)), label);
+            AddUnmanagedFolders(
+                discovered, claimed, Path.Combine(gameFolderPath, ToNative(relative)), label,
+                cancellationToken);
 
-        AddUnmanagedFramework(discovered, claimed, gameFolderPath);
-        AddUnmanagedFolders(discovered, claimed, disabledRoot, "Disabled storage");
+        AddUnmanagedFramework(discovered, claimed, gameFolderPath, cancellationToken);
+        AddUnmanagedFolders(discovered, claimed, disabledRoot, "Disabled storage", cancellationToken);
 
         return discovered
             .OrderBy(mod => mod.ModName, StringComparer.OrdinalIgnoreCase)
@@ -68,7 +76,8 @@ public static class ModDiscovery
         InstallJournalEntry entry,
         string gameFolderPath,
         string disabledRoot,
-        string? legacyDisabledRoot)
+        string? legacyDisabledRoot,
+        CancellationToken cancellationToken)
     {
         var active = 0;
         var disabled = 0;
@@ -76,6 +85,7 @@ public static class ModDiscovery
 
         foreach (var expected in entry.Files)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var activeExists = File.Exists(expected.Path);
             var disabledPath = DisabledPath(
                 expected.Path, gameFolderPath, disabledRoot, legacyDisabledRoot);
@@ -92,12 +102,12 @@ public static class ModDiscovery
             if (activeExists)
             {
                 active++;
-                modified |= !HashMatches(expected.Path, expected.Sha256);
+                modified |= !HashMatches(expected.Path, expected.Sha256, cancellationToken);
             }
             else if (disabledExists)
             {
                 disabled++;
-                modified |= !HashMatches(disabledPath!, expected.Sha256);
+                modified |= !HashMatches(disabledPath!, expected.Sha256, cancellationToken);
             }
             else
             {
@@ -118,14 +128,21 @@ public static class ModDiscovery
         List<DiscoveredMod> discovered,
         HashSet<string> claimed,
         string root,
-        string label)
+        string label,
+        CancellationToken cancellationToken)
     {
         if (!Directory.Exists(root))
             return;
 
         foreach (var folder in Directory.EnumerateDirectories(root))
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var files = Directory.EnumerateFiles(folder, "*", SearchOption.AllDirectories)
+                .Select(file =>
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    return file;
+                })
                 .Where(file => !claimed.Contains(Normalize(file)))
                 .ToList();
             if (files.Count == 0)
@@ -139,6 +156,11 @@ public static class ModDiscovery
         }
 
         var looseFiles = Directory.EnumerateFiles(root)
+            .Select(file =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                return file;
+            })
             .Count(file => !claimed.Contains(Normalize(file)));
         if (looseFiles > 0)
         {
@@ -153,13 +175,19 @@ public static class ModDiscovery
     private static void AddUnmanagedFramework(
         List<DiscoveredMod> discovered,
         HashSet<string> claimed,
-        string gameFolderPath)
+        string gameFolderPath,
+        CancellationToken cancellationToken)
     {
         var root = Path.Combine(gameFolderPath, "BepInEx", "core");
         if (!Directory.Exists(root))
             return;
 
         var count = Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories)
+            .Select(file =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                return file;
+            })
             .Count(file => !claimed.Contains(Normalize(file)));
         if (count > 0)
         {
@@ -227,11 +255,24 @@ public static class ModDiscovery
 
     private static string Normalize(string path) => Path.GetFullPath(path);
 
-    private static bool HashMatches(string path, string expected)
+    private static bool HashMatches(
+        string path,
+        string expected,
+        CancellationToken cancellationToken)
     {
-        using var sha256 = System.Security.Cryptography.SHA256.Create();
+        using var sha256 = System.Security.Cryptography.IncrementalHash.CreateHash(
+            System.Security.Cryptography.HashAlgorithmName.SHA256);
         using var stream = File.OpenRead(path);
-        var actual = Convert.ToHexString(sha256.ComputeHash(stream)).ToLowerInvariant();
+        var buffer = new byte[1024 * 1024];
+        int read;
+        while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            sha256.AppendData(buffer, 0, read);
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+        var actual = Convert.ToHexString(sha256.GetHashAndReset()).ToLowerInvariant();
         return actual.Equals(expected, StringComparison.OrdinalIgnoreCase);
     }
 }

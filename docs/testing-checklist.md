@@ -76,6 +76,12 @@ unit test already covers it, **[manual]** where it needs a real environment.
 - [x] **[auto]** Journaled framework/root files stay grouped as one mod,
       unmanaged framework subdirectories do not become fake mods, and matching
       folder names in different roots remain distinct (`ModDiscoveryTests`).
+- [x] **[auto]** Installed-mod discovery honours cancellation before scanning
+      files (`Discover_CancelledScanStopsBeforeReadingFiles`).
+- [ ] **[manual]** Refresh a large installed-mod list and close the window while
+      it is hashing. The app should close promptly without finishing the scan;
+      during a normal refresh the button should read **Scanning...** and prevent
+      a duplicate click.
 - [x] **[auto]** Disabling moves files out of the game into the manager's disabled folder and enabling moves
       them back (`Disable_MovesFilesToDisabledAndReportsDisabled`,
       `Enable_MovesFilesBackAndReportsInstalled`).

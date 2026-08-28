@@ -481,15 +481,21 @@ boundaries were fixed before work continued on application-state defects.
   catalog snapshot immediately, then refreshes GitHub in the background. Logo
   fetches are bounded and each decoded image is reused across card rebuilds.
   Covered by saved/bundled catalog tests and a warning-free desktop build.
+- **BUG-113 — installed-mod scans cannot be cancelled (Medium, fixed):** Manage
+  now shows when it is scanning, prevents duplicate refresh clicks and cancels
+  an outstanding scan when it is replaced or the window closes. Core checks
+  cancellation while walking folders and after each 1 MiB file-hash chunk, so a
+  large managed asset does not keep obsolete work alive until its full hash
+  completes. Covered by the discovery suite and a cancellation regression.
 
 ## Summary
 | Severity | Open | Fixed |
 |----------|------|-------|
 | Critical | 0 | 3 |
 | High     | 0 | 40 |
-| Medium   | 0 | 53 |
+| Medium   | 0 | 54 |
 | Low      | 0 | 16 |
-| **Total**| **0** | **112** |
+| **Total**| **0** | **113** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

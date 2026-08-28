@@ -34,6 +34,7 @@ public sealed partial class MainWindow : Window
     private readonly object _logoCacheLock = new();
     private readonly Dictionary<string, Task<Bitmap?>> _logoCache = new(StringComparer.OrdinalIgnoreCase);
     private readonly SemaphoreSlim _logoLoadSlots = new(4, 4);
+    private CancellationTokenSource? _modDiscoveryCancellation;
     private bool _usingCachedPackIndex;
     private string? _installedGameBuildId;
     private string? _latestReleaseUrl;
@@ -180,7 +181,38 @@ public sealed partial class MainWindow : Window
             return;
         }
 
-        _discovered = await Task.Run(() => ModDiscovery.Discover(gameFolder));
+        _modDiscoveryCancellation?.Cancel();
+        _modDiscoveryCancellation?.Dispose();
+        var cancellation = new CancellationTokenSource();
+        _modDiscoveryCancellation = cancellation;
+        _refreshMods.IsEnabled = false;
+        _refreshMods.Content = "Scanning...";
+        _progress.IsVisible = true;
+
+        try
+        {
+            var discovered = await Task.Run(
+                () => ModDiscovery.Discover(gameFolder, cancellationToken: cancellation.Token),
+                cancellation.Token);
+            if (!ReferenceEquals(_modDiscoveryCancellation, cancellation))
+                return;
+            _discovered = discovered;
+        }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
+        {
+            return;
+        }
+        finally
+        {
+            if (ReferenceEquals(_modDiscoveryCancellation, cancellation))
+            {
+                _modDiscoveryCancellation = null;
+                cancellation.Dispose();
+                _refreshMods.IsEnabled = true;
+                _refreshMods.Content = "Refresh list";
+                _progress.IsVisible = false;
+            }
+        }
 
         _modsList.ItemsSource = _discovered
             .Select(m => $"  {m.ModName}   [{m.State}]  ({m.FileCount})")
@@ -501,6 +533,9 @@ public sealed partial class MainWindow : Window
     private void DisposeWindowResources()
     {
         _closed = true;
+        _modDiscoveryCancellation?.Cancel();
+        _modDiscoveryCancellation?.Dispose();
+        _modDiscoveryCancellation = null;
         _http.Dispose();
         lock (_logoCacheLock)
         {

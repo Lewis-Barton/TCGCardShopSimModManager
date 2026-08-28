@@ -70,6 +70,18 @@ public sealed class ModDiscoveryTests : IDisposable
     }
 
     [Fact]
+    public void Discover_CancelledScanStopsBeforeReadingFiles()
+    {
+        Install("Example Mod", "ExampleMod.dll");
+        using var cancellation = new CancellationTokenSource();
+        cancellation.Cancel();
+
+        Assert.Throws<OperationCanceledException>(() =>
+            ModDiscovery.Discover(
+                _gameFolder, _disabledRoot, cancellationToken: cancellation.Token));
+    }
+
+    [Fact]
     public void Disable_MovesFilesToDisabledAndReportsDisabled()
     {
         Install("Example Mod", "ExampleMod.dll");
