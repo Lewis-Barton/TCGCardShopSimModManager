@@ -82,6 +82,10 @@ unit test already covers it, **[manual]** where it needs a real environment.
       it is hashing. The app should close promptly without finishing the scan;
       during a normal refresh the button should read **Scanning...** and prevent
       a duplicate click.
+- [ ] **[manual]** Start the app with a large managed installation and remain on
+      Browse. Manage's inventory scan should not begin until Manage is opened;
+      returning to Browse and Manage should retain the list without hashing it
+      again. **Refresh list** should still run a complete verification.
 - [x] **[auto]** Disabling moves files out of the game into the manager's disabled folder and enabling moves
       them back (`Disable_MovesFilesToDisabledAndReportsDisabled`,
       `Enable_MovesFilesBackAndReportsInstalled`).

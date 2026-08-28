@@ -487,15 +487,22 @@ boundaries were fixed before work continued on application-state defects.
   cancellation while walking folders and after each 1 MiB file-hash chunk, so a
   large managed asset does not keep obsolete work alive until its full hash
   completes. Covered by the discovery suite and a cancellation regression.
+- **BUG-114 — startup hashes every installed mod before Manage is used (Medium,
+  fixed):** Steam detection now fills the selected game folder without starting
+  a complete inventory scan. The first visit to Manage loads and verifies the
+  list, then reuses it when navigating between pages until the folder changes or
+  an explicit refresh runs. Choosing a different folder refreshes its inventory
+  and pack state together. Verified by a warning-free desktop build and source
+  review.
 
 ## Summary
 | Severity | Open | Fixed |
 |----------|------|-------|
 | Critical | 0 | 3 |
 | High     | 0 | 40 |
-| Medium   | 0 | 54 |
+| Medium   | 0 | 55 |
 | Low      | 0 | 16 |
-| **Total**| **0** | **113** |
+| **Total**| **0** | **114** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

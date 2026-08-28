@@ -35,6 +35,7 @@ public sealed partial class MainWindow : Window
     private readonly Dictionary<string, Task<Bitmap?>> _logoCache = new(StringComparer.OrdinalIgnoreCase);
     private readonly SemaphoreSlim _logoLoadSlots = new(4, 4);
     private CancellationTokenSource? _modDiscoveryCancellation;
+    private string? _discoveredGameFolder;
     private bool _usingCachedPackIndex;
     private string? _installedGameBuildId;
     private string? _latestReleaseUrl;
@@ -82,7 +83,13 @@ public sealed partial class MainWindow : Window
     private async void OnRefreshPacksClick(object? sender, RoutedEventArgs e) => await RunHandler(LoadPacksAsync);
     private async void OnLaunchGameClick(object? sender, RoutedEventArgs e) => await RunHandler(OnLaunchGameAsync);
     private void OnBrowseNavClick(object? sender, RoutedEventArgs e) => ShowPage(_browsePage, _browseNav);
-    private void OnManageNavClick(object? sender, RoutedEventArgs e) => ShowPage(_managePage, _manageNav);
+    private async void OnManageNavClick(object? sender, RoutedEventArgs e)
+    {
+        ShowPage(_managePage, _manageNav);
+        if (!string.IsNullOrWhiteSpace(_gameBox.Text) &&
+            !string.Equals(_discoveredGameFolder, _gameBox.Text, StringComparison.OrdinalIgnoreCase))
+            await RunHandler(OnListModsAsync);
+    }
     private async void OnSettingsNavClick(object? sender, RoutedEventArgs e)
     {
         ShowPage(_settingsPage, _settingsNav);
@@ -164,7 +171,6 @@ public sealed partial class MainWindow : Window
         {
             _gameBox.Text = path;
             Log($"Detected: {path}");
-            await OnListModsAsync();
         }
 
         await catalogTask;
@@ -197,6 +203,7 @@ public sealed partial class MainWindow : Window
             if (!ReferenceEquals(_modDiscoveryCancellation, cancellation))
                 return;
             _discovered = discovered;
+            _discoveredGameFolder = gameFolder;
         }
         catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
         {
@@ -1036,9 +1043,11 @@ public sealed partial class MainWindow : Window
         if (folders.Count > 0)
         {
             target.Text = folders[0].Path.LocalPath;
+            _discoveredGameFolder = null;
             // The game folder is now known — reload the gallery so update badges
-            // can be shown for any already-installed packs.
-            await LoadPacksAsync();
+            // can be shown for any already-installed packs, and populate Manage
+            // without requiring a second click.
+            await Task.WhenAll(LoadPacksAsync(), OnListModsAsync());
         }
     }
 
