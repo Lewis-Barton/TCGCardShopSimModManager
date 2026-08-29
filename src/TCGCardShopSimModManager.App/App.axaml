@@ -124,6 +124,17 @@
       <Setter Property="Foreground" Value="{Binding $parent[Button].Foreground}" />
     </Style>
 
+    <Style Selector="ToolTip">
+      <Setter Property="Background" Value="{DynamicResource PanelBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushKey}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Padding" Value="8,5" />
+    </Style>
+    <Style Selector="ToolTip TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+    </Style>
+
     <Style Selector="TextBox">
       <Setter Property="Background" Value="{DynamicResource PanelBrush}" />
       <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />

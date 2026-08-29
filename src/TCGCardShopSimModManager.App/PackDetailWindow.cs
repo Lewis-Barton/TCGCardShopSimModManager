@@ -215,7 +215,7 @@ public sealed class PackDetailWindow : Window
 
         var source = new Button
         {
-            Content = "Nexus Mods",
+            Content = "View on Nexus",
             Classes = { "secondary" },
             FontSize = 11,
             Padding = new Thickness(8, 3),
