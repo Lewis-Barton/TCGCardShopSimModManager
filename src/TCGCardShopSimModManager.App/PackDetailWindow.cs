@@ -185,7 +185,8 @@ public sealed class PackDetailWindow : Window
                 };
                 choice.IsCheckedChanged += (_, _) => OnModChoiceChanged(mod);
                 _modChoices[mod.Id] = choice;
-                (mod.Required ? requiredMods : optionalMods).Children.Add(choice);
+                (mod.Required ? requiredMods : optionalMods).Children.Add(
+                    CreateModChoiceRow(mod, choice));
             }
             if (optionalMods.Children.Count == 0)
                 optionalMods.Children.Add(new TextBlock { Text = "This pack has no optional mods.", Opacity = 0.7 });
@@ -198,6 +199,50 @@ public sealed class PackDetailWindow : Window
         catch (Exception ex)
         {
             _status.Text = $"Could not read manifest: {ex.Message}";
+        }
+    }
+
+    private Control CreateModChoiceRow(ModEntry mod, CheckBox choice)
+    {
+        if (mod.NexusModId is not > 0)
+            return choice;
+
+        var row = new Grid
+        {
+            ColumnDefinitions = new ColumnDefinitions("*,Auto")
+        };
+        row.Children.Add(choice);
+
+        var source = new Button
+        {
+            Content = "Nexus Mods",
+            Classes = { "secondary" },
+            FontSize = 11,
+            Padding = new Thickness(8, 3),
+            Margin = new Thickness(8, 0, 0, 0),
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        ToolTip.SetTip(source, $"Open the original page for {mod.Name}");
+        source.Click += (_, _) => OpenNexusModPage(mod);
+        Grid.SetColumn(source, 1);
+        row.Children.Add(source);
+        return row;
+    }
+
+    private void OpenNexusModPage(ModEntry mod)
+    {
+        try
+        {
+            using var browser = Process.Start(new ProcessStartInfo
+            {
+                FileName = $"https://www.nexusmods.com/{NexusApi.GameDomain}/mods/{mod.NexusModId}",
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            _status.Text = $"Could not open {mod.Name} on Nexus Mods: {ex.Message}";
+            Diagnostic.Write(ex.ToString(), "nexus-mod-page");
         }
     }
 

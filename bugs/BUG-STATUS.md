@@ -158,6 +158,10 @@ and testing found the following additional issues, now fixed:
   can delete one obsolete profile without clearing progress for every pack or
   touching the saves currently used by the game. Metadata must match the hashed
   profile directory, and deletion shares the save-operation lock.
+- **FEATURE-007 — pack contents link to their original Nexus pages:** required
+  and optional Nexus-backed entries in pack details now include a compact source
+  action built from the manifest's pinned numeric mod id. Direct-download and
+  local entries remain plain choices rather than showing an unrelated link.
 
 ## 2026-08-17 red-team review
 

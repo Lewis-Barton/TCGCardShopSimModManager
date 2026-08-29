@@ -165,6 +165,9 @@ unit test already covers it, **[manual]** where it needs a real environment.
       pack details. Required mods are checked and locked; optional mods start
       unchecked, selecting one selects its dependencies, and clearing a
       dependency clears optional dependants.
+- [ ] **[manual]** Every Nexus-backed entry in pack details has a **Nexus Mods**
+      action that opens its original mod page. Entries using another source do
+      not show a Nexus action.
 - [x] **[manual]** Starting a hosted install shows a confirmation listing the
       selected optional mods, including the no-selection case, before any
       download begins.
