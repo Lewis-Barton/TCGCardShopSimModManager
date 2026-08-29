@@ -86,6 +86,11 @@ unit test already covers it, **[manual]** where it needs a real environment.
       Browse. Manage's inventory scan should not begin until Manage is opened;
       returning to Browse and Manage should retain the list without hashing it
       again. **Refresh list** should still run a complete verification.
+- [ ] **[manual]** On Manage, confirm lifecycle buttons follow the selection:
+      Installed enables only Disable and Uninstall, Disabled enables only Enable
+      and Uninstall, Modified enables only Uninstall, and unmanaged entries
+      enable none. Cancel individual uninstall once, then complete it and confirm
+      controls remain locked until the refreshed list appears.
 - [x] **[auto]** Disabling moves files out of the game into the manager's disabled folder and enabling moves
       them back (`Disable_MovesFilesToDisabledAndReportsDisabled`,
       `Enable_MovesFilesBackAndReportsInstalled`).

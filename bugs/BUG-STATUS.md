@@ -494,15 +494,23 @@ boundaries were fixed before work continued on application-state defects.
   an explicit refresh runs. Choosing a different folder refreshes its inventory
   and pack state together. Verified by a warning-free desktop build and source
   review.
+- **BUG-115 — Manage offers invalid and unconfirmed lifecycle actions (Medium,
+  fixed):** Enable, Disable and Uninstall now follow the selected entry's
+  journal-backed state. Unmanaged entries cannot be changed, modified entries
+  explain why toggles are unavailable, and uninstall requires a confirmation
+  that describes hash-protected file preservation. Lifecycle controls remain
+  locked with visible progress until the operation and inventory refresh finish,
+  preventing duplicate actions. Verified by a warning-free desktop build and
+  deliberate source review.
 
 ## Summary
 | Severity | Open | Fixed |
 |----------|------|-------|
 | Critical | 0 | 3 |
 | High     | 0 | 40 |
-| Medium   | 0 | 55 |
+| Medium   | 0 | 56 |
 | Low      | 0 | 16 |
-| **Total**| **0** | **114** |
+| **Total**| **0** | **115** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

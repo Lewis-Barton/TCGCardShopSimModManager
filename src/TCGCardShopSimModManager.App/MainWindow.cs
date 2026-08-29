@@ -36,6 +36,7 @@ public sealed partial class MainWindow : Window
     private readonly SemaphoreSlim _logoLoadSlots = new(4, 4);
     private CancellationTokenSource? _modDiscoveryCancellation;
     private string? _discoveredGameFolder;
+    private bool _modActionRunning;
     private bool _usingCachedPackIndex;
     private string? _installedGameBuildId;
     private string? _latestReleaseUrl;
@@ -109,6 +110,7 @@ public sealed partial class MainWindow : Window
     private void OnPackTextFilterChanged(object? sender, TextChangedEventArgs e) => ApplyPackFilters();
     private void OnPackCheckFilterChanged(object? sender, RoutedEventArgs e) => ApplyPackFilters();
     private void OnPackSizeFilterChanged(object? sender, RangeBaseValueChangedEventArgs e) => ApplyPackFilters();
+    private void OnModSelectionChanged(object? sender, SelectionChangedEventArgs e) => UpdateModActions();
     private void OnAppearanceChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (_loadingAppearance || _themeSelector.SelectedIndex < 0 ||
@@ -192,6 +194,8 @@ public sealed partial class MainWindow : Window
         var cancellation = new CancellationTokenSource();
         _modDiscoveryCancellation = cancellation;
         _refreshMods.IsEnabled = false;
+        SetModActionsEnabled(false, false, false);
+        _modSelectionStatus.Text = "Scanning installed mods...";
         _refreshMods.Content = "Scanning...";
         _progress.IsVisible = true;
 
@@ -215,9 +219,10 @@ public sealed partial class MainWindow : Window
             {
                 _modDiscoveryCancellation = null;
                 cancellation.Dispose();
-                _refreshMods.IsEnabled = true;
+                _refreshMods.IsEnabled = !_modActionRunning;
                 _refreshMods.Content = "Refresh list";
                 _progress.IsVisible = false;
+                UpdateModActions();
             }
         }
 
@@ -709,20 +714,28 @@ public sealed partial class MainWindow : Window
             return;
         }
 
-        Log($"--- Enable {mod.ModName}");
-        var result = await Task.Run(() => new ModInstaller(gameFolder).Enable(mod.ModName));
-
-        if (!result.Success)
+        BeginModAction($"Enabling {mod.ModName}...");
+        try
         {
-            Log(result.Error ?? "Enable failed.");
-            return;
+            Log($"--- Enable {mod.ModName}");
+            var result = await Task.Run(() => new ModInstaller(gameFolder).Enable(mod.ModName));
+
+            if (!result.Success)
+            {
+                Log(result.Error ?? "Enable failed.");
+                return;
+            }
+
+            Log($"Enabled {mod.ModName}.");
+            foreach (var warning in result.Warnings)
+                Log($"  Warning: {warning}");
+
+            await OnListModsAsync();
         }
-
-        Log($"Enabled {mod.ModName}.");
-        foreach (var warning in result.Warnings)
-            Log($"  Warning: {warning}");
-
-        await OnListModsAsync();
+        finally
+        {
+            EndModAction();
+        }
     }
 
     private async Task OnDisableAsync()
@@ -740,20 +753,28 @@ public sealed partial class MainWindow : Window
             return;
         }
 
-        Log($"--- Disable {mod.ModName}");
-        var result = await Task.Run(() => new ModInstaller(gameFolder).Disable(mod.ModName));
-
-        if (!result.Success)
+        BeginModAction($"Disabling {mod.ModName}...");
+        try
         {
-            Log(result.Error ?? "Disable failed.");
-            return;
+            Log($"--- Disable {mod.ModName}");
+            var result = await Task.Run(() => new ModInstaller(gameFolder).Disable(mod.ModName));
+
+            if (!result.Success)
+            {
+                Log(result.Error ?? "Disable failed.");
+                return;
+            }
+
+            Log($"Disabled {mod.ModName} (files moved out of the game so BepInEx won't load them).");
+            foreach (var warning in result.Warnings)
+                Log($"  Warning: {warning}");
+
+            await OnListModsAsync();
         }
-
-        Log($"Disabled {mod.ModName} (files moved out of the game so BepInEx won't load them).");
-        foreach (var warning in result.Warnings)
-            Log($"  Warning: {warning}");
-
-        await OnListModsAsync();
+        finally
+        {
+            EndModAction();
+        }
     }
 
     private DiscoveredMod? SelectedMod()
@@ -761,6 +782,71 @@ public sealed partial class MainWindow : Window
         if (_modsList.SelectedIndex < 0 || _modsList.SelectedIndex >= _discovered.Count)
             return null;
         return _discovered[_modsList.SelectedIndex];
+    }
+
+    private void UpdateModActions()
+    {
+        if (_modActionRunning)
+        {
+            SetModActionsEnabled(false, false, false);
+            return;
+        }
+
+        var mod = SelectedMod();
+        if (mod is null)
+        {
+            SetModActionsEnabled(false, false, false);
+            _modSelectionStatus.Text = _discovered.Count == 0
+                ? "No installed mods were found."
+                : "Select a managed mod to enable, disable or uninstall it.";
+            return;
+        }
+
+        switch (mod.State)
+        {
+            case ModInventoryState.Installed:
+                SetModActionsEnabled(false, true, true);
+                _modSelectionStatus.Text = $"{mod.ModName} is enabled and available to the game.";
+                break;
+            case ModInventoryState.Disabled:
+                SetModActionsEnabled(true, false, true);
+                _modSelectionStatus.Text = $"{mod.ModName} is disabled and stored outside the game.";
+                break;
+            case ModInventoryState.Modified:
+                SetModActionsEnabled(false, false, true);
+                _modSelectionStatus.Text =
+                    $"{mod.ModName} has changed files. Enable and disable are unavailable; uninstall will preserve files that no longer match the journal.";
+                break;
+            default:
+                SetModActionsEnabled(false, false, false);
+                _modSelectionStatus.Text =
+                    $"{mod.ModName} is unmanaged. The manager will not change files it does not own.";
+                break;
+        }
+    }
+
+    private void SetModActionsEnabled(bool enable, bool disable, bool uninstall)
+    {
+        _enableMod.IsEnabled = enable;
+        _disableMod.IsEnabled = disable;
+        _uninstallMod.IsEnabled = uninstall;
+    }
+
+    private void BeginModAction(string status)
+    {
+        _modActionRunning = true;
+        _refreshMods.IsEnabled = false;
+        SetModActionsEnabled(false, false, false);
+        _modSelectionStatus.Text = status;
+        _progress.IsVisible = true;
+    }
+
+    private void EndModAction()
+    {
+        _modActionRunning = false;
+        _refreshMods.IsEnabled = true;
+        _progress.IsVisible = false;
+        UpdateModActions();
     }
 
     private async Task OnUpdateCheckAsync()
@@ -1001,20 +1087,32 @@ public sealed partial class MainWindow : Window
             return;
         }
 
-        Log($"--- Uninstall {mod.ModName}");
-        var result = await RunUnderProgress(() => Task.Run(() => new ModInstaller(gameFolder).Uninstall(mod.ModName)));
-
-        if (!result.Success)
-        {
-            Log(result.Error ?? "Uninstall failed.");
+        var confirmation = new ModUninstallConfirmationWindow(mod.ModName, mod.State);
+        if (!await confirmation.ShowDialog<bool>(this))
             return;
+
+        BeginModAction($"Uninstalling {mod.ModName}...");
+        try
+        {
+            Log($"--- Uninstall {mod.ModName}");
+            var result = await Task.Run(() => new ModInstaller(gameFolder).Uninstall(mod.ModName));
+
+            if (!result.Success)
+            {
+                Log(result.Error ?? "Uninstall failed.");
+                return;
+            }
+
+            Log($"Uninstalled {mod.ModName}.");
+            foreach (var warning in result.Warnings)
+                Log($"  Warning: {warning}");
+
+            await OnListModsAsync();
         }
-
-        Log($"Uninstalled {mod.ModName}.");
-        foreach (var warning in result.Warnings)
-            Log($"  Warning: {warning}");
-
-        await OnListModsAsync();
+        finally
+        {
+            EndModAction();
+        }
     }
 
     private async Task<T> RunUnderProgress<T>(Func<Task<T>> work)
