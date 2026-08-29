@@ -181,6 +181,8 @@ unit test already covers it, **[manual]** where it needs a real environment.
 - [x] **[manual]** Real TCG Overhaul is declared compatible with Steam build
       `22936874` after a successful local launch with its plugins loaded and a
       beta tester completing installation and gameplay without an issue.
+- [x] **[manual]** One Piece TCG is declared compatible with Steam build
+      `22936874` after a successful local installation and launch.
 - [x] **[auto]** A hosted install downloads and installs required mods plus only
       the optional selection, while legacy manifests still default every entry
       to required (`ModpackSelectionTests`,
@@ -254,7 +256,7 @@ unit test already covers it, **[manual]** where it needs a real environment.
       header show its name and version. Open another pack, cancel the switch
       summary once, confirm its keep/update/remove/add counts, then complete the
       switch and confirm the gallery identifies only the new pack.
-- [ ] **[manual]** Use the persistent **Launch game** button from each page and
+- [x] **[manual]** Use the persistent **Launch game** button from each page and
       confirm it changes to **Launching...** immediately, remains disabled while
       Steam starts the game, shows **Game running** until the game closes, and
       cannot submit a second launch request during either state.
