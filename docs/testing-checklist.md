@@ -254,8 +254,10 @@ unit test already covers it, **[manual]** where it needs a real environment.
       header show its name and version. Open another pack, cancel the switch
       summary once, confirm its keep/update/remove/add counts, then complete the
       switch and confirm the gallery identifies only the new pack.
-- [x] **[manual]** Use the persistent **Launch game** button from each page and
-      confirm Steam starts TCG Card Shop Simulator.
+- [ ] **[manual]** Use the persistent **Launch game** button from each page and
+      confirm it changes to **Launching...** immediately, remains disabled while
+      Steam starts the game, shows **Game running** until the game closes, and
+      cannot submit a second launch request during either state.
 - [x] **[manual]** During a large hosted install, move and resize the desktop
       window and confirm it remains responsive. Confirm the current mod, file
       number, transferred bytes, progress bar and download speed update until

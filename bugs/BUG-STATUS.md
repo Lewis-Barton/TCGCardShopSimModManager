@@ -521,15 +521,20 @@ boundaries were fixed before work continued on application-state defects.
   uninstall make Cancel the Enter/Escape default and visually identify the
   deliberate destructive action. Verified by a warning-free desktop build and
   source review.
+- **BUG-119 — game launch gives no visible state or repeat-click protection
+  (Medium, fixed):** the persistent launch action now disables immediately,
+  reports the Steam handoff, detects when the game starts and remains locked
+  until it closes. If Steam accepts the request but no game process appears,
+  the action becomes available again after 30 seconds with a clear retry message.
 
 ## Summary
 | Severity | Open | Fixed |
 |----------|------|-------|
 | Critical | 0 | 3 |
 | High     | 0 | 40 |
-| Medium   | 0 | 57 |
+| Medium   | 0 | 58 |
 | Low      | 0 | 18 |
-| **Total**| **0** | **118** |
+| **Total**| **0** | **119** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

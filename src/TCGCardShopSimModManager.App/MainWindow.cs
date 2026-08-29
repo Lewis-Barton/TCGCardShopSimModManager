@@ -41,6 +41,7 @@ public sealed partial class MainWindow : Window
     private bool _usingCachedPackIndex;
     private string? _installedGameBuildId;
     private string? _latestReleaseUrl;
+    private bool _gameLaunchRunning;
     private bool _loadingAppearance;
     private bool _closed;
 
@@ -83,7 +84,29 @@ public sealed partial class MainWindow : Window
     private async void OnClearSaveProfileStorageClick(object? sender, RoutedEventArgs e) => await RunHandler(OnClearSaveProfileStorageAsync);
     private async void OnPickGameFolder(object? sender, RoutedEventArgs e) => await RunHandler(() => PickFolderAsync(_gameBox));
     private async void OnRefreshPacksClick(object? sender, RoutedEventArgs e) => await RunHandler(LoadPacksAsync);
-    private async void OnLaunchGameClick(object? sender, RoutedEventArgs e) => await RunHandler(OnLaunchGameAsync);
+    private async void OnLaunchGameClick(object? sender, RoutedEventArgs e)
+    {
+        if (_gameLaunchRunning)
+            return;
+
+        _gameLaunchRunning = true;
+        _launchGame.IsEnabled = false;
+        _launchGame.Content = "Launching...";
+        _launchGameStatus.Text = "Sending the launch request to Steam...";
+        try
+        {
+            await RunHandler(OnLaunchGameAsync);
+        }
+        finally
+        {
+            _gameLaunchRunning = false;
+            if (!_closed)
+            {
+                _launchGame.Content = "Launch game";
+                _launchGame.IsEnabled = true;
+            }
+        }
+    }
     private void OnBrowseNavClick(object? sender, RoutedEventArgs e) => ShowPage(_browsePage, _browseNav);
     private async void OnManageNavClick(object? sender, RoutedEventArgs e)
     {
@@ -625,15 +648,80 @@ public sealed partial class MainWindow : Window
         _browseLayout.ColumnDefinitions[0].Width = new GridLength(largeText ? 300 : 240);
     }
 
-    private Task OnLaunchGameAsync()
+    private async Task OnLaunchGameAsync()
     {
-        Process.Start(new ProcessStartInfo
+        using var existingGame = FindRunningGameProcess();
+        if (existingGame is not null)
         {
-            FileName = $"steam://run/{SteamLocator.GameAppId}",
-            UseShellExecute = true
-        });
+            _launchGame.Content = "Game running";
+            _launchGameStatus.Text = "TCG Card Shop Simulator is already running.";
+            Log("TCG Card Shop Simulator is already running.");
+            await WaitForGameExitAsync(existingGame);
+            return;
+        }
+
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = $"steam://run/{SteamLocator.GameAppId}",
+                UseShellExecute = true
+            });
+        }
+        catch
+        {
+            _launchGameStatus.Text = "Steam could not start the game.";
+            throw;
+        }
+
         Log("Launching TCG Card Shop Simulator through Steam...");
-        return Task.CompletedTask;
+        _launchGameStatus.Text = "Waiting for TCG Card Shop Simulator to start...";
+
+        for (var attempt = 0; attempt < 60 && !_closed; attempt++)
+        {
+            await Task.Delay(TimeSpan.FromMilliseconds(500));
+            var game = FindRunningGameProcess();
+            if (game is null)
+                continue;
+
+            using (game)
+            {
+                _launchGame.Content = "Game running";
+                _launchGameStatus.Text = "TCG Card Shop Simulator is running.";
+                await WaitForGameExitAsync(game);
+            }
+            return;
+        }
+
+        if (!_closed)
+            _launchGameStatus.Text = "Steam accepted the launch request. If the game did not open, try again.";
+    }
+
+    private async Task WaitForGameExitAsync(Process game)
+    {
+        try
+        {
+            await game.WaitForExitAsync();
+        }
+        catch (InvalidOperationException)
+        {
+            // The game can close between discovery and attaching the exit wait.
+        }
+
+        if (!_closed)
+            _launchGameStatus.Text = "TCG Card Shop Simulator has closed.";
+    }
+
+    private static Process? FindRunningGameProcess()
+    {
+        var processName = Path.GetFileNameWithoutExtension(SteamLocator.GameExecutableName);
+        var processes = Process.GetProcessesByName(processName);
+        if (processes.Length == 0)
+            return null;
+
+        for (var index = 1; index < processes.Length; index++)
+            processes[index].Dispose();
+        return processes[0];
     }
 
     private void RefreshNexusStatus()

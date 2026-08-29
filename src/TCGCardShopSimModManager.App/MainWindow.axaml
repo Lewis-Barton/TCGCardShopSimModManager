@@ -23,8 +23,9 @@
         </StackPanel>
 
         <StackPanel Grid.Row="2" Spacing="8" Margin="4,0">
-          <Button Content="Launch game" HorizontalContentAlignment="Center"
+          <Button x:Name="_launchGame" Content="Launch game" HorizontalContentAlignment="Center"
                   Click="OnLaunchGameClick" />
+          <TextBlock x:Name="_launchGameStatus" Classes="subtitle" TextWrapping="Wrap" />
           <TextBlock Classes="subtitle" Text="TCG Card Shop Simulator" />
           <TextBlock x:Name="_versionText" Classes="subtitle" Text="Version" />
         </StackPanel>

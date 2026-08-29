@@ -41,8 +41,9 @@ each action. The same confirmation can keep separate save progress for each
 pack. The game must be closed, and Steam Cloud should be disabled before using
 that option. An installed pack can also be uninstalled as one journal-backed
 operation from its details window. The
-persistent **Launch game** button starts the game through Steam. The **Manage
-mods** page lets
+persistent **Launch game** button starts the game through Steam, reports the
+launch state and stays disabled while the game is running. The **Manage mods**
+page lets
 you choose the game folder, inspect installed and manually placed mods, and
 enable, disable or uninstall managed mods. Nexus sign-in and update checks live
 under **Settings**. Appearance settings can follow Windows or use a light, dark
