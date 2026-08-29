@@ -526,6 +526,8 @@ boundaries were fixed before work continued on application-state defects.
   reports the Steam handoff, detects when the game starts and remains locked
   until it closes. If Steam accepts the request but no game process appears,
   the action becomes available again after 30 seconds with a clear retry message.
+  Verified by a warning-free desktop build and source review; the revised live
+  launch smoke test remains pending.
 
 ## Summary
 | Severity | Open | Fixed |

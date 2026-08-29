@@ -662,7 +662,7 @@ public sealed partial class MainWindow : Window
 
         try
         {
-            Process.Start(new ProcessStartInfo
+            using var steamLaunch = Process.Start(new ProcessStartInfo
             {
                 FileName = $"steam://run/{SteamLocator.GameAppId}",
                 UseShellExecute = true

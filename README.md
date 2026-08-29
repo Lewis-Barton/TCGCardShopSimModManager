@@ -43,11 +43,10 @@ that option. An installed pack can also be uninstalled as one journal-backed
 operation from its details window. The
 persistent **Launch game** button starts the game through Steam, reports the
 launch state and stays disabled while the game is running. The **Manage mods**
-page lets
-you choose the game folder, inspect installed and manually placed mods, and
-enable, disable or uninstall managed mods. Nexus sign-in and update checks live
-under **Settings**. Appearance settings can follow Windows or use a light, dark
-or high-contrast theme. Text and modpack card sizes can be increased
+page lets you choose the game folder, inspect installed and manually placed
+mods, and enable, disable or uninstall managed mods. Nexus sign-in and update
+checks live under **Settings**. Appearance settings can follow Windows or use a
+light, dark or high-contrast theme. Text and modpack card sizes can be increased
 independently, and the choices are kept for the next launch. The CLI retains
 the local manifest validation, planning and installation commands. Settings
 reports how much space downloaded mod archives and separate modpack saves use.
