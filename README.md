@@ -26,7 +26,8 @@ Browse the hosted modpack gallery, use its filters to find a pack, and open a
 card to review required and optional mods before installing it. The gallery
 renders its bundled or last saved catalog immediately while checking GitHub for
 updates, and reuses decoded logos when filters rebuild the cards. Nexus-backed
-entries in pack details link to their original mod pages. The app
+entries in pack details link to their original mod pages, while the pack summary
+shows its version, update date, mod count and download size. The app
 confirms your optional choices and shows per-download progress and speed during
 the install. A running install can be cancelled; cancellation stops at a safe
 operation boundary, retains an incomplete download for a later ranged resume

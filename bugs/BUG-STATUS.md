@@ -162,6 +162,10 @@ and testing found the following additional issues, now fixed:
   and optional Nexus-backed entries in pack details now include a compact source
   action built from the manifest's pinned numeric mod id. Direct-download and
   local entries remain plain choices rather than showing an unrelated link.
+- **FEATURE-008 — pack details show release and size facts:** the details dialog
+  now surfaces the catalog version, update date, mod count and compressed
+  download size before the compatibility and selection controls. Missing legacy
+  metadata is omitted instead of leaving empty labels.
 
 ## 2026-08-17 red-team review
 

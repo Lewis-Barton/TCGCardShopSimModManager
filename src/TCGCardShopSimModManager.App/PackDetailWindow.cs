@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -127,6 +128,13 @@ public sealed class PackDetailWindow : Window
                     img,
                     new TextBlock { Text = pack.Name, FontWeight = FontWeight.Bold, FontSize = 16, HorizontalAlignment = HorizontalAlignment.Center },
                     new TextBlock { Text = pack.ShortDescription, TextWrapping = TextWrapping.Wrap },
+                    new TextBlock
+                    {
+                        Text = PackFacts(pack),
+                        FontSize = 12,
+                        Opacity = 0.75,
+                        TextWrapping = TextWrapping.Wrap
+                    },
                     _compatibility,
                     _acknowledgeCompatibility,
                     new TextBlock { Text = "Required mods", FontWeight = FontWeight.Bold },
@@ -160,6 +168,23 @@ public sealed class PackDetailWindow : Window
         };
 
         _ = LoadManifestAsync(requiredMods, optionalMods);
+    }
+
+    private static string PackFacts(ModpackSummary pack)
+    {
+        var facts = new List<string>();
+        if (!string.IsNullOrWhiteSpace(pack.Version))
+            facts.Add($"Version {pack.Version}");
+        if (DateOnly.TryParseExact(pack.Updated, "yyyy-MM-dd", CultureInfo.InvariantCulture,
+                DateTimeStyles.None, out var updated))
+            facts.Add($"Updated {updated:dd MMM yyyy}");
+        else if (!string.IsNullOrWhiteSpace(pack.Updated))
+            facts.Add($"Updated {pack.Updated}");
+        if (pack.ModIds?.Count is > 0)
+            facts.Add($"{pack.ModIds.Count:N0} mod{(pack.ModIds.Count == 1 ? string.Empty : "s")}");
+        if (pack.DownloadSize is > 0)
+            facts.Add($"{FormatBytes(pack.DownloadSize.Value)} download");
+        return string.Join(" · ", facts);
     }
 
     private async Task LoadManifestAsync(StackPanel requiredMods, StackPanel optionalMods)
