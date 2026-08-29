@@ -133,6 +133,9 @@ unit test already covers it, **[manual]** where it needs a real environment.
       Browse during startup. Cards should appear from the local catalog before
       installed-mod discovery finishes; repeated filter changes should reuse
       logos without visible reloads.
+- [ ] **[manual]** While Browse is checking GitHub, confirm Refresh reads
+      **Refreshing...**, cannot be clicked again, and returns to **Refresh** with
+      one final catalog status when the request finishes or fails.
 
 - [x] **[manual]** Resize the desktop window at its minimum and normal sizes;
       the navigation remains visible, filters remain usable and cards wrap

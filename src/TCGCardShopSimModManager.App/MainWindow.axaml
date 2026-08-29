@@ -40,7 +40,7 @@
             <TextBlock x:Name="_installedPackSummary" FontWeight="SemiBold"
                        Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap" />
           </StackPanel>
-          <Button Grid.Column="1" Content="Refresh" Click="OnRefreshPacksClick"
+          <Button Grid.Column="1" x:Name="_refreshPacks" Content="Refresh" Click="OnRefreshPacksClick"
                   HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
         </Grid>
 

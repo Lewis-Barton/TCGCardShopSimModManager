@@ -502,6 +502,11 @@ boundaries were fixed before work continued on application-state defects.
   locked with visible progress until the operation and inventory refresh finish,
   preventing duplicate actions. Verified by a warning-free desktop build and
   deliberate source review.
+- **BUG-116 — Browse can run overlapping catalog refreshes (Low, fixed):**
+  startup, folder changes and repeated Refresh clicks now share one in-flight
+  catalog task instead of racing network results and status messages. The button
+  reads **Refreshing...** and remains unavailable until the shared request
+  finishes. Verified by a warning-free desktop build and source review.
 
 ## Summary
 | Severity | Open | Fixed |
@@ -509,8 +514,8 @@ boundaries were fixed before work continued on application-state defects.
 | Critical | 0 | 3 |
 | High     | 0 | 40 |
 | Medium   | 0 | 56 |
-| Low      | 0 | 16 |
-| **Total**| **0** | **115** |
+| Low      | 0 | 17 |
+| **Total**| **0** | **116** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

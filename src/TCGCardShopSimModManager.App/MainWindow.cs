@@ -37,6 +37,7 @@ public sealed partial class MainWindow : Window
     private CancellationTokenSource? _modDiscoveryCancellation;
     private string? _discoveredGameFolder;
     private bool _modActionRunning;
+    private Task? _packLoadTask;
     private bool _usingCachedPackIndex;
     private string? _installedGameBuildId;
     private string? _latestReleaseUrl;
@@ -237,8 +238,19 @@ public sealed partial class MainWindow : Window
 
     // --- modpack gallery ----------------------------------------------------
 
-    private async Task LoadPacksAsync()
+    private Task LoadPacksAsync()
     {
+        if (_packLoadTask is { IsCompleted: false } activeLoad)
+            return activeLoad;
+
+        _packLoadTask = LoadPacksCoreAsync();
+        return _packLoadTask;
+    }
+
+    private async Task LoadPacksCoreAsync()
+    {
+        _refreshPacks.IsEnabled = false;
+        _refreshPacks.Content = "Refreshing...";
         _packStatus.Text = "Loading modpacks from GitHub...";
         _packProgress.IsVisible = true;
         try
@@ -299,6 +311,8 @@ public sealed partial class MainWindow : Window
         finally
         {
             _packProgress.IsVisible = false;
+            _refreshPacks.IsEnabled = true;
+            _refreshPacks.Content = "Refresh";
         }
     }
 
