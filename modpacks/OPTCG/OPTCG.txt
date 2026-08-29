@@ -1,0 +1,30 @@
+#bepinex
+bepinex nexus:2:2 # BepInEx with Configuration Manager
+
+# Core files
+required nexus:867:6051 # Collection Tracker
+required nexus:1100:6050 # EPL Card Animator
+required nexus:496:6094 # EnhancedPrefabLoader
+required nexus:1144:5886 # EnhancedPrefabLoader API
+required nexus:1084:5575 # EPL Demand
+required nexus:612:5131 # Grading Overhaul
+required nexus:617:5256 # Holographic Overhaul
+required nexus:685:5260 # Phone - Overhaul
+required nexus:698:4002 # BepInEx Mod Manager
+required nexus:69:5519 # TextureReplacer
+
+#One Piece
+required nexus:1109:5788 # Accessories
+required nexus:1109:6081 # Figurines
+required nexus:1109:6010 # Romance Dawn
+required nexus:1109:6011 # Paramount War
+required nexus:1109:6012 # Pillars Of Strength
+required nexus:1109:6013 # Kingdom Of Intrigue
+required nexus:1109:6014 # Awakening Of The New Era
+required nexus:1109:6015 # Wings Of The Captain
+required nexus:1109:6016 # 500 Years In The Future
+required nexus:1109:6017 # Two Legends
+required nexus:1109:6018 # Emperors In The New World
+required nexus:1109:6090 # Royal Blood
+required nexus:1109:6019 # One Piece Card The Best
+required nexus:1109:6080 # Starter Decks

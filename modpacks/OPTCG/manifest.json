@@ -1,0 +1,385 @@
+{
+  "manifestVersion": 1,
+  "name": "One Piece TCG",
+  "game": "tcgcardshopsimulator",
+  "mods": [
+    {
+      "id": "bepinex",
+      "name": "Pre-configured BepInEx with Configuration Manager",
+      "version": "5.4.23.2",
+      "archive": "2-2-BepInEx with Configuration Manager-2-5-4-23-2-1726589034.zip",
+      "sha256": "3a19adb7f415967beed0bfc6abf388b3d7515c190dc222783b14b3ee99ec9551",
+      "installType": "BepInEx",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 2,
+      "nexusFileId": 2,
+      "required": true
+    },
+    {
+      "id": "collection-tracker-867-6051",
+      "name": "Collection Tracker",
+      "version": "1.2.8",
+      "archive": "867-6051-Collection Tracker v1.2.8 867 1.2.8 2026-08-16T14-12Z Ue3KcUE0I.zip",
+      "sha256": "3c7d13450f44cd05979c5fe5aa44affdfcb933483446646c0d465710a1bfa6f9",
+      "installType": "BepInExPlugin",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 867,
+      "nexusFileId": 6051,
+      "required": true
+    },
+    {
+      "id": "epl-card-animator-1100-6050",
+      "name": "EPL Card Animator",
+      "version": "1.0.1",
+      "archive": "1100-6050-EPL Card Animator v1.0.1 1100 1.0.1 2026-08-16T14-00Z cF8ECcme0.zip",
+      "sha256": "d5b6400da762684ca5e86035872577bc5f54b1708f274baaa3ba6c4e37c85f57",
+      "installType": "BepInExPlugin",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 1100,
+      "nexusFileId": 6050,
+      "required": true
+    },
+    {
+      "id": "enhanced-prefab-loader-496-6094",
+      "name": "Enhanced Prefab Loader",
+      "version": "6.1.1",
+      "archive": "496-6094-EnhancedPrefabLoader 496 6.1.1 2026-08-20T21-40Z JoErZJ3j2.zip",
+      "sha256": "530ff917f2e6cbb65c802bafda86e9c1e13312246ebafcd955529dc1bf329ca8",
+      "installType": "BepInExPlugin",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 496,
+      "nexusFileId": 6094,
+      "required": true
+    },
+    {
+      "id": "epl-api-1144-5886",
+      "name": "EPL API",
+      "version": "6.1.0",
+      "archive": "1144-5886-EnhancedPrefabLoader API 1144 6.1.0 2026-07-27T21-07Z PwQutPS5m.zip",
+      "sha256": "3400e9c32de3789240c2621b3730c5e7032f0dd64e955865f0ce3f59957037c0",
+      "installType": "BepInExPlugin",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 1144,
+      "nexusFileId": 5886,
+      "required": true
+    },
+    {
+      "id": "epl-demand-1084-5575",
+      "name": "EPL Demand",
+      "version": "1.0.0",
+      "archive": "1084-5575-Epl Demand v1.0.0 1084 1.0.0 2026-06-20T01-28Z L6W5uLhb2.zip",
+      "sha256": "f2c7f0e5beee6dfde511839588107a724524cc4159110b250b6c2a57d77b9404",
+      "installType": "BepInExPlugin",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 1084,
+      "nexusFileId": 5575,
+      "required": true
+    },
+    {
+      "id": "grading-overhaul-612-5131",
+      "name": "Grading Overhaul",
+      "version": "3.4.2",
+      "archive": "612-5131-Grading Overhaul-612-3-4-2-1777790483.zip",
+      "sha256": "9ab0ef9d21c18d66f82de8e569c1b65d470f7f1341a695fb24e76319a653a2fe",
+      "installType": "BepInExPlugin",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 612,
+      "nexusFileId": 5131,
+      "required": true
+    },
+    {
+      "id": "holographic-overhaul-617-5256",
+      "name": "Holographic Overhaul",
+      "version": "3.2.0",
+      "archive": "617-5256-Holographic Overhaul-617-3-2-0-1778342887.zip",
+      "sha256": "116fd2874d00dce0f3186fcc10e54708ead68fa203699d0d1c7ef6a7bb107575",
+      "installType": "BepInExPlugin",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 617,
+      "nexusFileId": 5256,
+      "required": true
+    },
+    {
+      "id": "phone-overhaul-685-5260",
+      "name": "Phone - Overhaul",
+      "version": "1.7.2",
+      "archive": "685-5260-Phone - Overhaul-685-1-7-2-1778343009.zip",
+      "sha256": "204e0d66b6c819f54a178794d9843e51ecf245fc51214b7c1acc1a09376ddc7c",
+      "installType": "BepInExPlugin",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 685,
+      "nexusFileId": 5260,
+      "required": true
+    },
+    {
+      "id": "bepinex-mod-manager-698-4002",
+      "name": "BepInEx Mod Manager",
+      "version": "1.2",
+      "archive": "698-4002-BepInEx Mod Manager-698-1-2-1772153791.zip",
+      "sha256": "a28663eb683a66add2bb7e636f6454591885b51a3de5a027ca5c071c63b3733a",
+      "installType": "BepInExPlugin",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 698,
+      "nexusFileId": 4002,
+      "required": true
+    },
+    {
+      "id": "texturereplacer-69-5519",
+      "name": "TextureReplacer",
+      "version": "1.6.2",
+      "archive": "69-5519-TextureReplacer 1.6.2 69 1.6.2 2026-06-15T13-46Z kHTAYkjZf.zip",
+      "sha256": "d63e71a022ff79da12389f263b7182be7be6633d595d9f61800aa8c37a4be232",
+      "installType": "BepInExPlugin",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 69,
+      "nexusFileId": 5519,
+      "required": true
+    },
+    {
+      "id": "one-piece-trading-card-game-1109-5788",
+      "name": "One Piece Trading Card Game - Accessories",
+      "version": "1.0.1",
+      "archive": "1109-5788-ykAccessories - OP Collection 1109 1.0.1 2026-07-14T17-16Z kHTAYkjW3.zip",
+      "sha256": "97a15541f1c068b00995d5e85e8e1d181293dda2debebd28b9da3a34f2a97838",
+      "installType": "BepInExPlugin",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 1109,
+      "nexusFileId": 5788,
+      "required": true
+    },
+    {
+      "id": "one-piece-trading-card-game-6081-1109-6081",
+      "name": "One Piece Trading Card Game - Figurines",
+      "version": "1.0.1",
+      "archive": "1109-6081-ykFigurines - OP Collection 1109 1.0.1 2026-08-19T12-32Z 5X78h5fO6.zip",
+      "sha256": "cd304c9b222a146656e53eea7c84b82a7c4d6eebfadcc786a9487a133362cba5",
+      "installType": "BepInExPlugin",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 1109,
+      "nexusFileId": 6081,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/One Piece TCG/",
+        "BepInEx/plugins/Phone - Overhaul/Wallpaper/onepiecetcg/"
+      ],
+      "required": true
+    },
+    {
+      "id": "one-piece-trading-card-game-6010-1109-6010",
+      "name": "One Piece Trading Card Game - Romance Dawn",
+      "version": "1.0.7",
+      "archive": "1109-6010-ykOP01 - Romance Dawn 1109 1.0.7 2026-08-13T21-39Z PwQutPSAo.zip",
+      "sha256": "8e2ad4af7f5dbd2d46e41e3a952a86880a55f2ace5cb476825b35e59025194b5",
+      "installType": "BepInExPlugin",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 1109,
+      "nexusFileId": 6010,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/One Piece TCG/",
+        "BepInEx/plugins/Phone - Overhaul/Wallpaper/onepiecetcg/"
+      ],
+      "required": true
+    },
+    {
+      "id": "one-piece-trading-card-game-6011-1109-6011",
+      "name": "One Piece Trading Card Game - Paramount War",
+      "version": "1.0.4",
+      "archive": "1109-6011-ykOP02 - Paramount War 1109 1.0.4 2026-08-13T21-44Z CNfmWC79t.zip",
+      "sha256": "3c4387630b90eff22c8b675828bd661a26456f1ecec9b023881e6ed70adba547",
+      "installType": "BepInExPlugin",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 1109,
+      "nexusFileId": 6011,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/One Piece TCG/",
+        "BepInEx/plugins/Phone - Overhaul/Wallpaper/onepiecetcg/"
+      ],
+      "required": true
+    },
+    {
+      "id": "one-piece-trading-card-game-6012-1109-6012",
+      "name": "One Piece Trading Card Game - Pillars Of Strength",
+      "version": "1.0.4",
+      "archive": "1109-6012-ykOP03 - Pillars Of Strength 1109 1.0.4 2026-08-13T21-47Z YL6jvYlgu.zip",
+      "sha256": "e5dc3daa9d60e763c05f8f1e6a7c99abae2ab197b1315a59ce8e7d1b502989ad",
+      "installType": "BepInExPlugin",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 1109,
+      "nexusFileId": 6012,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/One Piece TCG/",
+        "BepInEx/plugins/Phone - Overhaul/Wallpaper/onepiecetcg/"
+      ],
+      "required": true
+    },
+    {
+      "id": "one-piece-trading-card-game-6013-1109-6013",
+      "name": "One Piece Trading Card Game - Kingdom Of Intrigue",
+      "version": "1.0.5",
+      "archive": "1109-6013-ykOP04 - Kingdom of Intrigue 1109 1.0.5 2026-08-13T21-49Z 5X78h5fdK.zip",
+      "sha256": "7ccfa631f46da3d060cbca8d7ff16bc0f3f7c946a5d69b7d8f06cd2326894f7a",
+      "installType": "BepInExPlugin",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 1109,
+      "nexusFileId": 6013,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/One Piece TCG/",
+        "BepInEx/plugins/Phone - Overhaul/Wallpaper/onepiecetcg/"
+      ],
+      "required": true
+    },
+    {
+      "id": "one-piece-trading-card-game-6014-1109-6014",
+      "name": "One Piece Trading Card Game - Awakening Of The New Era",
+      "version": "1.0.4",
+      "archive": "1109-6014-ykOP05 - Awakening Of The New Era 1109 1.0.4 2026-08-13T21-53Z F8npNF2qF.zip",
+      "sha256": "f69798d3de3bbab49f4548fe20f53f031f89cb2db81769c409e8e3dc6b37e7e8",
+      "installType": "BepInExPlugin",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 1109,
+      "nexusFileId": 6014,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/One Piece TCG/",
+        "BepInEx/plugins/Phone - Overhaul/Wallpaper/onepiecetcg/"
+      ],
+      "required": true
+    },
+    {
+      "id": "one-piece-trading-card-game-6015-1109-6015",
+      "name": "One Piece Trading Card Game - Wings Of The Captain",
+      "version": "1.0.2",
+      "archive": "1109-6015-ykOP06 - Wings Of The Captain 1109 1.0.2 2026-08-13T21-54Z kHTAYkj75.zip",
+      "sha256": "f40a8941a11ef909459dce1eb3c34e7c26fef1eeef019ebae107f5493a4b8809",
+      "installType": "BepInExPlugin",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 1109,
+      "nexusFileId": 6015,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/One Piece TCG/",
+        "BepInEx/plugins/Phone - Overhaul/Wallpaper/onepiecetcg/"
+      ],
+      "required": true
+    },
+    {
+      "id": "one-piece-trading-card-game-6016-1109-6016",
+      "name": "One Piece Trading Card Game - 500 Years In The Future",
+      "version": "1.0.2",
+      "archive": "1109-6016-ykOP07 - 500 Years In The Future 1109 1.0.2 2026-08-13T21-57Z 3ti183gPT.zip",
+      "sha256": "0d76d7c77843a1fcc73730aff3fb4ec037539d42eb8666bdc7d16b46ca6fdd68",
+      "installType": "BepInExPlugin",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 1109,
+      "nexusFileId": 6016,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/One Piece TCG/",
+        "BepInEx/plugins/Phone - Overhaul/Wallpaper/onepiecetcg/"
+      ],
+      "required": true
+    },
+    {
+      "id": "one-piece-trading-card-game-6017-1109-6017",
+      "name": "One Piece Trading Card Game - Two Legends",
+      "version": "1.0.2",
+      "archive": "1109-6017-ykOP08 - Two Legends 1109 1.0.2 2026-08-13T22-01Z Dj5caDCAc.zip",
+      "sha256": "4b3867c8957acdfc057a9c7aa00c33e7ae6fc50e871962e795cd04fcfceb1245",
+      "installType": "BepInExPlugin",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 1109,
+      "nexusFileId": 6017,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/One Piece TCG/",
+        "BepInEx/plugins/Phone - Overhaul/Wallpaper/onepiecetcg/"
+      ],
+      "required": true
+    },
+    {
+      "id": "one-piece-trading-card-game-6018-1109-6018",
+      "name": "One Piece Trading Card Game - Emperors In The New World",
+      "version": "1.0.1",
+      "archive": "1109-6018-ykOP09 - Emperors In The New World 1109 1.0.1 2026-08-13T22-14Z m2Ui7mJpD.zip",
+      "sha256": "354df50b4a1a985f2234bf64be16fe2fac4ad60ce55250b326b2204f7c0609ac",
+      "installType": "BepInExPlugin",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 1109,
+      "nexusFileId": 6018,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/One Piece TCG/",
+        "BepInEx/plugins/Phone - Overhaul/Wallpaper/onepiecetcg/"
+      ],
+      "required": true
+    },
+    {
+      "id": "one-piece-trading-card-game-6090-1109-6090",
+      "name": "One Piece Trading Card Game - Royal Blood",
+      "version": "1.0.0",
+      "archive": "1109-6090-ykOP10 - Royal Blood 1109 1.0.0 2026-08-20T12-56Z 8nJgf8UyT.zip",
+      "sha256": "3899c859d83432b53ac678e0c1bbf04a3c21997b134edcb21c3ddf270d7503e7",
+      "installType": "BepInExPlugin",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 1109,
+      "nexusFileId": 6090,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/One Piece TCG/",
+        "BepInEx/plugins/Phone - Overhaul/Wallpaper/onepiecetcg/"
+      ],
+      "required": true
+    },
+    {
+      "id": "one-piece-trading-card-game-6019-1109-6019",
+      "name": "One Piece Trading Card Game - One Piece Card The Best",
+      "version": "1.0.1",
+      "archive": "1109-6019-ykPRB01 - One Piece Card The Best 1109 1.0.1 2026-08-13T22-18Z 5X78h5f4e.zip",
+      "sha256": "ad7ca00e623c1521804df8b6caeeaae8079eb2bd66c1e5df336d8f5cc53fcf10",
+      "installType": "BepInExPlugin",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 1109,
+      "nexusFileId": 6019,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/One Piece TCG/",
+        "BepInEx/plugins/Phone - Overhaul/Wallpaper/onepiecetcg/"
+      ],
+      "required": true
+    },
+    {
+      "id": "one-piece-trading-card-game-6080-1109-6080",
+      "name": "One Piece Trading Card Game - Starter Decks",
+      "version": "1.0.5",
+      "archive": "1109-6080-ykStarterDecks - Collection 1109 1.0.5 2026-08-19T12-32Z m2Ui7mJkP.zip",
+      "sha256": "4d0a4fcd88bd3ba2c159031e3067c36f19b4458e78e94fa285db413377c1f9b9",
+      "installType": "BepInExPlugin",
+      "dependencies": [],
+      "conflicts": [],
+      "nexusModId": 1109,
+      "nexusFileId": 6080,
+      "excludedArchivePaths": [
+        "BepInEx/plugins/Phone - Overhaul/App Images/One Piece TCG/",
+        "BepInEx/plugins/Phone - Overhaul/Wallpaper/onepiecetcg/"
+      ],
+      "required": true
+    }
+  ],
+  "totalSize": 2076468682
+}

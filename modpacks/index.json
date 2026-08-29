@@ -106,6 +106,47 @@
         "pokemon-tcg-card-shop-simulator-v3-4-6027-577-6027",
         "rtcgo-custom-tv-895-5777"
       ]
+    },
+    {
+      "id": "one-piece-tcg",
+      "name": "One Piece TCG",
+      "shortDescription": "A complete One Piece card conversion with sets from Romance Dawn through Royal Blood, starter decks, accessories and figurines.",
+      "logo": "OPTCG/logo.png",
+      "manifest": "OPTCG/manifest.json",
+      "version": "1.0.0",
+      "updated": "2026-08-29",
+      "compatibleGameBuildIds": [],
+      "featured": true,
+      "nsfw": false,
+      "downloadSize": 2076468682,
+      "tags": ["one-piece", "overhaul", "cards", "collecting"],
+      "modIds": [
+        "bepinex",
+        "collection-tracker-867-6051",
+        "epl-card-animator-1100-6050",
+        "enhanced-prefab-loader-496-6094",
+        "epl-api-1144-5886",
+        "epl-demand-1084-5575",
+        "grading-overhaul-612-5131",
+        "holographic-overhaul-617-5256",
+        "phone-overhaul-685-5260",
+        "bepinex-mod-manager-698-4002",
+        "texturereplacer-69-5519",
+        "one-piece-trading-card-game-1109-5788",
+        "one-piece-trading-card-game-6081-1109-6081",
+        "one-piece-trading-card-game-6010-1109-6010",
+        "one-piece-trading-card-game-6011-1109-6011",
+        "one-piece-trading-card-game-6012-1109-6012",
+        "one-piece-trading-card-game-6013-1109-6013",
+        "one-piece-trading-card-game-6014-1109-6014",
+        "one-piece-trading-card-game-6015-1109-6015",
+        "one-piece-trading-card-game-6016-1109-6016",
+        "one-piece-trading-card-game-6017-1109-6017",
+        "one-piece-trading-card-game-6018-1109-6018",
+        "one-piece-trading-card-game-6090-1109-6090",
+        "one-piece-trading-card-game-6019-1109-6019",
+        "one-piece-trading-card-game-6080-1109-6080"
+      ]
     }
   ]
 }
