@@ -16,9 +16,19 @@ public sealed class ModpackUninstallConfirmationWindow : Window
         MinHeight = 240;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
-        var uninstall = new Button { Content = "Uninstall modpack" };
+        var uninstall = new Button
+        {
+            Content = "Uninstall modpack",
+            Classes = { "danger" }
+        };
         uninstall.Click += (_, _) => Close(true);
-        var cancel = new Button { Content = "Cancel", Classes = { "secondary" } };
+        var cancel = new Button
+        {
+            Content = "Cancel",
+            IsDefault = true,
+            IsCancel = true,
+            Classes = { "secondary" }
+        };
         cancel.Click += (_, _) => Close(false);
 
         Content = new StackPanel

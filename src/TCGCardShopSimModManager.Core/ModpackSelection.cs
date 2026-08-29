@@ -13,6 +13,18 @@ public sealed record ModpackSelectionResult(
 /// </summary>
 public static class ModpackSelection
 {
+    public static bool OptionalSelectionMatches(
+        ModListManifest manifest,
+        IEnumerable<string>? installedOptionalIds,
+        IEnumerable<string> selectedOptionalIds)
+    {
+        var installed = (installedOptionalIds ?? manifest.Mods
+                .Where(mod => !mod.Required)
+                .Select(mod => mod.Id))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return installed.SetEquals(selectedOptionalIds);
+    }
+
     public static ModpackSelectionResult Resolve(
         ModListManifest manifest,
         IEnumerable<string> selectedOptionalIds)

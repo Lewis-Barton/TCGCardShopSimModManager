@@ -204,6 +204,12 @@ unit test already covers it, **[manual]** where it needs a real environment.
       `ModpackInstaller_UnsafeDeselectionRollsBackPackState`).
 - [x] **[auto]** A newer published version is flagged, an equal/older one is not
       (`ModpackVersion_IsNewer_Cases`, `UpdateDetection_FlagsNewerPublishedVersion`).
+- [x] **[auto]** Optional selections compare without order or case, and a legacy
+      null selection means every optional mod (`ModpackSelectionTests`).
+- [ ] **[manual]** Open the currently installed pack at the same published
+      version. Its action should read **Installed** and remain disabled. Change
+      one optional choice and confirm it becomes **Apply optional changes**;
+      restore the original choice and confirm it becomes disabled again.
 - [x] **[manual]** Install a pack, then bump `version` in `index.json`; the card
       shows the green update banner and the button reads **Install update**.
       Running it should not corrupt the existing install.
@@ -298,6 +304,10 @@ unit test already covers it, **[manual]** where it needs a real environment.
 - [x] **[manual]** Open an installed pack, confirm **Uninstall modpack** lists a
       clear warning, cancel once, then confirm it removes the complete pack and
       refreshes the installed state after closing pack details.
+- [ ] **[manual]** In install, switch, cache-clear, stored-save deletion and
+      uninstall confirmations, verify Escape chooses the non-destructive action,
+      Enter continues install/switch but cancels destructive confirmations, and
+      destructive buttons use the danger style.
 - [x] **[manual]** Interrupt or fail a multi-gigabyte hosted install after its
       downloads complete, retry it, and confirm each verified archive reports
       that it is ready from cache rather than downloading again.

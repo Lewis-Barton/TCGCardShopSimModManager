@@ -16,9 +16,19 @@ public sealed class DownloadCacheClearConfirmationWindow : Window
         MinHeight = 220;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
-        var clear = new Button { Content = "Clear downloads" };
+        var clear = new Button
+        {
+            Content = "Clear downloads",
+            Classes = { "danger" }
+        };
         clear.Click += (_, _) => Close(true);
-        var cancel = new Button { Content = "Cancel", Classes = { "secondary" } };
+        var cancel = new Button
+        {
+            Content = "Cancel",
+            IsDefault = true,
+            IsCancel = true,
+            Classes = { "secondary" }
+        };
         cancel.Click += (_, _) => Close(false);
 
         Content = new StackPanel

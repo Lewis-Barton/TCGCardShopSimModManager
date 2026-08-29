@@ -72,6 +72,7 @@ public sealed class PackDetailWindow : Window
     private long _lastProgressBytes;
     private TimeSpan _lastProgressTime;
     private CancellationTokenSource? _installCancellation;
+    private bool _installationCompleted;
 
     public PackDetailWindow(
         ModpackSummary pack,
@@ -191,14 +192,6 @@ public sealed class PackDetailWindow : Window
             RefreshOptionalSummary();
             RefreshNexusAccess();
             RefreshInstallAvailability();
-            var switching = _activePack is not null && !_pack.IsId(_activePack.PackId);
-            _install.Content = switching
-                ? $"Switch from {_activePack!.Name}"
-                : _installedPack is not null
-                    ? ModpackVersion.IsNewer(_installedPack.PackVersion, _pack.Version)
-                    ? "Install update"
-                    : "Reinstall modpack"
-                    : "Install modpack";
             if (string.IsNullOrWhiteSpace(_gameFolder))
                 _status.Text = "Set the game folder on the Manage tab first.";
         }
@@ -230,9 +223,47 @@ public sealed class PackDetailWindow : Window
 
     private void RefreshInstallAvailability()
     {
-        _install.IsEnabled = !string.IsNullOrWhiteSpace(_gameFolder) &&
+        var switching = _activePack is not null && !_pack.IsId(_activePack.PackId);
+        var updateAvailable = _installedPack is not null &&
+            ModpackVersion.IsNewer(_installedPack.PackVersion, _pack.Version);
+        var selectionChanged = _installedPack is not null && HasOptionalSelectionChanged();
+        var actionAvailable = !_installationCompleted &&
+            (switching || _installedPack is null || updateAvailable || selectionChanged);
+
+        _install.Content = _installationCompleted
+            ? "Installed"
+            : switching
+                ? $"Switch from {_activePack!.Name}"
+                : _installedPack is null
+                    ? "Install modpack"
+                    : updateAvailable
+                        ? "Install update"
+                        : selectionChanged
+                            ? "Apply optional changes"
+                            : "Installed";
+        _install.IsEnabled = actionAvailable && !string.IsNullOrWhiteSpace(_gameFolder) &&
             (!SelectedInstallNeedsNexus() || HasNexusCredentials()) &&
             (!_acknowledgeCompatibility.IsVisible || _acknowledgeCompatibility.IsChecked == true);
+
+        const string alreadyInstalled =
+            "This modpack version and optional selection are already installed.";
+        if (!actionAvailable && _installedPack is not null && !_installationCompleted)
+            _status.Text = alreadyInstalled;
+        else if (_status.Text == alreadyInstalled)
+            _status.Text = string.Empty;
+    }
+
+    private bool HasOptionalSelectionChanged()
+    {
+        if (_manifest is null || _installedPack is null)
+            return false;
+
+        var current = _manifest.Mods
+            .Where(mod => !mod.Required &&
+                _modChoices.TryGetValue(mod.Id, out var choice) && choice.IsChecked == true)
+            .Select(mod => mod.Id);
+        return !ModpackSelection.OptionalSelectionMatches(
+            _manifest, _installedPack.SelectedOptionalModIds, current);
     }
 
     private bool IsPreviouslySelected(ModEntry mod)
@@ -364,6 +395,7 @@ public sealed class PackDetailWindow : Window
                     cancellationToken: _installCancellation.Token));
             if (report.Success)
             {
+                _installationCompleted = true;
                 _status.Text = $"Installed {_pack.Name}.";
             }
             else

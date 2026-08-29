@@ -507,15 +507,29 @@ boundaries were fixed before work continued on application-state defects.
   catalog task instead of racing network results and status messages. The button
   reads **Refreshing...** and remains unavailable until the shared request
   finishes. Verified by a warning-free desktop build and source review.
+- **BUG-117 — an unchanged installed pack can be switched to itself (Medium,
+  fixed):** pack details now disables its primary action as **Installed** when
+  the published version and optional selection match the journal. A newer pack
+  remains an update, a different active pack remains a switch, and changing the
+  optional selection exposes **Apply optional changes** instead of requiring a
+  misleading reinstall. Legacy journals still mean every optional mod was
+  selected. Covered by optional-selection comparison regressions and a desktop
+  build.
+- **BUG-118 — confirmation dialogs have inconsistent keyboard and destructive
+  states (Low, fixed):** install and switch confirmations now accept Enter and
+  cancel with Escape. Cache clearing, stored-save deletion and mod or modpack
+  uninstall make Cancel the Enter/Escape default and visually identify the
+  deliberate destructive action. Verified by a warning-free desktop build and
+  source review.
 
 ## Summary
 | Severity | Open | Fixed |
 |----------|------|-------|
 | Critical | 0 | 3 |
 | High     | 0 | 40 |
-| Medium   | 0 | 56 |
-| Low      | 0 | 17 |
-| **Total**| **0** | **116** |
+| Medium   | 0 | 57 |
+| Low      | 0 | 18 |
+| **Total**| **0** | **118** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

@@ -35,9 +35,18 @@ public sealed class OptionalSelectionConfirmationWindow : Window
             }
         }
 
-        var install = new Button { Content = "Install with these options" };
+        var install = new Button
+        {
+            Content = "Install with these options",
+            IsDefault = true
+        };
         install.Click += (_, _) => Close(true);
-        var back = new Button { Content = "Go back", Classes = { "secondary" } };
+        var back = new Button
+        {
+            Content = "Go back",
+            IsCancel = true,
+            Classes = { "secondary" }
+        };
         back.Click += (_, _) => Close(false);
 
         Content = new StackPanel

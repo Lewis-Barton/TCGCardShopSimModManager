@@ -43,6 +43,38 @@ public sealed class ModpackSelectionTests
         Assert.Contains(result.Errors, error => error.Contains("not in the modpack"));
     }
 
+    [Theory]
+    [InlineData("first,second", "second,first", true)]
+    [InlineData("first", "first,second", false)]
+    [InlineData("first,second", "first", false)]
+    public void OptionalSelectionMatches_ComparesIdsWithoutOrderOrCase(
+        string installedIds,
+        string selectedIds,
+        bool expected)
+    {
+        var manifest = Manifest(
+            Mod("required", true), Mod("first", false), Mod("second", false));
+
+        var matches = ModpackSelection.OptionalSelectionMatches(
+            manifest,
+            installedIds.Split(','),
+            selectedIds.Split(',').Select(id => id.ToUpperInvariant()));
+
+        Assert.Equal(expected, matches);
+    }
+
+    [Fact]
+    public void OptionalSelectionMatches_LegacyNullMeansEveryOptionalMod()
+    {
+        var manifest = Manifest(
+            Mod("required", true), Mod("first", false), Mod("second", false));
+
+        Assert.True(ModpackSelection.OptionalSelectionMatches(
+            manifest, installedOptionalIds: null, ["first", "second"]));
+        Assert.False(ModpackSelection.OptionalSelectionMatches(
+            manifest, installedOptionalIds: null, ["first"]));
+    }
+
     [Fact]
     public void MissingRequiredProperty_DefaultsToTrue()
     {

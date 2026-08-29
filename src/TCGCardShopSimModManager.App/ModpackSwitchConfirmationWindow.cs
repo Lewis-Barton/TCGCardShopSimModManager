@@ -44,9 +44,14 @@ public sealed class ModpackSwitchConfirmationWindow : Window
             Classes = { "subtitle" }
         };
 
-        var switchButton = new Button { Content = "Switch modpacks" };
+        var switchButton = new Button { Content = "Switch modpacks", IsDefault = true };
         switchButton.Click += (_, _) => Close(new ModpackSwitchChoice(saveSwap.IsChecked == true));
-        var cancel = new Button { Content = "Cancel", Classes = { "secondary" } };
+        var cancel = new Button
+        {
+            Content = "Cancel",
+            IsCancel = true,
+            Classes = { "secondary" }
+        };
         cancel.Click += (_, _) => Close(null);
 
         var changes = new StackPanel
