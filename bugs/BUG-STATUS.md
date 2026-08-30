@@ -166,6 +166,10 @@ and testing found the following additional issues, now fixed:
   now surfaces the catalog version, update date, mod count and compressed
   download size before the compatibility and selection controls. Missing legacy
   metadata is omitted instead of leaving empty labels.
+- **FEATURE-009 — the hosted gallery has predictable sorting:** Browse can keep
+  the curated catalog order or sort packs by recent update, name, smallest
+  download or largest download. Missing dates and sizes remain at the end of
+  their corresponding views, and Reset restores the featured order.
 
 ## 2026-08-17 red-team review
 

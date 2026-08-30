@@ -59,6 +59,15 @@ public sealed partial class MainWindow : Window
             "Unmanaged"
         };
         _installedModStateFilter.SelectedIndex = 0;
+        _packSort.ItemsSource = new[]
+        {
+            "Curated order",
+            "Recently updated",
+            "Name A–Z",
+            "Smallest download",
+            "Largest download"
+        };
+        _packSort.SelectedIndex = 0;
         InitializeAppearanceSettings();
         Closed += (_, _) => DisposeWindowResources();
 
@@ -144,6 +153,7 @@ public sealed partial class MainWindow : Window
     private void OnPackTextFilterChanged(object? sender, TextChangedEventArgs e) => ApplyPackFilters();
     private void OnPackCheckFilterChanged(object? sender, RoutedEventArgs e) => ApplyPackFilters();
     private void OnPackSizeFilterChanged(object? sender, RangeBaseValueChangedEventArgs e) => ApplyPackFilters();
+    private void OnPackSortChanged(object? sender, SelectionChangedEventArgs e) => ApplyPackFilters();
     private void OnInstalledModFilterChanged(object? sender, TextChangedEventArgs e) => ApplyInstalledModFilters();
     private void OnInstalledModStateFilterChanged(object? sender, SelectionChangedEventArgs e) => ApplyInstalledModFilters();
     private void OnModSelectionChanged(object? sender, SelectionChangedEventArgs e) => UpdateModActions();
@@ -170,6 +180,7 @@ public sealed partial class MainWindow : Window
         _installedOnly.IsChecked = false;
         _excludeMod.IsChecked = false;
         _sizeFilter.Value = _sizeFilter.Maximum;
+        _packSort.SelectedIndex = 0;
         ApplyPackFilters();
     }
 
@@ -443,7 +454,7 @@ public sealed partial class MainWindow : Window
             : (long)(_sizeFilter.Value * 1024 * 1024 * 1024);
 
         _sizeFilterLabel.Text = maxBytes is null ? "Any size" : $"Up to {_sizeFilter.Value:0} GB";
-        var visible = _packs.Where(pack =>
+        IEnumerable<ModpackSummary> visibleQuery = _packs.Where(pack =>
             (string.IsNullOrEmpty(search) || pack.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
              pack.ShortDescription.Contains(search, StringComparison.OrdinalIgnoreCase)) &&
             (_includeNonFeatured.IsChecked == true || pack.Featured) &&
@@ -453,8 +464,10 @@ public sealed partial class MainWindow : Window
              (pack.ModIds?.Any(value => value.Contains(mod, StringComparison.OrdinalIgnoreCase)) == true) !=
              (_excludeMod.IsChecked == true)) &&
             (string.IsNullOrEmpty(tag) || pack.Tags?.Any(value => value.Contains(tag, StringComparison.OrdinalIgnoreCase)) == true) &&
-            (_installedOnly.IsChecked != true || _installedPacks.Any(installed => pack.IsId(installed.PackId))))
-            .ToList();
+            (_installedOnly.IsChecked != true || _installedPacks.Any(installed => pack.IsId(installed.PackId))));
+
+        var visible = ModpackCatalogOrdering.Sort(
+            visibleQuery, (ModpackSortOrder)Math.Max(0, _packSort.SelectedIndex));
 
         _packsPanel.Children.Clear();
         foreach (var pack in visible)

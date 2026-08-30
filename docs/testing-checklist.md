@@ -157,6 +157,9 @@ unit test already covers it, **[manual]** where it needs a real environment.
       cards should wrap without overlapping or clipping.
 - [x] **[manual]** Search and each Browse filter update the card grid, Reset
       restores the full catalog, and clicking a card opens its details.
+- [ ] **[manual]** Sort Browse by curated order, most recent update, name and
+      download size. Packs with no date or size should remain at the end of the
+      corresponding sorted view, and Reset should restore curated order.
 - [x] **[manual]** NSFW packs are hidden on startup and after Reset, appear only
       after the user selects the NSFW filter, and remain subject to Nexus account
       restrictions when their files are requested.

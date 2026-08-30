@@ -52,6 +52,10 @@
                 <TextBox x:Name="_packSearch" Watermark="Search modpacks..."
                          TextChanged="OnPackTextFilterChanged" />
                 <StackPanel Spacing="6">
+                  <TextBlock FontWeight="SemiBold" Text="Sort by" />
+                  <ComboBox x:Name="_packSort" SelectionChanged="OnPackSortChanged" />
+                </StackPanel>
+                <StackPanel Spacing="6">
                   <TextBlock FontWeight="SemiBold" Text="Include" />
                   <CheckBox x:Name="_includeNonFeatured" Content="Non-featured"
                             IsChecked="True" IsCheckedChanged="OnPackCheckFilterChanged" />

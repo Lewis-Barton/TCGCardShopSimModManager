@@ -26,6 +26,32 @@ public sealed class ModpackSummaryTests
         Assert.True(pack.IsId("my-pack"));
         Assert.False(pack.IsId("mypack"));
     }
+
+    [Fact]
+    public void CatalogOrdering_SortsDatesNamesAndSizesWithMissingValuesLast()
+    {
+        var packs = new[]
+        {
+            Pack("zulu", "Zulu", "2026-01-01", 200),
+            Pack("unknown", "Unknown", null, null),
+            Pack("alpha", "alpha", "2026-03-01", 100)
+        };
+
+        Assert.Equal(["zulu", "unknown", "alpha"],
+            ModpackCatalogOrdering.Sort(packs, ModpackSortOrder.Catalog).Select(pack => pack.Id));
+        Assert.Equal(["alpha", "zulu", "unknown"],
+            ModpackCatalogOrdering.Sort(packs, ModpackSortOrder.RecentlyUpdated).Select(pack => pack.Id));
+        Assert.Equal(["alpha", "unknown", "zulu"],
+            ModpackCatalogOrdering.Sort(packs, ModpackSortOrder.Name).Select(pack => pack.Id));
+        Assert.Equal(["alpha", "zulu", "unknown"],
+            ModpackCatalogOrdering.Sort(packs, ModpackSortOrder.SmallestDownload).Select(pack => pack.Id));
+        Assert.Equal(["zulu", "alpha", "unknown"],
+            ModpackCatalogOrdering.Sort(packs, ModpackSortOrder.LargestDownload).Select(pack => pack.Id));
+    }
+
+    private static ModpackSummary Pack(string id, string name, string? updated, long? size) =>
+        new(id, name, "desc", "logo.png", "manifest.json", "1.0.0", updated,
+            DownloadSize: size);
 }
 
 public sealed class ModpackTests : IDisposable

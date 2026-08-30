@@ -46,6 +46,48 @@ public sealed record ModpackSummary(
 /// <summary>The modpacks/index.json document.</summary>
 public sealed record ModpackIndex(int Version, List<ModpackSummary> Packs);
 
+public enum ModpackSortOrder
+{
+    Catalog,
+    RecentlyUpdated,
+    Name,
+    SmallestDownload,
+    LargestDownload
+}
+
+public static class ModpackCatalogOrdering
+{
+    public static IReadOnlyList<ModpackSummary> Sort(
+        IEnumerable<ModpackSummary> packs,
+        ModpackSortOrder order)
+    {
+        var ordered = order switch
+        {
+            ModpackSortOrder.RecentlyUpdated => packs
+                .OrderByDescending(pack => UpdatedDayNumber(pack.Updated))
+                .ThenBy(pack => pack.Name, StringComparer.OrdinalIgnoreCase),
+            ModpackSortOrder.Name => packs
+                .OrderBy(pack => pack.Name, StringComparer.OrdinalIgnoreCase),
+            ModpackSortOrder.SmallestDownload => packs
+                .OrderBy(pack => pack.DownloadSize is null)
+                .ThenBy(pack => pack.DownloadSize)
+                .ThenBy(pack => pack.Name, StringComparer.OrdinalIgnoreCase),
+            ModpackSortOrder.LargestDownload => packs
+                .OrderBy(pack => pack.DownloadSize is null)
+                .ThenByDescending(pack => pack.DownloadSize)
+                .ThenBy(pack => pack.Name, StringComparer.OrdinalIgnoreCase),
+            _ => packs
+        };
+
+        return ordered.ToList();
+    }
+
+    private static int UpdatedDayNumber(string? updated) =>
+        DateOnly.TryParseExact(updated, "yyyy-MM-dd", out var date)
+            ? date.DayNumber
+            : int.MinValue;
+}
+
 /// <summary>
 /// Where the hosted modpack index lives. One constant so moving the repo only
 /// touches a single line.
