@@ -141,11 +141,13 @@
             <DockPanel>
               <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,8">
                 <TextBlock FontWeight="SemiBold" Text="Installed mods" />
-                <Grid ColumnDefinitions="*,130">
-                  <TextBox x:Name="_installedModSearch" Watermark="Search mods"
-                           TextChanged="OnInstalledModFilterChanged" />
-                  <ComboBox Grid.Column="1" Margin="8,0,0,0" x:Name="_installedModStateFilter"
+                <TextBox x:Name="_installedModSearch" Watermark="Search mods"
+                         TextChanged="OnInstalledModFilterChanged" />
+                <Grid ColumnDefinitions="*,*">
+                  <ComboBox x:Name="_installedModStateFilter"
                             SelectionChanged="OnInstalledModStateFilterChanged" />
+                  <ComboBox Grid.Column="1" Margin="8,0,0,0" x:Name="_installedModSort"
+                            SelectionChanged="OnInstalledModSortChanged" />
                 </Grid>
                 <TextBlock x:Name="_installedModCount" Classes="subtitle"
                            Text="Refresh the list to find installed mods." />

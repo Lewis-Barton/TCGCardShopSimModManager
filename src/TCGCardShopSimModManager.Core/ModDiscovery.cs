@@ -18,6 +18,48 @@ public sealed record DiscoveredMod(
     int FileCount,
     string? ActiveRoot);
 
+public enum ModInventorySortOrder
+{
+    Name,
+    State,
+    Location
+}
+
+public static class ModInventoryOrdering
+{
+    public static IReadOnlyList<DiscoveredMod> Sort(
+        IEnumerable<DiscoveredMod> mods,
+        ModInventorySortOrder order)
+    {
+        return order switch
+        {
+            ModInventorySortOrder.State => mods
+                .OrderBy(mod => StateRank(mod.State))
+                .ThenBy(mod => mod.ModName, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(mod => mod.ActiveRoot, StringComparer.OrdinalIgnoreCase)
+                .ToList(),
+            ModInventorySortOrder.Location => mods
+                .OrderBy(mod => mod.ActiveRoot, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(mod => mod.ModName, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(mod => mod.State)
+                .ToList(),
+            _ => mods
+                .OrderBy(mod => mod.ModName, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(mod => mod.ActiveRoot, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(mod => mod.State)
+                .ToList()
+        };
+    }
+
+    private static int StateRank(ModInventoryState state) => state switch
+    {
+        ModInventoryState.Installed => 0,
+        ModInventoryState.Disabled => 1,
+        ModInventoryState.Modified => 2,
+        _ => 3
+    };
+}
+
 /// <summary>
 /// Builds inventory from journal ownership first, then adds physical content
 /// which no journal claims. This keeps one managed mod together even when its

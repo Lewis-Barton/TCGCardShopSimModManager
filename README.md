@@ -46,8 +46,9 @@ operation from its details window. The
 persistent **Launch game** button starts the game through Steam, reports the
 launch state and stays disabled while the game is running. The **Manage mods**
 page lets you choose the game folder, inspect installed and manually placed
-mods, search or filter them by state, and enable, disable or uninstall managed
-mods. Nexus account controls and update checks live under **Settings**.
+mods, search or filter them by state, sort them by name, state or location, and
+enable, disable or uninstall managed mods. Nexus account controls and update
+checks live under **Settings**.
 Appearance settings can follow Windows or use a
 light, dark or high-contrast theme. Text and modpack card sizes can be increased
 independently, and the choices are kept for the next launch. The CLI retains

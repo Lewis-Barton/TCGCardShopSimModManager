@@ -91,10 +91,13 @@ unit test already covers it, **[manual]** where it needs a real environment.
       and Uninstall, Modified enables only Uninstall, and unmanaged entries
       enable none. Cancel individual uninstall once, then complete it and confirm
       controls remain locked until the refreshed list appears.
-- [ ] **[manual]** On Manage, search by part of a mod name and its displayed
+- [x] **[manual]** On Manage, search by part of a mod name and its displayed
       location, then filter each state. The result count should update
       immediately, a selected visible mod should retain its selection, and an
       entry hidden by a filter should no longer enable lifecycle actions.
+- [ ] **[manual]** Sort the Manage inventory by name, state and location. State
+      order should be Enabled, Disabled, Modified, then Unmanaged, and changing
+      the sort should retain a visible selection and its lifecycle actions.
 - [x] **[auto]** Disabling moves files out of the game into the manager's disabled folder and enabling moves
       them back (`Disable_MovesFilesToDisabledAndReportsDisabled`,
       `Enable_MovesFilesBackAndReportsInstalled`).
@@ -157,7 +160,7 @@ unit test already covers it, **[manual]** where it needs a real environment.
       cards should wrap without overlapping or clipping.
 - [x] **[manual]** Search and each Browse filter update the card grid, Reset
       restores the full catalog, and clicking a card opens its details.
-- [ ] **[manual]** Sort Browse by curated order, most recent update, name and
+- [x] **[manual]** Sort Browse by curated order, most recent update, name and
       download size. Packs with no date or size should remain at the end of the
       corresponding sorted view, and Reset should restore curated order.
 - [x] **[manual]** NSFW packs are hidden on startup and after Reset, appear only
@@ -172,7 +175,7 @@ unit test already covers it, **[manual]** where it needs a real environment.
       pack details. Required mods are checked and locked; optional mods start
       unchecked, selecting one selects its dependencies, and clearing a
       dependency clears optional dependants.
-- [ ] **[manual]** Every Nexus-backed entry in pack details has a **View on Nexus**
+- [x] **[manual]** Every Nexus-backed entry in pack details has a **View on Nexus**
       action that opens its original mod page. Entries using another source do
       not show a Nexus action. Its tooltip remains legible in every theme.
 - [x] **[manual]** Pack details show the catalog version, update date, mod count
@@ -268,7 +271,7 @@ unit test already covers it, **[manual]** where it needs a real environment.
       header show its name and version. Open another pack, cancel the switch
       summary once, confirm its keep/update/remove/add counts, then complete the
       switch and confirm the gallery identifies only the new pack.
-- [ ] **[manual]** Use the persistent **Launch game** button from each page and
+- [x] **[manual]** Use the persistent **Launch game** button from each page and
       confirm it changes to **Launching...** immediately, remains disabled while
       Steam starts the game, shows **Game running** until the game closes, and
       cannot submit a second launch request during either state.

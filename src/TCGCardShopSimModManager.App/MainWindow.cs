@@ -59,6 +59,13 @@ public sealed partial class MainWindow : Window
             "Unmanaged"
         };
         _installedModStateFilter.SelectedIndex = 0;
+        _installedModSort.ItemsSource = new[]
+        {
+            "Name A–Z",
+            "State",
+            "Location"
+        };
+        _installedModSort.SelectedIndex = 0;
         _packSort.ItemsSource = new[]
         {
             "Curated order",
@@ -156,6 +163,7 @@ public sealed partial class MainWindow : Window
     private void OnPackSortChanged(object? sender, SelectionChangedEventArgs e) => ApplyPackFilters();
     private void OnInstalledModFilterChanged(object? sender, TextChangedEventArgs e) => ApplyInstalledModFilters();
     private void OnInstalledModStateFilterChanged(object? sender, SelectionChangedEventArgs e) => ApplyInstalledModFilters();
+    private void OnInstalledModSortChanged(object? sender, SelectionChangedEventArgs e) => ApplyInstalledModFilters();
     private void OnModSelectionChanged(object? sender, SelectionChangedEventArgs e) => UpdateModActions();
     private void OnAppearanceChanged(object? sender, SelectionChangedEventArgs e)
     {
@@ -304,12 +312,13 @@ public sealed partial class MainWindow : Window
             _ => (ModInventoryState?)null
         };
 
-        _visibleDiscovered = _discovered
+        var visible = _discovered
             .Where(mod => string.IsNullOrWhiteSpace(search) ||
                 mod.ModName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
                 (mod.ActiveRoot?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false))
-            .Where(mod => state is null || mod.State == state)
-            .ToList();
+            .Where(mod => state is null || mod.State == state);
+        _visibleDiscovered = ModInventoryOrdering.Sort(
+            visible, (ModInventorySortOrder)Math.Max(0, _installedModSort.SelectedIndex)).ToList();
 
         _modsList.ItemsSource = _visibleDiscovered
             .Select(mod => $"  {mod.ModName}   [{mod.State}]  ({mod.FileCount})")

@@ -210,6 +210,28 @@ public sealed class ModDiscoveryTests : IDisposable
         Assert.Contains(discovered, mod => mod.ModName == "Shared (unmanaged, BepInEx/patchers)");
     }
 
+    [Fact]
+    public void InventoryOrdering_SortsByNameStateAndLocation()
+    {
+        var mods = new[]
+        {
+            new DiscoveredMod("Zulu", ModInventoryState.Unknown, 1, "BepInEx/plugins"),
+            new DiscoveredMod("alpha", ModInventoryState.Modified, 1, "Game root"),
+            new DiscoveredMod("Bravo", ModInventoryState.Installed, 1, "BepInEx/core"),
+            new DiscoveredMod("Charlie", ModInventoryState.Disabled, 1, "BepInEx/plugins")
+        };
+
+        Assert.Equal(
+            new[] { "alpha", "Bravo", "Charlie", "Zulu" },
+            ModInventoryOrdering.Sort(mods, ModInventorySortOrder.Name).Select(mod => mod.ModName));
+        Assert.Equal(
+            new[] { "Bravo", "Charlie", "alpha", "Zulu" },
+            ModInventoryOrdering.Sort(mods, ModInventorySortOrder.State).Select(mod => mod.ModName));
+        Assert.Equal(
+            new[] { "Bravo", "Charlie", "Zulu", "alpha" },
+            ModInventoryOrdering.Sort(mods, ModInventorySortOrder.Location).Select(mod => mod.ModName));
+    }
+
     // --- helpers -----------------------------------------------------------
 
     private void Install(string modName, string fileName)
