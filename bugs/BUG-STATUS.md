@@ -169,7 +169,7 @@ and testing found the following additional issues, now fixed:
 - **FEATURE-009 — the hosted gallery has predictable sorting:** Browse can keep
   the curated catalog order or sort packs by recent update, name, smallest
   download or largest download. Missing dates and sizes remain at the end of
-  their corresponding views, and Reset restores the featured order.
+  their corresponding views, and Reset restores the curated order.
 
 ## 2026-08-17 red-team review
 

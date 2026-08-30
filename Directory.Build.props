@@ -1,7 +1,7 @@
 <Project>
   <!-- Shared version + product metadata for every project in the repo. -->
   <PropertyGroup>
-    <Version>0.14.0</Version>
+    <Version>0.15.0</Version>
     <Authors>Lewis Barton</Authors>
     <Product>TCG Card Shop Sim Mod Manager</Product>
     <Company>Lewis Barton</Company>
