@@ -168,7 +168,7 @@ unit test already covers it, **[manual]** where it needs a real environment.
 - [ ] **[manual]** Every Nexus-backed entry in pack details has a **View on Nexus**
       action that opens its original mod page. Entries using another source do
       not show a Nexus action. Its tooltip remains legible in every theme.
-- [ ] **[manual]** Pack details show the catalog version, update date, mod count
+- [x] **[manual]** Pack details show the catalog version, update date, mod count
       and download size without crowding the description or compatibility state.
 - [x] **[manual]** Starting a hosted install shows a confirmation listing the
       selected optional mods, including the no-selection case, before any
