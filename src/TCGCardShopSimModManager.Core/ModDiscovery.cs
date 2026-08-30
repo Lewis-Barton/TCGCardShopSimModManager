@@ -27,6 +27,22 @@ public enum ModInventorySortOrder
 
 public static class ModInventoryOrdering
 {
+    public static IReadOnlyList<DiscoveredMod> FilterAndSort(
+        IEnumerable<DiscoveredMod> mods,
+        string? search,
+        ModInventoryState? state,
+        ModInventorySortOrder order)
+    {
+        var term = search?.Trim();
+        var visible = mods
+            .Where(mod => string.IsNullOrWhiteSpace(term) ||
+                mod.ModName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                (mod.ActiveRoot?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false))
+            .Where(mod => state is null || mod.State == state);
+
+        return Sort(visible, order);
+    }
+
     public static IReadOnlyList<DiscoveredMod> Sort(
         IEnumerable<DiscoveredMod> mods,
         ModInventorySortOrder order)

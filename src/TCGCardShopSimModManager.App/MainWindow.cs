@@ -164,6 +164,13 @@ public sealed partial class MainWindow : Window
     private void OnInstalledModFilterChanged(object? sender, TextChangedEventArgs e) => ApplyInstalledModFilters();
     private void OnInstalledModStateFilterChanged(object? sender, SelectionChangedEventArgs e) => ApplyInstalledModFilters();
     private void OnInstalledModSortChanged(object? sender, SelectionChangedEventArgs e) => ApplyInstalledModFilters();
+    private void OnResetInstalledModViewClick(object? sender, RoutedEventArgs e)
+    {
+        _installedModSearch.Text = string.Empty;
+        _installedModStateFilter.SelectedIndex = 0;
+        _installedModSort.SelectedIndex = 0;
+        ApplyInstalledModFilters();
+    }
     private void OnModSelectionChanged(object? sender, SelectionChangedEventArgs e) => UpdateModActions();
     private void OnAppearanceChanged(object? sender, SelectionChangedEventArgs e)
     {
@@ -302,7 +309,6 @@ public sealed partial class MainWindow : Window
     private void ApplyInstalledModFilters()
     {
         var selected = SelectedMod();
-        var search = _installedModSearch.Text?.Trim();
         var state = _installedModStateFilter.SelectedIndex switch
         {
             1 => ModInventoryState.Installed,
@@ -312,13 +318,11 @@ public sealed partial class MainWindow : Window
             _ => (ModInventoryState?)null
         };
 
-        var visible = _discovered
-            .Where(mod => string.IsNullOrWhiteSpace(search) ||
-                mod.ModName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                (mod.ActiveRoot?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false))
-            .Where(mod => state is null || mod.State == state);
-        _visibleDiscovered = ModInventoryOrdering.Sort(
-            visible, (ModInventorySortOrder)Math.Max(0, _installedModSort.SelectedIndex)).ToList();
+        _visibleDiscovered = ModInventoryOrdering.FilterAndSort(
+            _discovered,
+            _installedModSearch.Text,
+            state,
+            (ModInventorySortOrder)Math.Max(0, _installedModSort.SelectedIndex)).ToList();
 
         _modsList.ItemsSource = _visibleDiscovered
             .Select(mod =>

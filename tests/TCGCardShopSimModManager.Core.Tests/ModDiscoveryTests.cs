@@ -232,6 +232,31 @@ public sealed class ModDiscoveryTests : IDisposable
             ModInventoryOrdering.Sort(mods, ModInventorySortOrder.Location).Select(mod => mod.ModName));
     }
 
+    [Fact]
+    public void InventoryOrdering_FiltersByNameLocationAndStateBeforeSorting()
+    {
+        var mods = new[]
+        {
+            new DiscoveredMod("Zulu", ModInventoryState.Unknown, 1, "BepInEx/plugins"),
+            new DiscoveredMod("Alpha", ModInventoryState.Modified, 1, "Game root"),
+            new DiscoveredMod("Bravo", ModInventoryState.Installed, 1, "BepInEx/core")
+        };
+
+        Assert.Equal(
+            new[] { "Alpha" },
+            ModInventoryOrdering.FilterAndSort(
+                mods, " alpha ", null, ModInventorySortOrder.Name).Select(mod => mod.ModName));
+        Assert.Equal(
+            new[] { "Bravo", "Zulu" },
+            ModInventoryOrdering.FilterAndSort(
+                mods, "bepinex", null, ModInventorySortOrder.Name).Select(mod => mod.ModName));
+        Assert.Equal(
+            new[] { "Bravo" },
+            ModInventoryOrdering.FilterAndSort(
+                mods, null, ModInventoryState.Installed, ModInventorySortOrder.Name)
+                .Select(mod => mod.ModName));
+    }
+
     // --- helpers -----------------------------------------------------------
 
     private void Install(string modName, string fileName)

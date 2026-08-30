@@ -98,6 +98,7 @@ unit test already covers it, **[manual]** where it needs a real environment.
 - [ ] **[manual]** Sort the Manage inventory by name, state and location. State
       order should be Enabled, Disabled, Modified, then Unmanaged, and changing
       the sort should retain a visible selection and its lifecycle actions.
+      Reset should clear the search and state filter and restore name order.
 - [x] **[auto]** Disabling moves files out of the game into the manager's disabled folder and enabling moves
       them back (`Disable_MovesFilesToDisabledAndReportsDisabled`,
       `Enable_MovesFilesBackAndReportsInstalled`).

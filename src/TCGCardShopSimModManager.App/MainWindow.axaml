@@ -149,8 +149,14 @@
                   <ComboBox Grid.Column="1" Margin="8,0,0,0" x:Name="_installedModSort"
                             SelectionChanged="OnInstalledModSortChanged" />
                 </Grid>
-                <TextBlock x:Name="_installedModCount" Classes="subtitle"
-                           Text="Refresh the list to find installed mods." />
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock x:Name="_installedModCount" Classes="subtitle"
+                             VerticalAlignment="Center"
+                             Text="Refresh the list to find installed mods." />
+                  <Button Grid.Column="1" Margin="8,0,0,0" Padding="8,3"
+                          Content="Reset" Classes="secondary"
+                          Click="OnResetInstalledModViewClick" />
+                </Grid>
               </StackPanel>
               <ListBox x:Name="_modsList" SelectionChanged="OnModSelectionChanged" />
             </DockPanel>
