@@ -538,15 +538,21 @@ boundaries were fixed before work continued on application-state defects.
   reports the Steam handoff, detects when the game starts and remains locked
   until it closes. If Steam accepts the request but no game process appears,
   the action becomes available again after 30 seconds with a clear retry message.
-  Verified by a warning-free desktop build and source review; the revised live
-  launch smoke test remains pending.
+  Verified by a warning-free desktop build, source review and a live launch-state
+  smoke test.
 - **BUG-120 — installed mods cannot be searched or filtered (Low, fixed):**
   Manage now filters its existing inventory immediately by mod name, displayed
   location and lifecycle state, reports visible and total counts, retains a
   selected result where possible, and clears lifecycle actions when that result
   is hidden. Discovery and hashing still run only on explicit or necessary
-  refreshes. Verified by a warning-free desktop build and source review; the
-  focused UI smoke test remains pending.
+  refreshes. Verified by a warning-free desktop build, source review and a
+  focused UI smoke test.
+- **BUG-121 — inventory locations are searchable but not displayed (Low,
+  fixed):** Manage now shows each mod's discovered location in the inventory
+  row beside its state and file count. This makes the location search and sort
+  controls visible and understandable instead of changing results by hidden
+  data. Verified by a warning-free desktop build and deliberate source review;
+  the focused sort and location UI smoke test remains pending.
 
 ## Summary
 | Severity | Open | Fixed |
@@ -554,8 +560,8 @@ boundaries were fixed before work continued on application-state defects.
 | Critical | 0 | 3 |
 | High     | 0 | 40 |
 | Medium   | 0 | 58 |
-| Low      | 0 | 19 |
-| **Total**| **0** | **120** |
+| Low      | 0 | 20 |
+| **Total**| **0** | **121** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

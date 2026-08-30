@@ -321,7 +321,9 @@ public sealed partial class MainWindow : Window
             visible, (ModInventorySortOrder)Math.Max(0, _installedModSort.SelectedIndex)).ToList();
 
         _modsList.ItemsSource = _visibleDiscovered
-            .Select(mod => $"  {mod.ModName}   [{mod.State}]  ({mod.FileCount})")
+            .Select(mod =>
+                $"  {mod.ModName}   [{mod.State}]  ({mod.FileCount})\n" +
+                $"  {mod.ActiveRoot ?? "Unknown location"}")
             .ToList();
         _modsList.SelectedIndex = selected is null ? -1 : _visibleDiscovered.IndexOf(selected);
         _installedModCount.Text = _visibleDiscovered.Count == _discovered.Count
