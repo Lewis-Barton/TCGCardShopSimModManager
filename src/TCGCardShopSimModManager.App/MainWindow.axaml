@@ -135,7 +135,17 @@
           </Border>
           <Border Grid.Column="1" Classes="card">
             <DockPanel>
-              <TextBlock DockPanel.Dock="Top" FontWeight="SemiBold" Text="Installed mods" Margin="0,0,0,8" />
+              <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,8">
+                <TextBlock FontWeight="SemiBold" Text="Installed mods" />
+                <Grid ColumnDefinitions="*,130">
+                  <TextBox x:Name="_installedModSearch" Watermark="Search mods"
+                           TextChanged="OnInstalledModFilterChanged" />
+                  <ComboBox Grid.Column="1" Margin="8,0,0,0" x:Name="_installedModStateFilter"
+                            SelectionChanged="OnInstalledModStateFilterChanged" />
+                </Grid>
+                <TextBlock x:Name="_installedModCount" Classes="subtitle"
+                           Text="Refresh the list to find installed mods." />
+              </StackPanel>
               <ListBox x:Name="_modsList" SelectionChanged="OnModSelectionChanged" />
             </DockPanel>
           </Border>

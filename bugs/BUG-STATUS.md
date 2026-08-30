@@ -536,6 +536,13 @@ boundaries were fixed before work continued on application-state defects.
   the action becomes available again after 30 seconds with a clear retry message.
   Verified by a warning-free desktop build and source review; the revised live
   launch smoke test remains pending.
+- **BUG-120 — installed mods cannot be searched or filtered (Low, fixed):**
+  Manage now filters its existing inventory immediately by mod name, displayed
+  location and lifecycle state, reports visible and total counts, retains a
+  selected result where possible, and clears lifecycle actions when that result
+  is hidden. Discovery and hashing still run only on explicit or necessary
+  refreshes. Verified by a warning-free desktop build and source review; the
+  focused UI smoke test remains pending.
 
 ## Summary
 | Severity | Open | Fixed |
@@ -543,8 +550,8 @@ boundaries were fixed before work continued on application-state defects.
 | Critical | 0 | 3 |
 | High     | 0 | 40 |
 | Medium   | 0 | 58 |
-| Low      | 0 | 18 |
-| **Total**| **0** | **119** |
+| Low      | 0 | 19 |
+| **Total**| **0** | **120** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

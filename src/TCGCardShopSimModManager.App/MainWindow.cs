@@ -26,6 +26,7 @@ public sealed partial class MainWindow : Window
     private const int MaxVisibleLogLines = 500;
     private readonly Queue<string> _visibleLogLines = new();
     private List<DiscoveredMod> _discovered = new();
+    private List<DiscoveredMod> _visibleDiscovered = new();
 
     private List<ModpackSummary> _packs = new();
     private List<InstalledModpack> _installedPacks = new();
@@ -49,6 +50,15 @@ public sealed partial class MainWindow : Window
     {
         _packReader = new ModpackIndexReader(_http);
         InitializeComponent();
+        _installedModStateFilter.ItemsSource = new[]
+        {
+            "All states",
+            "Enabled",
+            "Disabled",
+            "Modified",
+            "Unmanaged"
+        };
+        _installedModStateFilter.SelectedIndex = 0;
         InitializeAppearanceSettings();
         Closed += (_, _) => DisposeWindowResources();
 
@@ -134,6 +144,8 @@ public sealed partial class MainWindow : Window
     private void OnPackTextFilterChanged(object? sender, TextChangedEventArgs e) => ApplyPackFilters();
     private void OnPackCheckFilterChanged(object? sender, RoutedEventArgs e) => ApplyPackFilters();
     private void OnPackSizeFilterChanged(object? sender, RangeBaseValueChangedEventArgs e) => ApplyPackFilters();
+    private void OnInstalledModFilterChanged(object? sender, TextChangedEventArgs e) => ApplyInstalledModFilters();
+    private void OnInstalledModStateFilterChanged(object? sender, SelectionChangedEventArgs e) => ApplyInstalledModFilters();
     private void OnModSelectionChanged(object? sender, SelectionChangedEventArgs e) => UpdateModActions();
     private void OnAppearanceChanged(object? sender, SelectionChangedEventArgs e)
     {
@@ -250,9 +262,7 @@ public sealed partial class MainWindow : Window
             }
         }
 
-        _modsList.ItemsSource = _discovered
-            .Select(m => $"  {m.ModName}   [{m.State}]  ({m.FileCount})")
-            .ToList();
+        ApplyInstalledModFilters();
 
         Log($"Mods found on disk ({_discovered.Count}):");
         foreach (var mod in _discovered)
@@ -268,6 +278,36 @@ public sealed partial class MainWindow : Window
 
         _packLoadTask = LoadPacksCoreAsync();
         return _packLoadTask;
+    }
+
+    private void ApplyInstalledModFilters()
+    {
+        var selected = SelectedMod();
+        var search = _installedModSearch.Text?.Trim();
+        var state = _installedModStateFilter.SelectedIndex switch
+        {
+            1 => ModInventoryState.Installed,
+            2 => ModInventoryState.Disabled,
+            3 => ModInventoryState.Modified,
+            4 => ModInventoryState.Unknown,
+            _ => (ModInventoryState?)null
+        };
+
+        _visibleDiscovered = _discovered
+            .Where(mod => string.IsNullOrWhiteSpace(search) ||
+                mod.ModName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                (mod.ActiveRoot?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false))
+            .Where(mod => state is null || mod.State == state)
+            .ToList();
+
+        _modsList.ItemsSource = _visibleDiscovered
+            .Select(mod => $"  {mod.ModName}   [{mod.State}]  ({mod.FileCount})")
+            .ToList();
+        _modsList.SelectedIndex = selected is null ? -1 : _visibleDiscovered.IndexOf(selected);
+        _installedModCount.Text = _visibleDiscovered.Count == _discovered.Count
+            ? $"{_discovered.Count} mod{(_discovered.Count == 1 ? string.Empty : "s")} found"
+            : $"Showing {_visibleDiscovered.Count} of {_discovered.Count} mods";
+        UpdateModActions();
     }
 
     private async Task LoadPacksCoreAsync()
@@ -881,9 +921,9 @@ public sealed partial class MainWindow : Window
 
     private DiscoveredMod? SelectedMod()
     {
-        if (_modsList.SelectedIndex < 0 || _modsList.SelectedIndex >= _discovered.Count)
+        if (_modsList.SelectedIndex < 0 || _modsList.SelectedIndex >= _visibleDiscovered.Count)
             return null;
-        return _discovered[_modsList.SelectedIndex];
+        return _visibleDiscovered[_modsList.SelectedIndex];
     }
 
     private void UpdateModActions()
@@ -900,7 +940,9 @@ public sealed partial class MainWindow : Window
             SetModActionsEnabled(false, false, false);
             _modSelectionStatus.Text = _discovered.Count == 0
                 ? "No installed mods were found."
-                : "Select a managed mod to enable, disable or uninstall it.";
+                : _visibleDiscovered.Count == 0
+                    ? "No mods match the current search and state filter."
+                    : "Select a managed mod to enable, disable or uninstall it.";
             return;
         }
 
