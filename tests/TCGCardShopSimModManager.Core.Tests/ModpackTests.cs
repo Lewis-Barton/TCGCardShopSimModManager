@@ -49,6 +49,51 @@ public sealed class ModpackSummaryTests
             ModpackCatalogOrdering.Sort(packs, ModpackSortOrder.LargestDownload).Select(pack => pack.Id));
     }
 
+    [Fact]
+    public void CatalogOrdering_FiltersCatalogBeforeSorting()
+    {
+        var packs = new[]
+        {
+            Pack("featured", "Featured Pack", "2026-01-01", 100) with
+            {
+                Tags = ["pokemon"], ModIds = ["framework", "cards"], Featured = true
+            },
+            Pack("adult", "Adult Pack", "2026-02-01", 200) with
+            {
+                Tags = ["cards"], ModIds = ["framework"], Featured = false, Nsfw = true
+            },
+            Pack("installed", "Installed Pack", "2026-03-01", 300) with
+            {
+                Tags = ["one-piece"], ModIds = ["framework", "tracker"], Featured = false,
+                FormerIds = ["installed-legacy"]
+            }
+        };
+
+        Assert.Equal(
+            new[] { "featured" },
+            ModpackCatalogOrdering.FilterAndSort(
+                packs,
+                new ModpackCatalogFilter(Search: "featured", Tag: "pokemon"),
+                [],
+                ModpackSortOrder.Name).Select(pack => pack.Id));
+        Assert.Equal(
+            new[] { "installed" },
+            ModpackCatalogOrdering.FilterAndSort(
+                packs,
+                new ModpackCatalogFilter(
+                    IncludeNonFeatured: true,
+                    Mod: "cards",
+                    ExcludeMod: true,
+                    InstalledOnly: true),
+                ["installed-legacy"],
+                ModpackSortOrder.Name).Select(pack => pack.Id));
+        Assert.Empty(ModpackCatalogOrdering.FilterAndSort(
+            packs,
+            new ModpackCatalogFilter(IncludeNonFeatured: true, IncludeNsfw: false, Tag: "cards"),
+            [],
+            ModpackSortOrder.Name));
+    }
+
     private static ModpackSummary Pack(string id, string name, string? updated, long? size) =>
         new(id, name, "desc", "logo.png", "manifest.json", "1.0.0", updated,
             DownloadSize: size);

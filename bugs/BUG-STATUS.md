@@ -170,6 +170,14 @@ and testing found the following additional issues, now fixed:
   the curated catalog order or sort packs by recent update, name, smallest
   download or largest download. Missing dates and sizes remain at the end of
   their corresponding views, and Reset restores the curated order.
+- **FEATURE-010 — installed mods can be sorted and reset:** Manage can order its
+  filtered inventory by name, lifecycle state or displayed location. The query
+  runs through Core, keeps a visible selection stable and can be reset to the
+  complete name-sorted list without rescanning the game folder.
+- **FEATURE-011 — empty gallery filters explain the result:** Browse now shows
+  a clear message in the gallery when no modpacks match the combined filters.
+  Catalog filtering and sorting run through one Core query with regression
+  coverage for text, tags, mod inclusion, NSFW, featured and installed states.
 
 ## 2026-08-17 red-team review
 

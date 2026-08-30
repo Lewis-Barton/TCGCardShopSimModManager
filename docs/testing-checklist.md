@@ -95,7 +95,7 @@ unit test already covers it, **[manual]** where it needs a real environment.
       location, then filter each state. The result count should update
       immediately, a selected visible mod should retain its selection, and an
       entry hidden by a filter should no longer enable lifecycle actions.
-- [ ] **[manual]** Sort the Manage inventory by name, state and location. State
+- [x] **[manual]** Sort the Manage inventory by name, state and location. State
       order should be Enabled, Disabled, Modified, then Unmanaged, and changing
       the sort should retain a visible selection and its lifecycle actions.
       Reset should clear the search and state filter and restore name order.
@@ -161,6 +161,9 @@ unit test already covers it, **[manual]** where it needs a real environment.
       cards should wrap without overlapping or clipping.
 - [x] **[manual]** Search and each Browse filter update the card grid, Reset
       restores the full catalog, and clicking a card opens its details.
+- [ ] **[manual]** Enter a Browse search or filter combination with no matches.
+      The gallery should show a clear empty-result message, and Reset should
+      restore the cards.
 - [x] **[manual]** Sort Browse by curated order, most recent update, name and
       download size. Packs with no date or size should remain at the end of the
       corresponding sorted view, and Reset should restore curated order.

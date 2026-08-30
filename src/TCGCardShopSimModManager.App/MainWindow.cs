@@ -461,32 +461,38 @@ public sealed partial class MainWindow : Window
         if (_packsPanel is null)
             return;
 
-        var search = _packSearch.Text?.Trim();
-        var mod = _modFilter.Text?.Trim();
-        var tag = _tagFilter.Text?.Trim();
         var maxBytes = _sizeFilter.Value >= _sizeFilter.Maximum
             ? (long?)null
             : (long)(_sizeFilter.Value * 1024 * 1024 * 1024);
 
         _sizeFilterLabel.Text = maxBytes is null ? "Any size" : $"Up to {_sizeFilter.Value:0} GB";
-        IEnumerable<ModpackSummary> visibleQuery = _packs.Where(pack =>
-            (string.IsNullOrEmpty(search) || pack.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-             pack.ShortDescription.Contains(search, StringComparison.OrdinalIgnoreCase)) &&
-            (_includeNonFeatured.IsChecked == true || pack.Featured) &&
-            (_includeAdult.IsChecked == true || !pack.Nsfw) &&
-            (maxBytes is null || pack.DownloadSize is null || pack.DownloadSize <= maxBytes) &&
-            (string.IsNullOrEmpty(mod) ||
-             (pack.ModIds?.Any(value => value.Contains(mod, StringComparison.OrdinalIgnoreCase)) == true) !=
-             (_excludeMod.IsChecked == true)) &&
-            (string.IsNullOrEmpty(tag) || pack.Tags?.Any(value => value.Contains(tag, StringComparison.OrdinalIgnoreCase)) == true) &&
-            (_installedOnly.IsChecked != true || _installedPacks.Any(installed => pack.IsId(installed.PackId))));
-
-        var visible = ModpackCatalogOrdering.Sort(
-            visibleQuery, (ModpackSortOrder)Math.Max(0, _packSort.SelectedIndex));
+        var filter = new ModpackCatalogFilter(
+            _packSearch.Text,
+            _includeNonFeatured.IsChecked == true,
+            _includeAdult.IsChecked == true,
+            maxBytes,
+            _modFilter.Text,
+            _excludeMod.IsChecked == true,
+            _tagFilter.Text,
+            _installedOnly.IsChecked == true);
+        var visible = ModpackCatalogOrdering.FilterAndSort(
+            _packs,
+            filter,
+            _installedPacks.Select(pack => pack.PackId),
+            (ModpackSortOrder)Math.Max(0, _packSort.SelectedIndex));
 
         _packsPanel.Children.Clear();
         foreach (var pack in visible)
             _packsPanel.Children.Add(BuildPackCard(pack, IsUpdateAvailable(pack)));
+        if (visible.Count == 0)
+        {
+            _packsPanel.Children.Add(new TextBlock
+            {
+                Text = "No modpacks match the current filters.",
+                Classes = { "subtitle" },
+                Margin = new Thickness(4, 8, 0, 0)
+            });
+        }
         var countText = visible.Count == _packs.Count
             ? $"{visible.Count} modpack(s) available."
             : $"Showing {visible.Count} of {_packs.Count} modpack(s).";

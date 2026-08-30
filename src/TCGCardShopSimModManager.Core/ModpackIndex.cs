@@ -55,8 +55,46 @@ public enum ModpackSortOrder
     LargestDownload
 }
 
+public sealed record ModpackCatalogFilter(
+    string? Search = null,
+    bool IncludeNonFeatured = true,
+    bool IncludeNsfw = false,
+    long? MaxDownloadSize = null,
+    string? Mod = null,
+    bool ExcludeMod = false,
+    string? Tag = null,
+    bool InstalledOnly = false);
+
 public static class ModpackCatalogOrdering
 {
+    public static IReadOnlyList<ModpackSummary> FilterAndSort(
+        IEnumerable<ModpackSummary> packs,
+        ModpackCatalogFilter filter,
+        IEnumerable<string> installedPackIds,
+        ModpackSortOrder order)
+    {
+        var installed = installedPackIds.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var search = filter.Search?.Trim();
+        var mod = filter.Mod?.Trim();
+        var tag = filter.Tag?.Trim();
+        var visible = packs.Where(pack =>
+            (string.IsNullOrEmpty(search) ||
+             pack.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+             pack.ShortDescription.Contains(search, StringComparison.OrdinalIgnoreCase)) &&
+            (filter.IncludeNonFeatured || pack.Featured) &&
+            (filter.IncludeNsfw || !pack.Nsfw) &&
+            (filter.MaxDownloadSize is null || pack.DownloadSize is null ||
+             pack.DownloadSize <= filter.MaxDownloadSize) &&
+            (string.IsNullOrEmpty(mod) ||
+             (pack.ModIds?.Any(value => value.Contains(mod, StringComparison.OrdinalIgnoreCase)) == true) !=
+             filter.ExcludeMod) &&
+            (string.IsNullOrEmpty(tag) ||
+             pack.Tags?.Any(value => value.Contains(tag, StringComparison.OrdinalIgnoreCase)) == true) &&
+            (!filter.InstalledOnly || installed.Any(pack.IsId)));
+
+        return Sort(visible, order);
+    }
+
     public static IReadOnlyList<ModpackSummary> Sort(
         IEnumerable<ModpackSummary> packs,
         ModpackSortOrder order)
