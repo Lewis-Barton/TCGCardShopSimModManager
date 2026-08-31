@@ -66,7 +66,8 @@ public sealed class ModpackSummaryTests
             {
                 Tags = ["one-piece"], ModIds = ["framework", "tracker"], Featured = false,
                 FormerIds = ["installed-legacy"]
-            }
+            },
+            Pack("unknown-size", "Unknown Size", "2026-04-01", null)
         };
 
         Assert.Equal(
@@ -92,6 +93,20 @@ public sealed class ModpackSummaryTests
             new ModpackCatalogFilter(IncludeNonFeatured: true, IncludeNsfw: false, Tag: "cards"),
             [],
             ModpackSortOrder.Name));
+        Assert.Equal(
+            new[] { "featured" },
+            ModpackCatalogOrdering.FilterAndSort(
+                packs,
+                new ModpackCatalogFilter(IncludeNonFeatured: true, MaxDownloadSize: 150),
+                [],
+                ModpackSortOrder.Name).Select(pack => pack.Id));
+        Assert.Contains(
+            ModpackCatalogOrdering.FilterAndSort(
+                packs,
+                new ModpackCatalogFilter(IncludeNonFeatured: true),
+                [],
+                ModpackSortOrder.Name),
+            pack => pack.Id == "unknown-size");
     }
 
     private static ModpackSummary Pack(string id, string name, string? updated, long? size) =>

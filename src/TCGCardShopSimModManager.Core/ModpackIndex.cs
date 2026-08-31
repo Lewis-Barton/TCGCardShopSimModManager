@@ -83,8 +83,8 @@ public static class ModpackCatalogOrdering
              pack.ShortDescription.Contains(search, StringComparison.OrdinalIgnoreCase)) &&
             (filter.IncludeNonFeatured || pack.Featured) &&
             (filter.IncludeNsfw || !pack.Nsfw) &&
-            (filter.MaxDownloadSize is null || pack.DownloadSize is null ||
-             pack.DownloadSize <= filter.MaxDownloadSize) &&
+            (filter.MaxDownloadSize is null ||
+             (pack.DownloadSize is not null && pack.DownloadSize <= filter.MaxDownloadSize)) &&
             (string.IsNullOrEmpty(mod) ||
              (pack.ModIds?.Any(value => value.Contains(mod, StringComparison.OrdinalIgnoreCase)) == true) !=
              filter.ExcludeMod) &&

@@ -559,8 +559,13 @@ boundaries were fixed before work continued on application-state defects.
   fixed):** Manage now shows each mod's discovered location in the inventory
   row beside its state and file count. This makes the location search and sort
   controls visible and understandable instead of changing results by hidden
-  data. Verified by a warning-free desktop build and deliberate source review;
-  the focused sort and location UI smoke test remains pending.
+  data. Verified by a warning-free desktop build, deliberate source review and
+  a focused sort and location UI smoke test.
+- **BUG-122 — maximum-size filtering includes packs with unknown sizes (Low,
+  fixed):** Browse now excludes a pack with missing download-size metadata when
+  a maximum size is selected. The unrestricted **Any size** setting continues
+  to show legacy packs without that metadata. Covered by the shared catalog
+  query regression.
 
 ## Summary
 | Severity | Open | Fixed |
@@ -568,8 +573,8 @@ boundaries were fixed before work continued on application-state defects.
 | Critical | 0 | 3 |
 | High     | 0 | 40 |
 | Medium   | 0 | 58 |
-| Low      | 0 | 20 |
-| **Total**| **0** | **121** |
+| Low      | 0 | 21 |
+| **Total**| **0** | **122** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |
