@@ -574,6 +574,10 @@ boundaries were fixed before work continued on application-state defects.
   a maximum size is selected. The unrestricted **Any size** setting continues
   to show legacy packs without that metadata. Covered by the shared catalog
   query regression.
+- **BUG-123 — mod exclusion can be enabled without a mod term (Low, fixed):**
+  Browse now keeps **Exclude** unavailable until **Has mod** contains a value
+  and clears the option when that value is removed. The reset count therefore
+  cannot disagree with a checked control that has no effect.
 
 ## Summary
 | Severity | Open | Fixed |
@@ -581,8 +585,8 @@ boundaries were fixed before work continued on application-state defects.
 | Critical | 0 | 3 |
 | High     | 0 | 40 |
 | Medium   | 0 | 58 |
-| Low      | 0 | 21 |
-| **Total**| **0** | **122** |
+| Low      | 0 | 22 |
+| **Total**| **0** | **123** |
 
 ## Status table
 | BUG | Sev | Area | Title | Status | Files to change | Fix | Why / PR | Verified |

@@ -160,6 +160,14 @@ public sealed partial class MainWindow : Window
         RefreshNexusStatus();
     }
     private void OnPackTextFilterChanged(object? sender, TextChangedEventArgs e) => ApplyPackFilters();
+    private void OnPackModFilterChanged(object? sender, TextChangedEventArgs e)
+    {
+        var hasTerm = !string.IsNullOrWhiteSpace(_modFilter.Text);
+        _excludeMod.IsEnabled = hasTerm;
+        if (!hasTerm)
+            _excludeMod.IsChecked = false;
+        ApplyPackFilters();
+    }
     private void OnPackCheckFilterChanged(object? sender, RoutedEventArgs e) => ApplyPackFilters();
     private void OnPackSizeFilterChanged(object? sender, RangeBaseValueChangedEventArgs e) => ApplyPackFilters();
     private void OnPackSortChanged(object? sender, SelectionChangedEventArgs e) => ApplyPackFilters();

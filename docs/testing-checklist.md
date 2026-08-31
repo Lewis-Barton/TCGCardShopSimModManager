@@ -174,6 +174,9 @@ unit test already covers it, **[manual]** where it needs a real environment.
 - [ ] **[manual]** **Reset view** is disabled with the default Browse settings.
       Changing filters or sorting should enable it and show the number of active
       criteria; resetting should restore curated order and disable the action.
+- [ ] **[manual]** The mod **Exclude** option is disabled until **Has mod** has
+      a value. Clearing that value should also clear and disable **Exclude**
+      without changing the other active criteria.
 - [x] **[manual]** Sort Browse by curated order, most recent update, name and
       download size. Packs with no date or size should remain at the end of the
       corresponding sorted view, and Reset should restore curated order.

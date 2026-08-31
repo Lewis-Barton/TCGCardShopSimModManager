@@ -75,10 +75,11 @@
                   <Grid ColumnDefinitions="*,Auto">
                     <TextBlock FontWeight="SemiBold" Text="Has mod" />
                     <CheckBox Grid.Column="1" x:Name="_excludeMod" Content="Exclude"
-                              IsCheckedChanged="OnPackCheckFilterChanged" />
+                              IsEnabled="False" IsCheckedChanged="OnPackCheckFilterChanged"
+                              ToolTip.Tip="Enter a mod name or id before excluding matches." />
                   </Grid>
                   <TextBox x:Name="_modFilter" Watermark="Mod name or id"
-                           TextChanged="OnPackTextFilterChanged" />
+                           TextChanged="OnPackModFilterChanged" />
                 </StackPanel>
 
                 <StackPanel Spacing="6">
