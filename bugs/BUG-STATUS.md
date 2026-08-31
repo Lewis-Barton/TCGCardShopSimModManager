@@ -182,6 +182,10 @@ and testing found the following additional issues, now fixed:
   the distinct tags published by the current catalog in alphabetical order
   instead of requiring users to guess hidden free-text values. Refresh retains
   a selected tag while it remains available, and Reset restores **Any tag**.
+- **FEATURE-013 — Browse reports active view criteria:** the reset action now
+  includes both filtering and sorting, shows how many criteria differ from the
+  default view and remains disabled when there is nothing to reset. Reset
+  restores the curated, unrestricted SFW catalog view.
 
 ## 2026-08-17 red-team review
 

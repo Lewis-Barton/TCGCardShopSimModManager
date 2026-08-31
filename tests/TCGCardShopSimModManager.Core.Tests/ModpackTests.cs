@@ -124,6 +124,22 @@ public sealed class ModpackSummaryTests
             ModpackCatalogOrdering.AvailableTags(packs));
     }
 
+    [Fact]
+    public void CatalogFilter_CountsActiveCriteria()
+    {
+        Assert.Equal(0, new ModpackCatalogFilter().ActiveCriteriaCount);
+        Assert.Equal(7, new ModpackCatalogFilter(
+            Search: "pack",
+            IncludeNonFeatured: false,
+            IncludeNsfw: true,
+            MaxDownloadSize: 100,
+            Mod: "tracker",
+            ExcludeMod: true,
+            Tag: "cards",
+            InstalledOnly: true).ActiveCriteriaCount);
+        Assert.Equal(0, new ModpackCatalogFilter(Mod: " ", ExcludeMod: true).ActiveCriteriaCount);
+    }
+
     private static ModpackSummary Pack(string id, string name, string? updated, long? size) =>
         new(id, name, "desc", "logo.png", "manifest.json", "1.0.0", updated,
             DownloadSize: size);

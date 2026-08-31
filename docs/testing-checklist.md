@@ -161,7 +161,7 @@ unit test already covers it, **[manual]** where it needs a real environment.
       cards should wrap without overlapping or clipping.
 - [x] **[manual]** Search and each Browse filter update the card grid, Reset
       restores the full catalog, and clicking a card opens its details.
-- [ ] **[manual]** The Browse tag selector lists each catalog tag once in
+- [x] **[manual]** The Browse tag selector lists each catalog tag once in
       alphabetical order. Select a tag, refresh the catalog and confirm the
       selection remains when the tag still exists; Reset should restore
       **Any tag**.
@@ -171,6 +171,9 @@ unit test already covers it, **[manual]** where it needs a real environment.
 - [ ] **[manual]** Enter a Browse search or filter combination with no matches.
       The gallery should show a clear empty-result message, and Reset should
       restore the cards.
+- [ ] **[manual]** **Reset view** is disabled with the default Browse settings.
+      Changing filters or sorting should enable it and show the number of active
+      criteria; resetting should restore curated order and disable the action.
 - [x] **[manual]** Sort Browse by curated order, most recent update, name and
       download size. Packs with no date or size should remain at the end of the
       corresponding sorted view, and Reset should restore curated order.

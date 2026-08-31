@@ -485,6 +485,11 @@ public sealed partial class MainWindow : Window
             filter,
             _installedPacks.Select(pack => pack.PackId),
             (ModpackSortOrder)Math.Max(0, _packSort.SelectedIndex));
+        var activeCriteria = filter.ActiveCriteriaCount + (_packSort.SelectedIndex > 0 ? 1 : 0);
+        _resetPackView.Content = activeCriteria == 0
+            ? "Reset view"
+            : $"Reset view ({activeCriteria})";
+        _resetPackView.IsEnabled = activeCriteria > 0;
 
         _packsPanel.Children.Clear();
         foreach (var pack in visible)

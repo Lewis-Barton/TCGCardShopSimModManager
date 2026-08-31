@@ -63,7 +63,17 @@ public sealed record ModpackCatalogFilter(
     string? Mod = null,
     bool ExcludeMod = false,
     string? Tag = null,
-    bool InstalledOnly = false);
+    bool InstalledOnly = false)
+{
+    public int ActiveCriteriaCount =>
+        (string.IsNullOrWhiteSpace(Search) ? 0 : 1) +
+        (IncludeNonFeatured ? 0 : 1) +
+        (IncludeNsfw ? 1 : 0) +
+        (MaxDownloadSize is null ? 0 : 1) +
+        (string.IsNullOrWhiteSpace(Mod) ? 0 : 1) +
+        (string.IsNullOrWhiteSpace(Tag) ? 0 : 1) +
+        (InstalledOnly ? 1 : 0);
+}
 
 public static class ModpackCatalogOrdering
 {

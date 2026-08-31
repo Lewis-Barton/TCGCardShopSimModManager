@@ -89,7 +89,8 @@
 
                 <CheckBox x:Name="_installedOnly" Content="Installed modpacks only"
                           IsCheckedChanged="OnPackCheckFilterChanged" />
-                <Button Content="Reset filters" Classes="secondary" Click="OnResetFiltersClick" />
+                <Button x:Name="_resetPackView" Content="Reset view" Classes="secondary"
+                        IsEnabled="False" Click="OnResetFiltersClick" />
               </StackPanel>
             </ScrollViewer>
           </Border>
