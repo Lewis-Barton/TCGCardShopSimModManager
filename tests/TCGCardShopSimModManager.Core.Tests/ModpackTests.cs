@@ -109,6 +109,21 @@ public sealed class ModpackSummaryTests
             pack => pack.Id == "unknown-size");
     }
 
+    [Fact]
+    public void CatalogOrdering_ListsDistinctAvailableTagsAlphabetically()
+    {
+        var packs = new[]
+        {
+            Pack("one", "One", null, null) with { Tags = ["Pokemon", " cards ", ""] },
+            Pack("two", "Two", null, null) with { Tags = ["pokemon", "Overhaul"] },
+            Pack("three", "Three", null, null)
+        };
+
+        Assert.Equal(
+            new[] { "cards", "Overhaul", "Pokemon" },
+            ModpackCatalogOrdering.AvailableTags(packs));
+    }
+
     private static ModpackSummary Pack(string id, string name, string? updated, long? size) =>
         new(id, name, "desc", "logo.png", "manifest.json", "1.0.0", updated,
             DownloadSize: size);

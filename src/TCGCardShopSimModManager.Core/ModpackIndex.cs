@@ -67,6 +67,14 @@ public sealed record ModpackCatalogFilter(
 
 public static class ModpackCatalogOrdering
 {
+    public static IReadOnlyList<string> AvailableTags(IEnumerable<ModpackSummary> packs) => packs
+        .SelectMany(pack => pack.Tags ?? [])
+        .Where(tag => !string.IsNullOrWhiteSpace(tag))
+        .Select(tag => tag.Trim())
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .OrderBy(tag => tag, StringComparer.OrdinalIgnoreCase)
+        .ToList();
+
     public static IReadOnlyList<ModpackSummary> FilterAndSort(
         IEnumerable<ModpackSummary> packs,
         ModpackCatalogFilter filter,

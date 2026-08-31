@@ -178,6 +178,10 @@ and testing found the following additional issues, now fixed:
   a clear message in the gallery when no modpacks match the combined filters.
   Catalog filtering and sorting run through one Core query with regression
   coverage for text, tags, mod inclusion, NSFW, featured and installed states.
+- **FEATURE-012 — Browse exposes its available tags:** the tag filter now lists
+  the distinct tags published by the current catalog in alphabetical order
+  instead of requiring users to guess hidden free-text values. Refresh retains
+  a selected tag while it remains available, and Reset restores **Any tag**.
 
 ## 2026-08-17 red-team review
 

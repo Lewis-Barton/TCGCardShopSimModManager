@@ -161,6 +161,10 @@ unit test already covers it, **[manual]** where it needs a real environment.
       cards should wrap without overlapping or clipping.
 - [x] **[manual]** Search and each Browse filter update the card grid, Reset
       restores the full catalog, and clicking a card opens its details.
+- [ ] **[manual]** The Browse tag selector lists each catalog tag once in
+      alphabetical order. Select a tag, refresh the catalog and confirm the
+      selection remains when the tag still exists; Reset should restore
+      **Any tag**.
 - [x] **[auto]** A maximum download size excludes packs above the limit and
       packs without size metadata, while **Any size** retains legacy entries
       (`CatalogOrdering_FiltersCatalogBeforeSorting`).

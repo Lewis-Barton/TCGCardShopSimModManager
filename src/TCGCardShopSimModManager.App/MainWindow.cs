@@ -75,6 +75,8 @@ public sealed partial class MainWindow : Window
             "Largest download"
         };
         _packSort.SelectedIndex = 0;
+        _tagFilter.ItemsSource = new[] { "Any tag" };
+        _tagFilter.SelectedIndex = 0;
         InitializeAppearanceSettings();
         Closed += (_, _) => DisposeWindowResources();
 
@@ -161,6 +163,7 @@ public sealed partial class MainWindow : Window
     private void OnPackCheckFilterChanged(object? sender, RoutedEventArgs e) => ApplyPackFilters();
     private void OnPackSizeFilterChanged(object? sender, RangeBaseValueChangedEventArgs e) => ApplyPackFilters();
     private void OnPackSortChanged(object? sender, SelectionChangedEventArgs e) => ApplyPackFilters();
+    private void OnPackTagFilterChanged(object? sender, SelectionChangedEventArgs e) => ApplyPackFilters();
     private void OnInstalledModFilterChanged(object? sender, TextChangedEventArgs e) => ApplyInstalledModFilters();
     private void OnInstalledModStateFilterChanged(object? sender, SelectionChangedEventArgs e) => ApplyInstalledModFilters();
     private void OnInstalledModSortChanged(object? sender, SelectionChangedEventArgs e) => ApplyInstalledModFilters();
@@ -189,7 +192,7 @@ public sealed partial class MainWindow : Window
     {
         _packSearch.Text = string.Empty;
         _modFilter.Text = string.Empty;
-        _tagFilter.Text = string.Empty;
+        _tagFilter.SelectedIndex = 0;
         _includeNonFeatured.IsChecked = true;
         _includeAdult.IsChecked = false;
         _installedOnly.IsChecked = false;
@@ -360,6 +363,7 @@ public sealed partial class MainWindow : Window
                     {
                         _installedPacks = new List<InstalledModpack>();
                     }
+                    RefreshTagFilterChoices();
                     ApplyPackFilters();
                     _packStatus.Text =
                         $"{_packs.Count} modpack(s) available. Checking GitHub for updates...";
@@ -374,6 +378,7 @@ public sealed partial class MainWindow : Window
             var index = await _packReader.FetchIndexAsync();
             _packs = index.Packs;
             _usingCachedPackIndex = _packReader.LastFetchUsedCache;
+            RefreshTagFilterChoices();
 
             // BUG-008: loading the installed-packs journal must not abort gallery
             // rendering. Isolate it so a corrupt/unreadable journal only suppresses
@@ -473,7 +478,7 @@ public sealed partial class MainWindow : Window
             maxBytes,
             _modFilter.Text,
             _excludeMod.IsChecked == true,
-            _tagFilter.Text,
+            _tagFilter.SelectedIndex > 0 ? _tagFilter.SelectedItem?.ToString() : null,
             _installedOnly.IsChecked == true);
         var visible = ModpackCatalogOrdering.FilterAndSort(
             _packs,
@@ -505,6 +510,20 @@ public sealed partial class MainWindow : Window
             1 => $"Installed: {_installedPacks[0].Name} · version {_installedPacks[0].PackVersion}",
             _ => $"Installed: {string.Join(", ", _installedPacks.Select(pack => $"{pack.Name} {pack.PackVersion}"))}"
         };
+    }
+
+    private void RefreshTagFilterChoices()
+    {
+        var selected = _tagFilter.SelectedIndex > 0
+            ? _tagFilter.SelectedItem?.ToString()
+            : null;
+        var tags = ModpackCatalogOrdering.AvailableTags(_packs);
+        var choices = new[] { "Any tag" }.Concat(tags).ToList();
+        _tagFilter.ItemsSource = choices;
+        _tagFilter.SelectedIndex = selected is null
+            ? 0
+            : Math.Max(0, choices.FindIndex(tag =>
+                tag.Equals(selected, StringComparison.OrdinalIgnoreCase)));
     }
 
     private Border BuildPackCard(ModpackSummary pack, bool updateAvailable)
